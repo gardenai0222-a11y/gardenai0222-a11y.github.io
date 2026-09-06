@@ -1,6 +1,6 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-09-06 09:12",
+  "updated_at": "2026-09-06 16:45",
   "total": 665,
   "tenders": [
     {
