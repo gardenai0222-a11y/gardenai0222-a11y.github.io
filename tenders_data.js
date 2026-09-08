@@ -1,8 +1,73 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-09-08 09:17",
-  "total": 647,
+  "updated_at": "2026-09-08 16:57",
+  "total": 625,
   "tenders": [
+    {
+      "id": "syes1150801",
+      "name": "屏東縣新園國小115年度新建無障礙電梯工程 委託規劃、設計暨監造技術服務",
+      "org": "屏東縣新園鄉新園國民小學",
+      "county": "屏東縣",
+      "category": "design",
+      "budget": 400000,
+      "deadline": "115/09/15",
+      "publish_date": "115/09/09",
+      "transmissions": "第 02 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjA0NTg="
+    },
+    {
+      "id": "1150915",
+      "name": "彰化百年農倉青農創生計畫委託規劃設計暨監造技術服務",
+      "org": "彰化市農會",
+      "county": "彰化縣",
+      "category": "design",
+      "budget": 1700000,
+      "deadline": "115/09/16",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTg0Mjc="
+    },
+    {
+      "id": "wfjh-11508",
+      "name": "115年職業試探與體驗示範中心-醫護群教室整修工程委託規劃設計監造技術服務案",
+      "org": "臺中市立霧峰國民中學",
+      "county": "臺中市",
+      "category": "design",
+      "budget": 174725,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ2MjA="
+    },
+    {
+      "id": "CHYTEST1150708",
+      "name": "南校區二期基礎工程委託設計暨監造技術服務案(含大水保計畫及簽證)",
+      "org": "國立清華大學",
+      "county": "全國",
+      "category": "sign",
+      "budget": 7376361,
+      "deadline": "115/09/16",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDg0ODY="
+    },
+    {
+      "id": "A3W260151",
+      "name": "「高雄港港務消防大隊隊本部暨高雄港隊及所屬分隊辦公廳舍興建工程」規劃設計及監造工作委託技術服務",
+      "org": "臺灣港務股份有限公司高雄港務分公司",
+      "county": "高雄市",
+      "category": "design",
+      "budget": 31586100,
+      "deadline": "115/09/18",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEyNTI4OTA="
+    },
     {
       "id": "11509A",
       "name": "115年度活動中心室內球場地坪修整工程委託規劃、設計及監造技術服務勞務採購",
@@ -379,19 +444,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjA1Nzg="
-    },
-    {
-      "id": "syes1150801",
-      "name": "屏東縣新園國小115年度新建無障礙電梯工程 委託規劃、設計暨監造技術服務",
-      "org": "屏東縣新園鄉新園國民小學",
-      "county": "屏東縣",
-      "category": "design",
-      "budget": 400000,
-      "deadline": "115/09/15",
-      "publish_date": "115/09/07",
-      "transmissions": "第 02 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjA0NTg="
     },
     {
       "id": "1150000020",
@@ -1018,19 +1070,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTg0MzQ="
     },
     {
-      "id": "1150915",
-      "name": "彰化百年農倉青農創生計畫委託規劃設計暨監造技術服務",
-      "org": "彰化市農會",
-      "county": "彰化縣",
-      "category": "design",
-      "budget": 1700000,
-      "deadline": "115/09/16",
-      "publish_date": "115/09/04",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTg0Mjc="
-    },
-    {
       "id": "11530815",
       "name": "柳營科技工業區暨環保園區管研大樓、育成中心及國際會議廳修繕委託設計技術服務",
       "org": "臺南市政府環境保護局",
@@ -1239,58 +1278,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTgxMTA="
     },
     {
-      "id": "TAJEN115-05",
-      "name": "115年度屏東親子館委託規劃設計暨統包裝修工程",
-      "org": "大仁科技大學",
-      "county": "屏東縣",
-      "category": "design",
-      "budget": 12204228,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/04",
-      "transmissions": "第 02 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTgwOTQ="
-    },
-    {
-      "id": "mleps1150820",
-      "name": "明廉國小汙水接管工程委託設計監造",
-      "org": "花蓮縣花蓮市明廉國民小學",
-      "county": "花蓮縣",
-      "category": "design",
-      "budget": 724000,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/04",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDY5MjY="
-    },
-    {
-      "id": "11508171C",
-      "name": "南投縣魚池鄉新城村活動中心增建工程-規劃設計監造案",
-      "org": "南投縣魚池鄉公所",
-      "county": "全國",
-      "category": "design",
-      "budget": 1001520,
-      "deadline": "115/09/23",
-      "publish_date": "115/09/04",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc5OTk="
-    },
-    {
-      "id": "1150902",
-      "name": "115年度原住民族地區部落聯絡道路養護經費分配及執行計畫-獅潭鄉圳頭聯絡道路邊坡改善工程(委託設計及監造)",
-      "org": "苗栗縣獅潭鄉公所",
-      "county": "全國",
-      "category": "design",
-      "budget": 151870,
-      "deadline": "115/09/09",
-      "publish_date": "115/09/04",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc5NTY="
-    },
-    {
       "id": "NRJH-SWCPS",
       "name": "南榮國中排水設施改善工程-辦理簡易水土保持計畫申報、水土保持工程監造、開工及竣工申報等委託技術服務案",
       "org": "基隆市立南榮國民中學",
@@ -1354,6 +1341,45 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "經公開評選或公開徵求之限制性招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTg2NjU="
+    },
+    {
+      "id": "mleps1150820",
+      "name": "明廉國小汙水接管工程委託設計監造",
+      "org": "花蓮縣花蓮市明廉國民小學",
+      "county": "花蓮縣",
+      "category": "design",
+      "budget": 724000,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/04",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDY5MjY="
+    },
+    {
+      "id": "11508171C",
+      "name": "南投縣魚池鄉新城村活動中心增建工程-規劃設計監造案",
+      "org": "南投縣魚池鄉公所",
+      "county": "全國",
+      "category": "design",
+      "budget": 1001520,
+      "deadline": "115/09/23",
+      "publish_date": "115/09/04",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc5OTk="
+    },
+    {
+      "id": "1150902",
+      "name": "115年度原住民族地區部落聯絡道路養護經費分配及執行計畫-獅潭鄉圳頭聯絡道路邊坡改善工程(委託設計及監造)",
+      "org": "苗栗縣獅潭鄉公所",
+      "county": "全國",
+      "category": "design",
+      "budget": 151870,
+      "deadline": "115/09/09",
+      "publish_date": "115/09/04",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc5NTY="
     },
     {
       "id": "88289",
@@ -1471,58 +1497,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 03 次",
       "tender_way": "經公開評選或公開徵求之限制性招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY5Mzk="
-    },
-    {
-      "id": "1150821",
-      "name": "115年度屏東縣九如國民中學感恩樓新建無障礙電梯委託規劃設計暨監造技術服務案",
-      "org": "屏東縣立九如國民中學",
-      "county": "屏東縣",
-      "category": "design",
-      "budget": 500000,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/04",
-      "transmissions": "第 02 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU5MTQ="
-    },
-    {
-      "id": "1150917A",
-      "name": "115年度新北市林口區林口工一市地重劃開發工程共同管道升級第一期統包工程委託監造",
-      "org": "新北市政府採購處",
-      "county": "新北市",
-      "category": "design",
-      "budget": 1700000,
-      "deadline": "115/09/17",
-      "publish_date": "115/09/04",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU1ODA="
-    },
-    {
-      "id": "115051",
-      "name": "雲林縣斗南鎮公設民營托嬰中心工程委託設計監造技術服務",
-      "org": "雲林縣斗南鎮公所",
-      "county": "雲林縣",
-      "category": "design",
-      "budget": 2013558,
-      "deadline": "115/09/15",
-      "publish_date": "115/09/04",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ4Mjk="
-    },
-    {
-      "id": "115-19",
-      "name": "臺2線瑞芳段深澳路至蝙蝠洞公園自行車道闢建工程委託設計監造技術服務",
-      "org": "新北市瑞芳區公所",
-      "county": "新北市",
-      "category": "design",
-      "budget": 3651612,
-      "deadline": "115/09/11",
-      "publish_date": "115/09/04",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ1ODk="
     },
     {
       "id": "ATS115-02",
@@ -1655,6 +1629,45 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc0NDM="
     },
     {
+      "id": "1150821",
+      "name": "115年度屏東縣九如國民中學感恩樓新建無障礙電梯委託規劃設計暨監造技術服務案",
+      "org": "屏東縣立九如國民中學",
+      "county": "屏東縣",
+      "category": "design",
+      "budget": 500000,
+      "deadline": "115/09/08",
+      "publish_date": "115/09/04",
+      "transmissions": "第 02 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU5MTQ="
+    },
+    {
+      "id": "115051",
+      "name": "雲林縣斗南鎮公設民營托嬰中心工程委託設計監造技術服務",
+      "org": "雲林縣斗南鎮公所",
+      "county": "雲林縣",
+      "category": "design",
+      "budget": 2013558,
+      "deadline": "115/09/15",
+      "publish_date": "115/09/04",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ4Mjk="
+    },
+    {
+      "id": "115-19",
+      "name": "臺2線瑞芳段深澳路至蝙蝠洞公園自行車道闢建工程委託設計監造技術服務",
+      "org": "新北市瑞芳區公所",
+      "county": "新北市",
+      "category": "design",
+      "budget": 3651612,
+      "deadline": "115/09/11",
+      "publish_date": "115/09/04",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ1ODk="
+    },
+    {
       "id": "115C002",
       "name": "變更大湖都市計畫（第四次通盤檢討）委託技術服務",
       "org": "苗栗縣大湖鄉公所",
@@ -1731,19 +1744,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTczOTY="
-    },
-    {
-      "id": "A2S260771",
-      "name": "『臺中港國際港灣地標暨門戶意象營造計畫』委託技術服務勞務採購",
-      "org": "臺灣港務股份有限公司臺中港務分公司",
-      "county": "臺中市",
-      "category": "design",
-      "budget": 900000,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/03",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTczNDY="
     },
     {
       "id": "AGB11526",
@@ -2058,32 +2058,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY0Nzg="
     },
     {
-      "id": "115T2-18",
-      "name": "116年度壽山國家自然公園設施維護暨零星改善工程(開口契約)委託設計監造技術服務案",
-      "org": "內政部國家公園署國家自然公園管理處",
-      "county": "全國",
-      "category": "design",
-      "budget": 1029643,
-      "deadline": "115/09/16",
-      "publish_date": "115/09/02",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTYyNTQ="
-    },
-    {
-      "id": "115-20",
-      "name": "116年度新北市瑞芳區道路附屬、水利設施委託設計監造技術服務(開口合約)",
-      "org": "新北市瑞芳區公所",
-      "county": "新北市",
-      "category": "design",
-      "budget": 3315462,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/02",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTYxNzg="
-    },
-    {
       "id": "11532",
       "name": "115年度全災害防救應變整備強化方案專案管理勞務委託服務採購案",
       "org": "嘉義市政府消防局",
@@ -2279,6 +2253,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDExMTk="
     },
     {
+      "id": "TAJEN115-05",
+      "name": "115年度屏東親子館委託規劃設計暨統包裝修工程",
+      "org": "大仁科技大學",
+      "county": "屏東縣",
+      "category": "design",
+      "budget": 12204228,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/04",
+      "transmissions": "第 02 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTgwOTQ="
+    },
+    {
       "id": "KKSH11516",
       "name": "體育館廁所修繕美化計畫委託規劃設計及監造服務案",
       "org": "國立中山大學附屬國光高級中學",
@@ -2342,19 +2329,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 02 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU4NjY="
-    },
-    {
-      "id": "wfjh-11508",
-      "name": "115年職業試探與體驗示範中心-醫護群教室整修工程委託規劃設計監造技術服務案",
-      "org": "臺中市立霧峰國民中學",
-      "county": "臺中市",
-      "category": "design",
-      "budget": 174725,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/02",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ2MjA="
     },
     {
       "id": "naes1150106",
@@ -2604,19 +2578,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDE0MDM="
     },
     {
-      "id": "A3W260151",
-      "name": "「高雄港港務消防大隊隊本部暨高雄港隊及所屬分隊辦公廳舍興建工程」規劃設計及監造工作委託技術服務",
-      "org": "臺灣港務股份有限公司高雄港務分公司",
-      "county": "高雄市",
-      "category": "design",
-      "budget": 31586100,
-      "deadline": "115/09/18",
-      "publish_date": "115/08/31",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEyNTI4OTA="
-    },
-    {
       "id": "1150922A",
       "name": "115年新北市行人友善區規劃設計",
       "org": "新北市政府採購處",
@@ -2734,19 +2695,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTE5MDI="
     },
     {
-      "id": "L0214P2188T",
-      "name": "重點橋梁行車安全提昇計畫-縱貫線田鶴溪橋改建工程(委託測量、鑽探、規劃設計及監造部份)",
-      "org": "國營臺灣鐵路股份有限公司",
-      "county": "全國",
-      "category": "design",
-      "budget": 48865000,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/27",
-      "transmissions": "第 04 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTEzNzk="
-    },
-    {
       "id": "cfm1150830",
       "name": "「114年度公立國民中小學老舊廁所整修工程計畫-一期校舍A棟」委託規劃設計監造",
       "org": "高雄市立前峰國民中學",
@@ -2771,32 +2719,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "經公開評選或公開徵求之限制性招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDk2Nzc="
-    },
-    {
-      "id": "1150908",
-      "name": "臺南巿永信國民小學永信樓老舊廁所整修工程委託規劃設計監造勞務採購案",
-      "org": "臺南市永康區永信國民小學",
-      "county": "臺南市",
-      "category": "design",
-      "budget": 600000,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/26",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTAyMzE="
-    },
-    {
-      "id": "CH11532202",
-      "name": "花蓮縣歷史建築安通溫泉旅舍修復規劃設計(含因應計畫)",
-      "org": "花蓮縣文化局",
-      "county": "花蓮縣",
-      "category": "design",
-      "budget": 2000000,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/26",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDk4ODQ="
     },
     {
       "id": "115HG35900887900800",
@@ -2914,6 +2836,32 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "經公開評選或公開徵求之限制性招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDE0NjA="
+    },
+    {
+      "id": "Pr11502",
+      "name": "115至117年度園區安全防災設施維護工程委託規劃設計及監造案(開口契約)",
+      "org": "內政部國家公園署太魯閣國家公園管理處",
+      "county": "全國",
+      "category": "design",
+      "budget": 9900000,
+      "deadline": "115/09/15",
+      "publish_date": "115/08/12",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEyOTk2ODg="
+    },
+    {
+      "id": "115009",
+      "name": "115至116年度大鵬灣設施改善工程委託規劃設計、監造技術服務案",
+      "org": "交通部觀光署大鵬灣國家風景區管理處",
+      "county": "全國",
+      "category": "design",
+      "budget": 9025000,
+      "deadline": "115/09/10",
+      "publish_date": "115/08/11",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEyOTgxMDc="
     },
     {
       "id": "115-014-ER-0",
@@ -3085,19 +3033,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTI3Mjk="
     },
     {
-      "id": "1150615SC011",
-      "name": "臺北市文山區景豐二區社會住宅新建工程委託耐震特別監督技術服務案",
-      "org": "臺北市政府工務局",
-      "county": "臺北市",
-      "category": "design",
-      "budget": 6254300,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/24",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDg3MTI="
-    },
-    {
       "id": "HLD1141001",
       "name": "【臺灣花蓮地方法院民事庭（含花蓮簡易庭）暨國民法官法庭院區耐震補強、檔案室暨院區環境整修工程採購案】",
       "org": "臺灣花蓮地方法院",
@@ -3109,6 +3044,19 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEyNzE1Njc="
+    },
+    {
+      "id": "15L02",
+      "name": "115年度高雄市國小遊戲器材認證及檢驗委託服務",
+      "org": "高雄市新興區信義國民小學",
+      "county": "高雄市",
+      "category": "design",
+      "budget": 9750000,
+      "deadline": "115/09/22",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3NjY="
     },
     {
       "id": "1151669",
@@ -3148,19 +3096,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE4NDQ="
-    },
-    {
-      "id": "15L02",
-      "name": "115年度高雄市國小遊戲器材認證及檢驗委託服務",
-      "org": "高雄市新興區信義國民小學",
-      "county": "高雄市",
-      "category": "design",
-      "budget": 9750000,
-      "deadline": "115/09/22",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3NjY="
     },
     {
       "id": "D51155066",
@@ -4164,19 +4099,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc0MTM="
     },
     {
-      "id": "11506CA014",
-      "name": "115年度高雄市旗山、內門等地區道路及附屬設施緊急搶修及經常性養護工程(開口契約)(第二標)",
-      "org": "高雄市政府工務局道路養護工程處",
-      "county": "高雄市",
-      "category": "work",
-      "budget": 3000000,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/03",
-      "transmissions": "第 02 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY3NzY="
-    },
-    {
       "id": "115173",
       "name": "「2026高雄漾藝術博覽會藝術家、策展團隊與評審委員住宿旅店」開口契約勞務採購案",
       "org": "高雄市政府文化局",
@@ -4411,19 +4333,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDgyOTg="
     },
     {
-      "id": "115-02-100",
-      "name": "115年第一學期踏溯台南課程戶外踏查遊覽車租賃壹式(開口契約)",
-      "org": "國立成功大學",
-      "county": "臺南市",
-      "category": "work",
-      "budget": 265200,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/01",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ0MDU="
-    },
-    {
       "id": "LHC1560003",
       "name": "115年度台南供氣中心轄區管線巡管工作",
       "org": "台灣中油股份有限公司",
@@ -4435,19 +4344,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 02 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTMxNjM="
-    },
-    {
-      "id": "WA-115-0601-11",
-      "name": "115年台南所東安南及北區用戶用水設備新(改)裝工作勞務採購",
-      "org": "台灣自來水股份有限公司第六區管理處",
-      "county": "臺南市",
-      "category": "work",
-      "budget": 9348165,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/21",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDU2NjA="
     },
     {
       "id": "DHA1550002",
@@ -4463,6 +4359,32 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDYyNjU="
     },
     {
+      "id": "PPDC-115-0902",
+      "name": "「115年度屏東縣適應運動輔具財物採購案」",
+      "org": "屏東縣體育發展中心",
+      "county": "屏東縣",
+      "category": "work",
+      "budget": 0,
+      "deadline": "115/09/18",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjEzMjU="
+    },
+    {
+      "id": "1150811",
+      "name": "屏東縣立中正國民中學行政大樓西側廁所整修工程",
+      "org": "屏東縣立中正國民中學",
+      "county": "屏東縣",
+      "category": "work",
+      "budget": 5483732,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 02 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU0NjQ="
+    },
+    {
       "id": "PPDC-115-0810",
       "name": "屏東縣運動輔具資源整合暨活動報名全方位服務系統勞務採購案",
       "org": "屏東縣體育發展中心",
@@ -4476,19 +4398,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE5Njg="
     },
     {
-      "id": "chhps1150907",
-      "name": "屏東縣潮州鎮潮和國民小學114學年度六年級校外教學活動採購",
-      "org": "屏東縣潮州鎮潮和國民小學",
-      "county": "屏東縣",
-      "category": "work",
-      "budget": 690200,
-      "deadline": "115/09/15",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE1Mjk="
-    },
-    {
       "id": "115C11",
       "name": "屏東縣115年度公所暨防災協作中心TTX及HSEEP講習、核心課程暨基礎課程與種子教官培訓考核計畫",
       "org": "屏東縣政府消防局",
@@ -4500,19 +4409,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "經公開評選或公開徵求之限制性招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE0Nzg="
-    },
-    {
-      "id": "PPDC-115-0902",
-      "name": "「115年度屏東縣適應運動輔具財物採購案」",
-      "org": "屏東縣體育發展中心",
-      "county": "屏東縣",
-      "category": "work",
-      "budget": 0,
-      "deadline": "115/09/18",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjEzMjU="
     },
     {
       "id": "11511",
@@ -4617,19 +4513,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY0NjE="
-    },
-    {
-      "id": "1150811",
-      "name": "屏東縣立中正國民中學行政大樓西側廁所整修工程",
-      "org": "屏東縣立中正國民中學",
-      "county": "屏東縣",
-      "category": "work",
-      "budget": 5483732,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/07",
-      "transmissions": "第 02 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU0NjQ="
     },
     {
       "id": "SCPS1150902",
@@ -4983,19 +4866,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ1NDM="
     },
     {
-      "id": "ggps0901",
-      "name": "屏東縣公館國小「114-116公立國民中小學老舊廁所整修工程」(北棟東側廁所)",
-      "org": "屏東縣屏東市公館國民小學",
-      "county": "屏東縣",
-      "category": "work",
-      "budget": 3749651,
-      "deadline": "115/09/15",
-      "publish_date": "115/09/02",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTYxMDM="
-    },
-    {
       "id": "FSPS1150901",
       "name": "屏東縣復興國小新棟二、三樓廁所整修工程",
       "org": "屏東縣屏東市復興國民小學",
@@ -5007,19 +4877,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTYwOTU="
-    },
-    {
-      "id": "HP-11504",
-      "name": "屏東縣和平國民小學115學年度一至五年級校外教學參觀活動勞務採購案",
-      "org": "屏東縣屏東市和平國民小學",
-      "county": "屏東縣",
-      "category": "work",
-      "budget": 297120,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/02",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU5MTY="
     },
     {
       "id": "C1150821-1",
@@ -5256,6 +5113,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDYzMDU="
     },
     {
+      "id": "11507",
+      "name": "文開國小增設幼兒園集中式特教班工程",
+      "org": "彰化縣鹿港鎮文開國民小學",
+      "county": "彰化縣",
+      "category": "work",
+      "budget": 950181,
+      "deadline": "115/09/15",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE5MDA="
+    },
+    {
       "id": "SL1150803",
       "name": "室內籃球場地板整修工程",
       "org": "國立水里高級商工職業學校",
@@ -5269,6 +5139,162 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjEzMzA="
     },
     {
+      "id": "115C14143",
+      "name": "福園三期納骨樓地下室防水閘門工程",
+      "org": "宜蘭縣立殯葬管理所",
+      "county": "宜蘭縣",
+      "category": "work",
+      "budget": 561531,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得電子報價單",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTkyOTg="
+    },
+    {
+      "id": "115-011",
+      "name": "基隆市安樂區新西里民活動中心禮堂舞台改善工程",
+      "org": "基隆市安樂區公所",
+      "county": "全國",
+      "category": "work",
+      "budget": 584093,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTkxNzU="
+    },
+    {
+      "id": "1150805",
+      "name": "會議室與集哺乳室空間改善工程",
+      "org": "農業部桃園區農業改良場",
+      "county": "桃園市",
+      "category": "work",
+      "budget": 1251751,
+      "deadline": "115/09/18",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTg1MTc="
+    },
+    {
+      "id": "1150804",
+      "name": "無障礙廁所排水及設施改善工程",
+      "org": "農業部桃園區農業改良場",
+      "county": "桃園市",
+      "category": "work",
+      "budget": 701395,
+      "deadline": "115/09/18",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTgzMTY="
+    },
+    {
+      "id": "1150903",
+      "name": "校舍油漆粉刷工程",
+      "org": "苗栗縣頭份市頭份國民小學",
+      "county": "全國",
+      "category": "work",
+      "budget": 5029619,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTgzMDk="
+    },
+    {
+      "id": "115RA-06-001",
+      "name": "苑裡鎮山腳生態公園木棧道修繕及周邊景觀綠美化改善工程",
+      "org": "農業部農村發展及水土保持署臺中分署",
+      "county": "臺中市",
+      "category": "work",
+      "budget": 3521095,
+      "deadline": "115/09/15",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc3Mjg="
+    },
+    {
+      "id": "115-ADE-40-2-030",
+      "name": "和平區雙崎段932地號旁坑溝整治工程",
+      "org": "農業部農村發展及水土保持署臺中分署",
+      "county": "臺中市",
+      "category": "work",
+      "budget": 6987000,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc2ODE="
+    },
+    {
+      "id": "1154E034",
+      "name": "蘇澳鎮市區省道台9線周邊路網幹道交通工程改善委託服務工作",
+      "org": "交通部公路局東區養護工程分局",
+      "county": "全國",
+      "category": "design",
+      "budget": 1494465,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTc1NDA="
+    },
+    {
+      "id": "115A41",
+      "name": "115年度和平區吊橋修建改善工程-和平區三民吊橋(白冷吊橋)整修工程",
+      "org": "臺中市和平區公所",
+      "county": "臺中市",
+      "category": "work",
+      "budget": 17789000,
+      "deadline": "115/09/15",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTcwNzg="
+    },
+    {
+      "id": "1211570003",
+      "name": "新營區營業處Danas-F-02-01-7-新營區營業處(營擴516)台19線防災地下化管路工程",
+      "org": "台灣電力股份有限公司新營區營業處",
+      "county": "臺南市",
+      "category": "work",
+      "budget": 150000000,
+      "deadline": "115/09/23",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDQ3Mzg="
+    },
+    {
+      "id": "115HB80106660600120",
+      "name": "後勤輜重庫儲鋼棚整修工程",
+      "org": "國防部憲兵指揮部",
+      "county": "全國",
+      "category": "work",
+      "budget": 1994716,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 02 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY0MTU="
+    },
+    {
+      "id": "115304310403",
+      "name": "忠孝國小--115年教職員工宿舍改善工程",
+      "org": "臺東縣政府",
+      "county": "全國",
+      "category": "work",
+      "budget": 4057241,
+      "deadline": "115/09/17",
+      "publish_date": "115/09/09",
+      "transmissions": "第 02 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU4NDY="
+    },
+    {
       "id": "11508003",
       "name": "辦公室空調設備更新節能改善工程",
       "org": "財團法人大學入學考試中心基金會",
@@ -5280,6 +5306,19 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTM3ODA="
+    },
+    {
+      "id": "115FA02114030800110",
+      "name": "凌雲崗實距離(300公尺)靶場整修工程",
+      "org": "國防部陸軍司令部",
+      "county": "中央/陸軍",
+      "category": "work",
+      "budget": 13771876,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/09",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTM3MTg="
     },
     {
       "id": "1150922-1",
@@ -5815,19 +5854,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE5MDI="
     },
     {
-      "id": "11507",
-      "name": "文開國小增設幼兒園集中式特教班工程",
-      "org": "彰化縣鹿港鎮文開國民小學",
-      "county": "彰化縣",
-      "category": "work",
-      "budget": 950181,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE5MDA="
-    },
-    {
       "id": "115A156",
       "name": "奎輝里嘎色鬧6鄰聯外道路改善工程",
       "org": "桃園市復興區公所",
@@ -6205,214 +6231,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MjI="
     },
     {
-      "id": "1151A30019",
-      "name": "雲林縣斗六市自強街C幹線雨水下水道新建工程",
-      "org": "雲林縣政府",
-      "county": "雲林縣",
-      "category": "work",
-      "budget": 11503743,
-      "deadline": "115/09/22",
-      "publish_date": "115/09/08",
-      "transmissions": "第 03 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MzI="
-    },
-    {
-      "id": "115013",
-      "name": "115年度改善國民中小學校園環境-冷氣設置及局部電力改善工程採購案",
-      "org": "新竹縣立忠孝國民中學",
-      "county": "新竹縣/市",
-      "category": "work",
-      "budget": 1776693,
-      "deadline": "115/09/21",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MjA="
-    },
-    {
-      "id": "11509",
-      "name": "至美樓老舊廁所整修工程",
-      "org": "新北市立尖山國民中學",
-      "county": "新北市",
-      "category": "work",
-      "budget": 3954023,
-      "deadline": "115/09/18",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MzE="
-    },
-    {
-      "id": "115090701",
-      "name": "115 年度新市區植栽改善及環境維護改善工程(開口契約)",
-      "org": "臺南市新市區公所",
-      "county": "臺南市",
-      "category": "work",
-      "budget": 3255567,
-      "deadline": "115/09/21",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MzA="
-    },
-    {
-      "id": "DTC11507",
-      "name": "仁愛樓後側地坪整建工程",
-      "org": "新北市樹林區大同國民小學",
-      "county": "新北市",
-      "category": "work",
-      "budget": 1886085,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/08",
-      "transmissions": "第 03 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MTY="
-    },
-    {
-      "id": "11509032A",
-      "name": "魚池鄉第九公墓納骨堂無障礙設施改善工程",
-      "org": "南投縣魚池鄉公所",
-      "county": "全國",
-      "category": "work",
-      "budget": 627000,
-      "deadline": "115/09/16",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MDE="
-    },
-    {
-      "id": "115045",
-      "name": "雲林縣斗南鎮崙仔公墓殯儀館興建工程",
-      "org": "雲林縣斗南鎮公所",
-      "county": "雲林縣",
-      "category": "work",
-      "budget": 42242166,
-      "deadline": "115/09/23",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MTM="
-    },
-    {
-      "id": "1150907",
-      "name": "「115年度第1階段改善原住民族地區及原住民重點學校無障礙校園環境計畫」工程採購",
-      "org": "國立暨南國際大學附屬高級中學",
-      "county": "全國",
-      "category": "work",
-      "budget": 600015,
-      "deadline": "115/09/15",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MTE="
-    },
-    {
-      "id": "1150906521A",
-      "name": "埔里鎮福興里投-007土石流特定水土保持區福大橋至二號橋河道整理工程",
-      "org": "南投縣政府",
-      "county": "全國",
-      "category": "work",
-      "budget": 1804425,
-      "deadline": "115/09/21",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE3MDg="
-    },
-    {
-      "id": "115T054",
-      "name": "115年度桃源區水質水量農路改善工程",
-      "org": "高雄市桃源區公所",
-      "county": "高雄市",
-      "category": "work",
-      "budget": 1762909,
-      "deadline": "115/09/24",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE2NzI="
-    },
-    {
-      "id": "ML115A053",
-      "name": "(115)竹圍圳等緊急搶險搶修工程開口契約",
-      "org": "農業部農田水利署",
-      "county": "全國",
-      "category": "work",
-      "budget": 5000000,
-      "deadline": "115/09/23",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE2Nzc="
-    },
-    {
-      "id": "NO115032",
-      "name": "山上區南洲里130號之19旁排水改善工程",
-      "org": "臺南市山上區公所",
-      "county": "臺南市",
-      "category": "work",
-      "budget": 799902,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE2Njg="
-    },
-    {
-      "id": "11509-57",
-      "name": "客家圓樓屋頂災後復建工程",
-      "org": "苗栗縣政府文化觀光局",
-      "county": "全國",
-      "category": "work",
-      "budget": 928000,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE2NzA="
-    },
-    {
-      "id": "1151A1F18",
-      "name": "台62甲線三號隧道風機設備汰換更新工程",
-      "org": "交通部公路局北區養護工程分局",
-      "county": "全國",
-      "category": "work",
-      "budget": 18875358,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/08",
-      "transmissions": "第 03 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE2NjM="
-    },
-    {
-      "id": "1150907-J1",
-      "name": "蘆竹區海湖排水幹線3K+721~3k+835治理工程",
-      "org": "桃園市政府水務局",
-      "county": "桃園市",
-      "category": "work",
-      "budget": 16305533,
-      "deadline": "115/09/18",
-      "publish_date": "115/09/08",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE2NjU="
-    },
-    {
-      "id": "1150817",
-      "name": "重寮國小115年度改善無障礙校園環境經費工程",
-      "org": "嘉義縣鹿草鄉重寮國民小學",
-      "county": "嘉義縣/市",
-      "category": "work",
-      "budget": 277813,
-      "deadline": "115/09/14",
-      "publish_date": "115/09/08",
-      "transmissions": "第 03 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjE2NTY="
-    },
-    {
       "id": "6751053310",
       "name": "興達電廠燃氣機組更新改建計畫廠區永久道路排水工程",
       "org": "台灣電力股份有限公司核能火力發電工程處南部施工處",
@@ -6502,32 +6320,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY0NTE="
-    },
-    {
-      "id": "1152B0101009",
-      "name": "台1線第三溪州橋改建工程",
-      "org": "交通部公路局中區養護工程分局",
-      "county": "全國",
-      "category": "work",
-      "budget": 84150000,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/03",
-      "transmissions": "第 02 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY3NTc="
-    },
-    {
-      "id": "1152B0103010",
-      "name": "台3線員林一橋改建工程",
-      "org": "交通部公路局中區養護工程分局",
-      "county": "全國",
-      "category": "work",
-      "budget": 62100000,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/03",
-      "transmissions": "第 02 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY1MjY="
     },
     {
       "id": "CN115SC0303b",
@@ -6762,19 +6554,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEyNjk0MTc="
-    },
-    {
-      "id": "111508032",
-      "name": "臺南市安定區南133線(國道8號北側至港口社區前)拓寬工程",
-      "org": "臺南市政府工務局",
-      "county": "臺南市",
-      "category": "work",
-      "budget": 36368000,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/27",
-      "transmissions": "第 02 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTA5MzM="
     },
     {
       "id": "115-052-063-131",
@@ -7180,19 +6959,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ4ODE="
     },
     {
-      "id": "115048",
-      "name": "Danas-H-01-07-4-114鹿谷鄉竹林村羊灣巷上邊坡掏空災修復建工程",
-      "org": "南投縣鹿谷鄉公所",
-      "county": "全國",
-      "category": "work",
-      "budget": 765000,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/01",
-      "transmissions": "第 02 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQ4NjQ="
-    },
-    {
       "id": "1150420SC009",
       "name": "臺北市歷史建築「中山國民小學（原宮前公學校）校舍」修復再利用計畫工程委託設計監造勞務採購案",
       "org": "臺北市政府工務局",
@@ -7269,19 +7035,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTIzMDU="
-    },
-    {
-      "id": "115-108",
-      "name": "台1線108K~113K挖掘路面擇要修復工程",
-      "org": "交通部公路局中區養護工程分局",
-      "county": "全國",
-      "category": "work",
-      "budget": 46043036,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/28",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTIyMzA="
     },
     {
       "id": "2251500026",
@@ -7440,6 +7193,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY5MDA="
     },
     {
+      "id": "115-20",
+      "name": "116年度新北市瑞芳區道路附屬、水利設施委託設計監造技術服務(開口合約)",
+      "org": "新北市瑞芳區公所",
+      "county": "新北市",
+      "category": "design",
+      "budget": 3315462,
+      "deadline": "115/09/14",
+      "publish_date": "115/09/02",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTYxNzg="
+    },
+    {
       "id": "115e703772",
       "name": "115年園區水利建造物維護更新與修繕",
       "org": "國家科學及技術委員會中部科學園區管理局",
@@ -7451,19 +7217,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTM0NTA="
-    },
-    {
-      "id": "1150014293",
-      "name": "芳苑鄉草湖排水、八洲排水及漁港六路水利設施改善工程",
-      "org": "彰化縣芳苑鄉公所",
-      "county": "彰化縣",
-      "category": "work",
-      "budget": 2326774,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/26",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDk5NzA="
     },
     {
       "id": "B1150633",
@@ -7512,7 +7265,7 @@ window.TENDERS_DATA = {
       "category": "design",
       "budget": 7770000,
       "deadline": "115/09/18",
-      "publish_date": "115/09/08",
+      "publish_date": "115/09/09",
       "transmissions": "第 03 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjA1OTA="
@@ -7973,19 +7726,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTgzMTI="
     },
     {
-      "id": "11150801",
-      "name": "臺南市安南區安西公園增設沙坑工程",
-      "org": "臺南市政府工務局",
-      "county": "臺南市",
-      "category": "work",
-      "budget": 1765385,
-      "deadline": "115/09/08",
-      "publish_date": "115/09/02",
-      "transmissions": "第 02 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTU5NjM="
-    },
-    {
       "id": "11150707",
       "name": "臺南市政府消防局第七救災救護大隊及德興分隊辦公廳舍新建工程",
       "org": "臺南市政府工務局",
@@ -8023,32 +7763,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTM0NDE="
-    },
-    {
-      "id": "21150803",
-      "name": "臺南市公有土方暫置場監督服務計畫",
-      "org": "臺南市政府工務局",
-      "county": "臺南市",
-      "category": "work",
-      "budget": 2100000,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/26",
-      "transmissions": "第 02 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTA4MzU="
-    },
-    {
-      "id": "11150802",
-      "name": "忠義路(公園南路至民族路)、民權路二段(公園路至西門路)及民族路二段(北門路至赤崁東街)道路改善工程",
-      "org": "臺南市政府工務局",
-      "county": "臺南市",
-      "category": "work",
-      "budget": 22913000,
-      "deadline": "115/09/08",
-      "publish_date": "115/08/26",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTA3Njg="
     },
     {
       "id": "115-ADE-50-4-001",
