@@ -1,6 +1,6 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-09-12 09:22",
+  "updated_at": "2026-09-12 16:43",
   "total": 671,
   "tenders": [
     {
@@ -5412,6 +5412,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjMzOTg="
     },
     {
+      "id": "SHES20260825",
+      "name": "115年度善化國小附設幼兒園充實及改善教學環境設施設備工程",
+      "org": "臺南市善化區善化國民小學",
+      "county": "臺南市",
+      "category": "work",
+      "budget": 851027,
+      "deadline": "115/09/15",
+      "publish_date": "115/09/14",
+      "transmissions": "第 02 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjI2NDg="
+    },
+    {
       "id": "1150115A",
       "name": "夏林路180巷暨三官路7巷等路面改善工程",
       "org": "臺南市南區區公所",
@@ -6398,19 +6411,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 02 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjU1NTY="
-    },
-    {
-      "id": "TC115010",
-      "name": "柴油客車展示區建置工程",
-      "org": "宜蘭縣頭城鎮公所",
-      "county": "宜蘭縣",
-      "category": "work",
-      "budget": 1866885,
-      "deadline": "115/09/16",
-      "publish_date": "115/09/11",
-      "transmissions": "第 03 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjU1NTU="
     },
     {
       "id": "6541551031",
