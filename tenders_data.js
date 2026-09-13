@@ -1,6 +1,6 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-09-13 09:17",
+  "updated_at": "2026-09-13 17:38",
   "total": 671,
   "tenders": [
     {
@@ -7895,6 +7895,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQxODM="
     },
     {
+      "id": "115D120P023",
+      "name": "南分局服務區閉路電視(CCTV)增設汰換採購(115)",
+      "org": "交通部高速公路局南區養護工程分局",
+      "county": "南台灣",
+      "category": "work",
+      "budget": 35506296,
+      "deadline": "115/09/24",
+      "publish_date": "115/09/15",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTA4ODI="
+    },
+    {
       "id": "1155024336",
       "name": "116年度台88線快速公路伸縮縫與橋面排水設施清疏及路面維護工作",
       "org": "交通部公路局南區養護工程分局",
@@ -8062,19 +8075,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 02 次",
       "tender_way": "經公開評選或公開徵求之限制性招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMDUyNTk="
-    },
-    {
-      "id": "115D120P023",
-      "name": "南分局服務區閉路電視(CCTV)增設汰換採購(115)",
-      "org": "交通部高速公路局南區養護工程分局",
-      "county": "南台灣",
-      "category": "work",
-      "budget": 35506296,
-      "deadline": "115/09/24",
-      "publish_date": "115/08/26",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTA4ODI="
     },
     {
       "id": "115-KPRW-L09",
