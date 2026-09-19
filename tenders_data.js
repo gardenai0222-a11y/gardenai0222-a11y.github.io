@@ -1,7 +1,7 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-09-18 17:06",
-  "total": 684,
+  "updated_at": "2026-09-19 09:23",
+  "total": 683,
   "tenders": [
     {
       "id": "115090202",
@@ -2955,6 +2955,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTI3Mjk="
     },
     {
+      "id": "1155024749",
+      "name": "116年度西部地區(高雄段、潮州段、甲仙段、鳳屏段)24小時輪班監控業務工作",
+      "org": "交通部公路局南區養護工程分局",
+      "county": "高雄市",
+      "category": "work",
+      "budget": 14891073,
+      "deadline": "115/09/30",
+      "publish_date": "115/09/22",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTM3OTk="
+    },
+    {
       "id": "1150903",
       "name": "115年高雄市大樹區農特產美食推廣行銷暨水資源宣導計畫",
       "org": "高雄市大樹區公所",
@@ -3759,19 +3772,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 04 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjM3NDc="
-    },
-    {
-      "id": "1155024749",
-      "name": "116年度西部地區(高雄段、潮州段、甲仙段、鳳屏段)24小時輪班監控業務工作",
-      "org": "交通部公路局南區養護工程分局",
-      "county": "高雄市",
-      "category": "work",
-      "budget": 14891073,
-      "deadline": "115/09/22",
-      "publish_date": "115/09/10",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTM3OTk="
     },
     {
       "id": "B1150832",
@@ -6608,19 +6608,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEyNzY5ODY="
     },
     {
-      "id": "1150105001F",
-      "name": "南投殯儀館第三期改建工程先期作業委託技術服務",
-      "org": "南投縣政府",
-      "county": "全國",
-      "category": "design",
-      "budget": 7000000,
-      "deadline": "115/09/18",
-      "publish_date": "115/09/04",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTgzOTk="
-    },
-    {
       "id": "L0214P2195S",
       "name": "北迴線崇德路段新設明隧道、橋梁改建暨崇德車站等改善委託設計及監造",
       "org": "國營臺灣鐵路股份有限公司",
@@ -7817,6 +7804,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTQxODM="
     },
     {
+      "id": "1155025240",
+      "name": "116年度東部地區（楓港段、大武段、關山段及臺東段）24小時輪班監控業務工作",
+      "org": "交通部公路局南區養護工程分局",
+      "county": "南台灣",
+      "category": "work",
+      "budget": 14214206,
+      "deadline": "115/09/29",
+      "publish_date": "115/09/22",
+      "transmissions": "第 01 次",
+      "tender_way": "經公開評選或公開徵求之限制性招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY0NDE="
+    },
+    {
       "id": "115090077",
       "name": "新營段116年築路機械作業委外施作",
       "org": "交通部公路局雲嘉南區養護工程分局",
@@ -8023,19 +8023,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTA4ODI="
-    },
-    {
-      "id": "1155025240",
-      "name": "116年度東部地區（楓港段、大武段、關山段及臺東段）24小時輪班監控業務工作",
-      "org": "交通部公路局南區養護工程分局",
-      "county": "南台灣",
-      "category": "work",
-      "budget": 14214206,
-      "deadline": "115/09/29",
-      "publish_date": "115/09/14",
-      "transmissions": "第 01 次",
-      "tender_way": "經公開評選或公開徵求之限制性招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTY0NDE="
     },
     {
       "id": "1155020922",
