@@ -1,7 +1,7 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-09-24 17:25",
-  "total": 663,
+  "updated_at": "2026-09-25 09:43",
+  "total": 662,
   "tenders": [
     {
       "id": "115-TS-1-1-03",
@@ -7165,19 +7165,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjY5Mzk="
-    },
-    {
-      "id": "1140508D003A",
-      "name": "Danas-H-01-07-4-中寮鄉福盛村二尖農路災修復建工程等4件",
-      "org": "南投縣政府",
-      "county": "全國",
-      "category": "work",
-      "budget": 29633079,
-      "deadline": "115/09/24",
-      "publish_date": "115/09/14",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjYxMDU="
     },
     {
       "id": "115B003",
