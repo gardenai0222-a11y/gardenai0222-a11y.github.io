@@ -1,6 +1,6 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-09-25 17:42",
+  "updated_at": "2026-09-26 09:48",
   "total": 662,
   "tenders": [
     {
@@ -4983,6 +4983,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMTk3MTY="
     },
     {
+      "id": "L115094901c",
+      "name": "縣定古蹟「羅東鎮聖母醫院耶穌聖心堂」緊急修復工程",
+      "org": "宜蘭縣政府文化局",
+      "county": "宜蘭縣",
+      "category": "work",
+      "budget": 848025,
+      "deadline": "115/10/05",
+      "publish_date": "115/09/30",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMzY1NzM="
+    },
+    {
       "id": "dsp1150901",
       "name": "偏遠地區學校及非山非市學校設施設備計畫工程案。",
       "org": "高雄市大樹區大樹國民小學",
@@ -5787,19 +5800,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 02 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMzY1ODU="
-    },
-    {
-      "id": "L115094901c",
-      "name": "縣定古蹟「羅東鎮聖母醫院耶穌聖心堂」緊急修復工程",
-      "org": "宜蘭縣政府文化局",
-      "county": "宜蘭縣",
-      "category": "work",
-      "budget": 848025,
-      "deadline": "115/10/05",
-      "publish_date": "115/09/24",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMzY1NzM="
     },
     {
       "id": "115054",
