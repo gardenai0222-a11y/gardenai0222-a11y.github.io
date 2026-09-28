@@ -1,6 +1,6 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-09-28 09:51",
+  "updated_at": "2026-09-28 19:06",
   "total": 662,
   "tenders": [
     {
@@ -4996,6 +4996,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMzY1NzM="
     },
     {
+      "id": "ELVS1150701",
+      "name": "活動中心屋頂防水工程",
+      "org": "國立二林高級工商職業學校",
+      "county": "全國",
+      "category": "work",
+      "budget": 3538564,
+      "deadline": "115/10/02",
+      "publish_date": "115/09/30",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjY3Nzk="
+    },
+    {
       "id": "dsp1150901",
       "name": "偏遠地區學校及非山非市學校設施設備計畫工程案。",
       "org": "高雄市大樹區大樹國民小學",
@@ -6073,19 +6086,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 03 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMzY1MTE="
-    },
-    {
-      "id": "CY1154-010",
-      "name": "將軍道及校內停車場整建工程",
-      "org": "國立勤益科技大學",
-      "county": "全國",
-      "category": "work",
-      "budget": 43020000,
-      "deadline": "115/10/02",
-      "publish_date": "115/09/24",
-      "transmissions": "第 02 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMzY1MDM="
     },
     {
       "id": "4951570010",
