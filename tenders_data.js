@@ -1,6 +1,6 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-10-02 18:37",
+  "updated_at": "2026-10-03 10:12",
   "total": 686,
   "tenders": [
     {
@@ -1296,9 +1296,9 @@ window.TENDERS_DATA = {
       "org": "國立臺北科技大學附屬桃園農工高級中等學校",
       "county": "桃園市",
       "category": "design",
-      "budget": 800001,
-      "deadline": "115/10/08",
-      "publish_date": "115/10/02",
+      "budget": 801000,
+      "deadline": "115/10/14",
+      "publish_date": "115/10/05",
       "transmissions": "第 01 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDIxMzg="
