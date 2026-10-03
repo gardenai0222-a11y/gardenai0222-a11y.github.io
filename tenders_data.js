@@ -1,8 +1,21 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-10-03 10:12",
-  "total": 686,
+  "updated_at": "2026-10-03 17:58",
+  "total": 687,
   "tenders": [
+    {
+      "id": "1151001",
+      "name": "115年度幼兒園改善及充實教學環境設施設備委託設計監造服務採購案",
+      "org": "臺中市石岡區土牛國民小學",
+      "county": "臺中市",
+      "category": "design",
+      "budget": 263092,
+      "deadline": "115/10/07",
+      "publish_date": "115/10/05",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDE1MDA="
+    },
     {
       "id": "ZAS11507",
       "name": "復興分班運動場跑道整建工程委託規畫設計監造技術服務採購案",
@@ -301,19 +314,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "經公開評選或公開徵求之限制性招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDE1MTk="
-    },
-    {
-      "id": "1151001",
-      "name": "115年度幼兒園改善及充實教學環境設施設備委託設計監造服務採購案",
-      "org": "臺中市石岡區土牛國民小學",
-      "county": "臺中市",
-      "category": "design",
-      "budget": 263092,
-      "deadline": "115/10/06",
-      "publish_date": "115/10/02",
-      "transmissions": "第 01 次",
-      "tender_way": "公開取得報價單或企劃書",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDE1MDA="
     },
     {
       "id": "11509A049",
@@ -5020,6 +5020,19 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "經公開評選或公開徵求之限制性招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjIzOTQ="
+    },
+    {
+      "id": "STAT115-0918",
+      "name": "統計所大樓中棟頂樓防水隔熱統包工程案",
+      "org": "中央研究院",
+      "county": "全國",
+      "category": "work",
+      "budget": 2775000,
+      "deadline": "115/10/12",
+      "publish_date": "115/10/06",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDAxNjg="
     },
     {
       "id": "PY11513",
