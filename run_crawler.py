@@ -44,7 +44,6 @@ TODAY_STR = now_tw.strftime('%Y-%m-%d')
 TIME_STR = now_tw.strftime('%Y-%m-%d %H:%M')
 
 EXCEL_OUTPUT_PATH = os.path.join(BASE_DIR, "tenders_today.xlsx")
-EXCEL_LATEST_PATH = os.path.join(BASE_DIR, "今日政府電子採購網.xlsx")
 JS_OUTPUT_PATH = os.path.join(BASE_DIR, "tenders_data.js")
 
 # 建立具備 CookieJar 與連線池的 Session
@@ -303,7 +302,6 @@ ws2 = wb.create_sheet(title="🏗️ 工程施工標")
 write_sheet(ws2, "NOVERA 全國公共工程標案 — 施工與統包工程類", fill_navy, pure_work)
 
 wb.save(EXCEL_OUTPUT_PATH)
-wb.save(EXCEL_LATEST_PATH)
 
 # 產出 tenders_data.js
 def map_category(title, nature):

@@ -662,20 +662,36 @@ window.printRainReport = function() {
     printWin.document.close();
 };
 
-// 全域剪貼簿複製模組 (支援 Clipboard API 與 execCommand 雙重降級保護)
+// 全域剪貼簿複製模組 (支援 Clipboard API 與 execCommand 雙重降級保護，優先使用 SweetAlert2 美化提示)
 window.copyText = function(text, successMsg = '已成功複製到剪貼簿！') {
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => {
+    const showNotify = () => {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: '複製成功！',
+                text: successMsg,
+                confirmButtonColor: '#C27803',
+                timer: 2500,
+                showConfirmButton: false
+            });
+        } else {
             alert(successMsg);
-        }).catch(() => {
-            fallbackCopy(text, successMsg);
+        }
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(showNotify).catch(() => {
+            fallbackCopy(text, successMsg, showNotify);
         });
     } else {
-        fallbackCopy(text, successMsg);
+        fallbackCopy(text, successMsg, showNotify);
     }
 };
 
-function fallbackCopy(text, successMsg) {
+window.copyAccount = function(acc) {
+    window.copyText(acc, '國泰世華銀行帳號 ' + acc + ' 已成功複製！感謝您的贊助支持！');
+};
+
+function fallbackCopy(text, successMsg, callback) {
     const textarea = document.createElement('textarea');
     textarea.value = text;
     textarea.style.position = 'fixed';
@@ -685,7 +701,7 @@ function fallbackCopy(text, successMsg) {
     textarea.select();
     try {
         document.execCommand('copy');
-        alert(successMsg);
+        if (callback) callback(); else alert(successMsg);
     } catch (err) {
         prompt('請手動選取並複製以下文字：', text);
     }
@@ -739,102 +755,70 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ==========================================================================
-   NOVERA 全站安全防護核心
-   ========================================================================== */
-(function() {
-    // 1. 全站禁用右鍵選單 (輸入框保留正常右鍵以利貼上工程數據)
-    document.addEventListener('contextmenu', function(e) {
-        if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
-        e.preventDefault();
-    });
-
-    // 3. 禁用開發者工具與另存原始碼快速鍵 (F12, Ctrl+U, Ctrl+S, Ctrl+Shift+I/J/C)
-    document.addEventListener('keydown', function(e) {
-        // F12
-        if (e.key === 'F12' || e.keyCode === 123) {
-            e.preventDefault();
-            return false;
-        }
-        // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C (DevTools)
-        if (e.ctrlKey && e.shiftKey && (['I', 'J', 'C'].includes(e.key.toUpperCase()) || [73, 74, 67].includes(e.keyCode))) {
-            e.preventDefault();
-            return false;
-        }
-        // Ctrl+U (檢視原始碼)
-        if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.keyCode === 85)) {
-            e.preventDefault();
-            return false;
-        }
-        // Ctrl+S (另存網頁) - 僅在非輸入狀態下攔截
-        if (e.ctrlKey && (e.key.toUpperCase() === 'S' || e.keyCode === 83)) {
-            if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
-            e.preventDefault();
-            return false;
-        }
-    });
-})();
-
-/* ==========================================================================
    NOVERA 全站 Google AdSense Cookie 告知條 ＆ 隱私權政策控制器
    ========================================================================== */
 (function() {
     function initNoveraCookieSystem() {
-        // 若已有 Banner 則不重複建立
-        if (document.getElementById('noveraCookieBanner')) return;
+        let banner = document.getElementById('noveraCookieBanner');
 
-        // 1. 建立 Cookie 告知條 HTML
-        const banner = document.createElement('div');
-        banner.id = 'noveraCookieBanner';
-        banner.className = 'novera-cookie-banner';
-        banner.style.display = 'none';
-        banner.innerHTML = `
-            <div class="novera-cookie-text">
-                <i class="fas fa-cookie-bite" style="color: #F59E0B; margin-right: 6px;"></i>
-                <strong>Cookie 與第三方服務告知：</strong>本網站使用 Cookie 與 Google AdSense 廣告技術，以確保系統穩定運作、流量統計與內容推播。繼續瀏覽即代表您同意本站之 Cookie 應用政策。
-            </div>
-            <div class="novera-cookie-actions">
-                <button type="button" class="btn-novera-cookie-privacy" id="btnNoveraPrivacyOpen">隱私權條款</button>
-                <button type="button" class="btn-novera-cookie-accept" id="btnNoveraCookieAccept">同意並接受</button>
-            </div>
-        `;
-        document.body.appendChild(banner);
-
-        // 2. 建立隱私權彈窗 HTML
-        const modal = document.createElement('div');
-        modal.id = 'noveraPrivacyModal';
-        modal.className = 'legal-modal-overlay';
-        modal.innerHTML = `
-            <div class="legal-modal-card">
-                <div class="legal-modal-header">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <i class="fas fa-shield-halved" style="color: #F59E0B;"></i>
-                        <span style="font-weight:800; font-size:1.1rem;">NOVERA 隱私權政策 ＆ Google Cookie 使用聲明</span>
-                    </div>
-                    <button type="button" id="btnNoveraPrivacyClose" style="background:none; border:none; color:#94A3B8; font-size:1.4rem; cursor:pointer;">&times;</button>
+        // 1. 若頁面中尚未有靜態 Banner 則動態建立
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'noveraCookieBanner';
+            banner.className = 'novera-cookie-banner';
+            banner.style.display = 'none';
+            banner.innerHTML = `
+                <div class="novera-cookie-text">
+                    <i class="fas fa-cookie-bite" style="color: #F59E0B; margin-right: 6px;"></i>
+                    <strong>Cookie 與第三方服務告知：</strong>本網站使用 Cookie 與 Google AdSense 廣告技術，以確保系統穩定運作、流量統計與內容推播。繼續瀏覽即代表您同意本站之 Cookie 應用政策。
                 </div>
-                <div style="padding: 24px; overflow-y: auto; max-height: 70vh; color: #334155; font-size: 0.9rem; line-height: 1.7;">
-                    <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">一、個人資料蒐集與保護</h4>
-                    <p style="margin-bottom: 12px;">NOVERA 諾維拉工程顧問（下稱本網站）尊重並全力保護使用者的隱私權。所有工程計算機、鋼筋檢核與標案查詢均以保障使用者資料安全為原則進行運算。</p>
+                <div class="novera-cookie-actions">
+                    <button type="button" class="btn-novera-cookie-privacy" id="btnNoveraPrivacyOpen">隱私權條款</button>
+                    <button type="button" class="btn-novera-cookie-accept" id="btnNoveraCookieAccept">同意並接受</button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+        }
 
-                    <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">二、Google AdSense 廣告與第三方 Cookie 宣告</h4>
-                    <p style="margin-bottom: 8px;">本網站使用 Google AdSense 廣告服務（發布商 ID：<code>ca-pub-1157627714001948</code>）。Google 作為第三方廣告發布廠商，使用 Cookie（包括 DoubleClick DART Cookie）根據您造訪本網站及網際網路上其他網站的瀏覽歷程投放相關廣告。</p>
-                    <ul style="margin-left: 20px; margin-bottom: 12px;">
-                        <li>使用者得隨時造訪 <a href="https://www.google.com/settings/ads" target="_blank" style="color: #C27803; font-weight: 700;">Google 廣告設定</a> 關閉個人化廣告。</li>
-                        <li>若您不希望第三方供應商透過 Cookie 投放個人化廣告，亦可前往 <a href="https://www.aboutads.info" target="_blank" style="color: #C27803; font-weight: 700;">AboutAds.info</a> 選擇退出。</li>
-                    </ul>
+        // 2. 建立隱私權彈窗 HTML (若無則建立)
+        let modal = document.getElementById('noveraPrivacyModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'noveraPrivacyModal';
+            modal.className = 'legal-modal-overlay';
+            modal.innerHTML = `
+                <div class="legal-modal-card">
+                    <div class="legal-modal-header">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-shield-halved" style="color: #F59E0B;"></i>
+                            <span style="font-weight:800; font-size:1.1rem;">NOVERA 隱私權政策 ＆ Google Cookie 使用聲明</span>
+                        </div>
+                        <button type="button" id="btnNoveraPrivacyClose" style="background:none; border:none; color:#94A3B8; font-size:1.4rem; cursor:pointer;">&times;</button>
+                    </div>
+                    <div style="padding: 24px; overflow-y: auto; max-height: 70vh; color: #334155; font-size: 0.9rem; line-height: 1.7;">
+                        <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">一、個人資料蒐集與保護</h4>
+                        <p style="margin-bottom: 12px;">NOVERA 諾維拉工程顧問（下稱本網站）尊重並全力保護使用者的隱私權。所有工程計算機、鋼筋檢核與標案查詢均以保障使用者資料安全為原則進行運算。</p>
 
-                    <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">三、網站流量統計與效能優化</h4>
-                    <p style="margin-bottom: 12px;">本網站透過匿名化的數據分析工具，統計訪客停留時間、熱門工程工具與標案查詢熱度，以作為系統功能優化依據。</p>
+                        <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">二、Google AdSense 廣告與第三方 Cookie 宣告</h4>
+                        <p style="margin-bottom: 8px;">本網站使用 Google AdSense 廣告服務（發布商 ID：<code>ca-pub-1157627714001948</code>）。Google 作為第三方廣告發布廠商，使用 Cookie（包括 DoubleClick DART Cookie）根據您造訪本網站及網際網路上其他網站的瀏覽歷程投放相關廣告。</p>
+                        <ul style="margin-left: 20px; margin-bottom: 12px;">
+                            <li>使用者得隨時造訪 <a href="https://www.google.com/settings/ads" target="_blank" style="color: #C27803; font-weight: 700;">Google 廣告設定</a> 關閉個人化廣告。</li>
+                            <li>若您不希望第三方供應商透過 Cookie 投放個人化廣告，亦可前往 <a href="https://www.aboutads.info" target="_blank" style="color: #C27803; font-weight: 700;">AboutAds.info</a> 選擇退出。</li>
+                        </ul>
 
-                    <div style="text-align: right; margin-top: 20px;">
-                        <button type="button" id="btnNoveraPrivacyConfirm" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer;">
-                            我已了解並關閉
-                        </button>
+                        <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">三、網站流量統計與效能優化</h4>
+                        <p style="margin-bottom: 12px;">本網站透過匿名化的數據分析工具，統計訪客停留時間、熱門工程工具與標案查詢熱度，以作為系統功能優化依據。</p>
+
+                        <div style="text-align: right; margin-top: 20px;">
+                            <button type="button" id="btnNoveraPrivacyConfirm" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer;">
+                                我已了解並關閉
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+            `;
+            document.body.appendChild(modal);
+        }
 
         // 3. 事件綁定
         const consent = localStorage.getItem('novera_cookie_consent');
@@ -842,24 +826,28 @@ document.addEventListener('DOMContentLoaded', () => {
             banner.style.display = 'flex';
         }
 
-        document.getElementById('btnNoveraCookieAccept').addEventListener('click', () => {
-            localStorage.setItem('novera_cookie_consent', 'accepted');
-            banner.style.display = 'none';
-        });
+        const acceptBtn = document.getElementById('btnNoveraCookieAccept');
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', () => {
+                localStorage.setItem('novera_cookie_consent', 'accepted');
+                banner.style.display = 'none';
+            });
+        }
 
         const openModal = () => modal.classList.add('active');
         const closeModal = () => modal.classList.remove('active');
 
-        document.getElementById('btnNoveraPrivacyOpen').addEventListener('click', openModal);
-        document.getElementById('btnNoveraPrivacyClose').addEventListener('click', closeModal);
-        document.getElementById('btnNoveraPrivacyConfirm').addEventListener('click', closeModal);
+        const privBtn = document.getElementById('btnNoveraPrivacyOpen');
+        if (privBtn) privBtn.addEventListener('click', openModal);
+        const closeBtn = document.getElementById('btnNoveraPrivacyClose');
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        const confBtn = document.getElementById('btnNoveraPrivacyConfirm');
+        if (confBtn) confBtn.addEventListener('click', closeModal);
 
-        // 點擊遮罩關閉
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
         });
 
-        // 暴露全局開啟函數供頁尾連結呼叫
         window.openNoveraPrivacyModal = openModal;
     }
 
@@ -869,4 +857,71 @@ document.addEventListener('DOMContentLoaded', () => {
         initNoveraCookieSystem();
     }
 })();
+
+/* ==========================================================================
+   NOVERA 線上諮詢表單非同步送出 (FormSubmit AJAX 整合)
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    const contactForm = document.getElementById('novera-contact-form');
+    if (!contactForm) return;
+
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const submitBtn = document.getElementById('btn-submit-contact');
+        const originalText = submitBtn ? submitBtn.innerText : '送出諮詢表單';
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在傳送諮詢資料...';
+        }
+
+        const formData = new FormData(contactForm);
+        const formObject = {};
+        formData.forEach((value, key) => { formObject[key] = value; });
+
+        try {
+            const response = await fetch("https://formsubmit.co/ajax/gardenai0222@gmail.com", {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formObject)
+            });
+
+            if (response.ok) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '諮詢表單已成功送出！',
+                        text: '感謝您的委託！我們已收到您的工程需求，國家考試合格土木技師團隊將在 24 小時內與您聯繫對接。',
+                        confirmButtonColor: '#059669'
+                    });
+                } else {
+                    alert('諮詢表單已成功送出！感謝您的委託，技師團隊將儘速與您聯繫。');
+                }
+                contactForm.reset();
+            } else {
+                throw new Error('伺服器未正常回應');
+            }
+        } catch (error) {
+            console.error('表單送出異常:', error);
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '網路傳送未完成',
+                    html: '系統目前無法自動直連，請直接點擊 <a href="assets/line_contact_qr.jpg" target="_blank" style="color:#10B981;font-weight:bold;">【官方 LINE】</a> 或來信 <strong>gardenai0222@gmail.com</strong>，將有專人立即為您服務！',
+                    confirmButtonColor: '#059669'
+                });
+            } else {
+                alert('網路傳送未完成，請直接加官方 LINE 或來信 gardenai0222@gmail.com 與技師團隊聯繫！');
+            }
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        }
+    });
+});
 

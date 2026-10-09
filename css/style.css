@@ -231,9 +231,24 @@ h1, h2, h3, h4, h5, h6 {
 
 .logo {
     display: flex;
-    align-items: baseline;
-    gap: 8px;
+    align-items: center;
+    gap: 12px;
     text-decoration: none;
+    cursor: pointer;
+}
+
+.logo-img {
+    height: 42px;
+    width: auto;
+    max-height: 46px;
+    object-fit: contain;
+    border-radius: 6px;
+    display: block;
+    transition: transform 0.25s ease;
+}
+
+.logo:hover .logo-img {
+    transform: scale(1.05);
 }
 
 .logo-text {
@@ -248,6 +263,21 @@ h1, h2, h3, h4, h5, h6 {
     color: #C27803 !important;
     font-weight: 700 !important;
     letter-spacing: 1px;
+}
+
+@media (max-width: 480px) {
+    .logo {
+        gap: 8px;
+    }
+    .logo-img {
+        height: 34px;
+    }
+    .logo-text {
+        font-size: 1.35rem !important;
+    }
+    .logo-sub {
+        font-size: 0.72rem !important;
+    }
 }
 
 .nav-links {
@@ -1509,7 +1539,7 @@ h1, h2, h3, h4, h5, h6 {
 .page-sidebar,
 .ad-banner,
 .banner-group {
-    display: none !important;
+    display: none;
 }
 .page-main-content {
     width: 100% !important;
