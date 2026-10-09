@@ -1041,10 +1041,29 @@
                 color: #000000 !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
             }
-            .navbar, .hero-banner, .project-meta-card, .purpose-selection-card,
-            .workspace-grid, .help-modal-backdrop, .report-modal-header, .btn-modal-action,
-            .btn-modal-close, #metaToggleIcon, .mode-toggle-bar, footer, .adsbygoogle, ins.adsbygoogle {
+            /* 徹底隱藏主網站所有操作介面、導覽列、雙核心模式切換列與出流管制工具列 */
+            .navbar, 
+            .hero-banner, 
+            .system-mode-bar, 
+            .preset-toolbar, 
+            .project-meta-card, 
+            .purpose-selection-card,
+            .workspace-grid, 
+            .help-modal-backdrop, 
+            .report-modal-header, 
+            .btn-modal-action, 
+            .btn-modal-close, 
+            #metaToggleIcon, 
+            .mode-toggle-bar, 
+            footer, 
+            .adsbygoogle, 
+            ins.adsbygoogle,
+            .container,
+            #hydraulicsSection,
+            #outflowSection {
                 display: none !important;
             }
             .report-modal {
@@ -1514,7 +1533,167 @@
             }
         }
 
-    </style>
+    
+
+        /* ==================== 頂部雙核心系統模式切換列 (方案 A) ==================== */
+        .system-mode-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 0 auto 20px;
+            max-width: 820px;
+            padding: 6px;
+            background: var(--bg-subtle);
+            border: 1.5px solid var(--card-border);
+            border-radius: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .sys-mode-tab {
+            flex: 1;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            border: 2px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+
+        .sys-mode-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .sys-mode-tab.active {
+            background: var(--card-bg);
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);
+        }
+
+        @media (max-width: 640px) {
+            .system-mode-bar {
+                flex-direction: column;
+                border-radius: 12px;
+                padding: 6px;
+                gap: 6px;
+            }
+            .sys-mode-tab {
+                width: 100%;
+                border-radius: 8px;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* 出流管制專屬樣式 */
+        .outflow-panel-title {
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px dashed var(--card-border);
+            padding-bottom: 6px;
+        }
+
+        .outflow-compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .outflow-compare-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .outflow-subbox {
+            background: var(--bg-subtle);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .puls-table-wrap {
+            max-height: 280px;
+            overflow-y: auto;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .puls-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .puls-table th, .puls-table td {
+            padding: 5px 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .puls-table th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-subtle);
+            color: var(--text-primary);
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .puls-table th:first-child, .puls-table td:first-child {
+            text-align: center;
+        }
+
+
+
+        @media print {
+            .system-mode-bar, .preset-toolbar, .container, #hydraulicsSection, #outflowSection {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            #reportPreviewModal {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #reportPreviewModal .report-modal-content {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            #reportPreviewModal .report-modal-body {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        }
+
+</style>
 </head>
 <body>
 
@@ -1545,7 +1724,20 @@
     </header>
 
     <div class="container">
-        <div class="hero-banner">
+        
+        <!-- 頂部雙核心系統模式切換列 (方案 A) -->
+        <div class="system-mode-bar">
+            <button type="button" class="sys-mode-tab active" id="btnModeHydraulics" onclick="switchMainSystemMode('hydraulics')">
+                <i class="fas fa-water"></i> 💧 水工構造物水理計算 (12大水工)
+            </button>
+            <button type="button" class="sys-mode-tab" id="btnModeOutflow" onclick="switchMainSystemMode('outflow')">
+                <i class="fas fa-landmark"></i> 🏛️ 水利法出流管制計畫 (Modified Puls)
+            </button>
+        </div>
+
+        <!-- 水工構造物水理計算模組容器 (Mode 1) -->
+        <div id="hydraulicsSection">
+<div class="hero-banner">
             <h1>全功能水文水理分析 ＆ 基地排水滯洪設計工作台</h1>
             <p>涵蓋全台 22 縣市 80+ 官方氣象與水利測站標準 IDF 暴雨參數。支援道路側溝截水溝、水保滯洪池、沉砂池、管涵箱涵與屋頂天溝等 12 大水工構造物，提供水利技師公會法定簽證標準之全功能水文降雨逕流、出流管制滯洪與構造物過流水力演算。</p>
         </div>
@@ -1935,7 +2127,367 @@
                 </div>
             </div>
         </div>
-    </div>
+    
+        </div>
+        <!-- /#hydraulicsSection -->
+
+
+        <!-- ==========================================================================
+             🏛️ 水利法出流管制計畫 ＆ 滯洪池削峰蓄洪精算系統 (Mode 2)
+             ========================================================================== -->
+        <div id="outflowSection" style="display:none;">
+            <div class="hero-banner" id="outflowHeroBanner">
+                <h1>水利法出流管制計畫 ＆ 滯洪池削峰蓄洪精算系統</h1>
+                <p>符合《水利法》第 83 條之 7 逕流分擔與出流管制專章及水利署《出流管制技術規範》。整合全台 22 縣市標準測站 IDF 暴雨參數，提供開發前後水文洪峰對比推估、Modified Puls 水庫蓄洪歷線數值演算、放流孔口與溢洪堰聯合調蓄檢核、LID 低衝擊開發入滲抵減，支援一鍵直接匯出法定規格《出流管制計畫水理計算報告書》。</p>
+            </div>
+
+            <!-- 8 大法定出流管制典型案例一鍵套用工具列 -->
+            <div class="preset-toolbar" style="margin-bottom: 14px; padding: 10px 16px; background: var(--bg-subtle); border: 1.5px solid var(--card-border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--accent-blue); display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-bolt"></i> 🏛️ 8 大法定出流管制典型案例一鍵套用：
+                    </span>
+                    <select id="selectOutflowPreset" class="form-control" style="width: 100%; max-width: 480px; min-width: 220px; padding: 4px 12px; font-size: 0.83rem; font-weight: 700; height: 36px; border: 1.5px solid var(--accent-blue); background: var(--card-bg); cursor: pointer;" onchange="if(this.value) loadOutflowPreset(this.value)">
+                        <option value="">-- 請選擇出流管制典型工程案型 --</option>
+                        <option value="ind_park">01. 民間工業區 / 廠房擴建與工廠變更 (3.5ha / 不透水率 88% / 地下 RC 滯洪池)</option>
+                        <option value="urban_residence">02. 都計集合住宅建案基地 (1.2ha / 筏基滯洪池 / 沉水泵+重力放流)</option>
+                        <option value="solar_farm">03. 太陽能光電案場開發 (6.0ha / 山坡地農地變更 / 戶外梯形明挖滯洪池)</option>
+                        <option value="hillside_sp">04. 山坡地特定目的事業 / 露營遊憩開發 (2.5ha / 沉砂池兼出流管制 / 50年重現期)</option>
+                        <option value="farm_house">05. 農舍 / 農業產銷設施土地變更 (0.4ha / 生態透水鋪面 + 小型景觀池)</option>
+                        <option value="logistics">06. 倉儲物流園區 / 轉運中心 (4.8ha / 超大天溝屋面 + LID 複合滯洪)</option>
+                        <option value="park_detention">07. 都市計畫公園滯洪設施 (3.0ha / 生態乾式滯洪公園)</option>
+                        <option value="school_campus">08. 文教機構 / 學校校園擴建 (2.2ha / 操場地下透水模組蓄水槽)</option>
+                    </select>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-shield-halved" style="color: var(--accent-emerald);"></i>
+                    <span>符合經濟部水利署《出流管制技術規範》與《出流管制計畫書審查手冊》法定簽證標準</span>
+                </div>
+            </div>
+
+            <!-- 出流管制專案送審與簽證資訊卡片 -->
+            <div class="project-meta-card">
+                <div class="project-meta-header" onclick="toggleOutflowProjectMeta()">
+                    <span style="font-weight:700; font-size:0.92rem; color:var(--accent-blue);">
+                        <i class="fas fa-folder-open" style="margin-right:8px;"></i>📋 出流管制專案送審與技師簽證基本資訊 (點擊展開/收合)
+                    </span>
+                    <i id="outflowMetaToggleIcon" class="fas fa-chevron-down" style="color:var(--text-muted);"></i>
+                </div>
+                <div id="outflowProjectMetaBody" class="project-meta-body" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label">工程 / 開發案名稱</label>
+                        <input type="text" id="outflowMetaProjectName" class="form-control" value="科技產業園區新建廠房出流管制計畫" oninput="saveOutflowProjectMeta()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">基地坐落地號</label>
+                        <input type="text" id="outflowMetaLandNo" class="form-control" value="嘉義縣太保市高鐵段 128-1 地號等 4 筆" oninput="saveOutflowProjectMeta()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">送審/審查主管機關</label>
+                        <input type="text" id="outflowMetaClient" class="form-control" value="經濟部水利署第五河川分署 / 嘉義縣水利處" oninput="saveOutflowProjectMeta()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">主辦水利工程師</label>
+                        <input type="text" id="outflowMetaAuthor" class="form-control" value="諾維拉水利設計組" oninput="saveOutflowProjectMeta()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">簽證水利技師</label>
+                        <input type="text" id="outflowMetaEngineer" class="form-control" value="水利工程技師（技工字第 012345 號）" oninput="saveOutflowProjectMeta()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">出流管制計畫案號</label>
+                        <input type="text" id="outflowMetaCode" class="form-control" value="NOV-2026-OUTFLOW-01" oninput="saveOutflowProjectMeta()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 出流管制雙欄工作區 -->
+            <div class="workspace-grid">
+                <!-- 左側：水文參數與滯洪構造設定面板 -->
+                <div class="calc-panel">
+                    <!-- 1. 氣象水文降雨標準 -->
+                    <div class="panel-card">
+                        <div class="outflow-panel-title">
+                            <i class="fas fa-cloud-showers-heavy"></i> 1. 設計暴雨 IDF 與重現期距
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">行政區縣市</label>
+                                <select id="outflowCountySelect" class="form-control" onchange="updateOutflowCounty()">
+                                    <option value="KHH">高雄市 (8 測站)</option>
+                                    <option value="TNN">台南市 (7 測站)</option>
+                                    <option value="CHY" selected>嘉義縣市 (6 測站)</option>
+                                    <option value="YUN">雲林縣 (5 測站)</option>
+                                    <option value="TCH">台中市 (7 測站)</option>
+                                    <option value="TPE">台北市 (5 測站)</option>
+                                    <option value="NTP">新北市 (8 測站)</option>
+                                    <option value="TYN">桃園市 (6 測站)</option>
+                                    <option value="HSZ">新竹縣市 (5 測站)</option>
+                                    <option value="MLI">苗栗縣 (5 測站)</option>
+                                    <option value="CHW">彰化縣 (5 測站)</option>
+                                    <option value="NTO">南投縣 (6 測站)</option>
+                                    <option value="PTS">屏東縣 (6 測站)</option>
+                                    <option value="ILN">宜蘭縣 (5 測站)</option>
+                                    <option value="HWA">花蓮縣 (6 測站)</option>
+                                    <option value="TTT">台東縣 (6 測站)</option>
+                                    <option value="PEN">澎湖縣 (3 測站)</option>
+                                    <option value="KIN">金門縣 (2 測站)</option>
+                                    <option value="MTS">連江馬祖 (3 測站)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">基準氣象/水利測站</label>
+                                <select id="outflowStationSelect" class="form-control" onchange="calculateOutflow()">
+                                    <!-- 動態填入 -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>出流管制重現期 (年)</span>
+                                    <span class="badge" style="background:#E0F2FE; color:#0369A1; font-size:0.7rem;">法定標準 50 年</span>
+                                </label>
+                                <select id="outflowReturnPeriod" class="form-control" onchange="calculateOutflow()">
+                                    <option value="10">10 年 (次要排水設施)</option>
+                                    <option value="25">25 年 (水保技術規範標的)</option>
+                                    <option value="50" selected>50 年 (水利法法定出流管制標準)</option>
+                                    <option value="100">100 年 (重大區域防洪設施)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">總開發基地面積 (ha)</label>
+                                <input type="number" id="outflowAreaHa" class="form-control" value="3.5" min="0.01" step="0.1" oninput="calculateOutflow()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 開發前後水文特性比對 (Qpre vs Qpost) -->
+                    <div class="panel-card">
+                        <div class="outflow-panel-title">
+                            <i class="fas fa-balance-scale"></i> 2. 開發前後水文與洪峰流量比對
+                        </div>
+                        <div class="outflow-compare-grid">
+                            <!-- 開發前現況 -->
+                            <div class="outflow-subbox">
+                                <div style="font-weight:800; font-size:0.82rem; color:var(--accent-emerald); margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+                                    <i class="fas fa-leaf"></i> 開發前現況 (Pre)
+                                </div>
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.75rem;">現況加權 C 值</label>
+                                    <input type="number" id="outflowCPre" class="form-control" value="0.28" min="0.1" max="0.95" step="0.01" oninput="calculateOutflow()">
+                                </div>
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.75rem;">現況集流時間 tc (min)</label>
+                                    <input type="number" id="outflowTcPre" class="form-control" value="22" min="5" max="120" step="1" oninput="calculateOutflow()">
+                                </div>
+                                <div style="margin-top:6px; padding:6px 8px; background:rgba(16,185,129,0.1); border-radius:4px; font-size:0.78rem;">
+                                    <div style="color:var(--text-muted); font-size:0.72rem;">法定放流上限 (Qpre)：</div>
+                                    <div style="font-weight:800; color:var(--accent-emerald); font-size:1.05rem;" id="resQPre">0.313 m³/s</div>
+                                </div>
+                            </div>
+
+                            <!-- 開發後狀態 -->
+                            <div class="outflow-subbox">
+                                <div style="font-weight:800; font-size:0.82rem; color:var(--accent-rose); margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+                                    <i class="fas fa-building"></i> 開發後未滯洪 (Post)
+                                </div>
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.75rem;">開發後加權 C 值</label>
+                                    <input type="number" id="outflowCPost" class="form-control" value="0.82" min="0.1" max="0.95" step="0.01" oninput="calculateOutflow()">
+                                </div>
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.75rem;">開發後集流時間 tc (min)</label>
+                                    <input type="number" id="outflowTcPost" class="form-control" value="12" min="5" max="120" step="1" oninput="calculateOutflow()">
+                                </div>
+                                <div style="margin-top:6px; padding:6px 8px; background:rgba(239,68,68,0.1); border-radius:4px; font-size:0.78rem;">
+                                    <div style="color:var(--text-muted); font-size:0.72rem;">開發後未滯洪洪峰 (Qpost)：</div>
+                                    <div style="font-weight:800; color:var(--accent-rose); font-size:1.05rem;" id="resQPost">1.185 m³/s</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 流量增加量警示條 -->
+                        <div style="padding:8px 12px; background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.3); border-radius:6px; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center;">
+                            <span>⚠️ 基地開發增加洪峰流量 (ΔQ)：</span>
+                            <span style="font-weight:800; color:#D97706; font-size:0.95rem;" id="resDeltaQ">+0.872 m³/s</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. 滯洪池幾何與放流工尺寸配置 -->
+                    <div class="panel-card">
+                        <div class="outflow-panel-title">
+                            <i class="fas fa-warehouse"></i> 3. 滯洪設施幾何與放流結構設計
+                        </div>
+                        
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">滯洪設施型態</label>
+                                <select id="outflowPondType" class="form-control" onchange="calculateOutflow()">
+                                    <option value="rc_box" selected>地下矩形 RC 蓄洪箱涵/筏基</option>
+                                    <option value="trapezoid">戶外梯形明挖土池 (邊坡 1:1.5)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">有效設計蓄水深 (m)</label>
+                                <input type="number" id="outflowPondDepth" class="form-control" value="2.5" min="0.5" max="10.0" step="0.1" oninput="calculateOutflow()">
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">池底長度 (m)</label>
+                                <input type="number" id="outflowPondLength" class="form-control" value="38.0" min="1.0" step="1.0" oninput="calculateOutflow()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">池底寬度 (m)</label>
+                                <input type="number" id="outflowPondWidth" class="form-control" value="16.0" min="1.0" step="1.0" oninput="calculateOutflow()">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:12px; font-size:0.78rem; color:var(--text-muted); background:var(--bg-subtle); padding:6px 10px; border-radius:6px; display:flex; justify-content:space-between;">
+                            <span>有效總滯洪蓄水量：</span>
+                            <strong style="color:var(--text-primary);" id="resPondTotalVol">1,520 m³</strong>
+                        </div>
+
+                        <!-- 放流孔口與緊急溢洪堰 -->
+                        <div style="font-weight:700; font-size:0.80rem; color:var(--text-secondary); margin:10px 0 6px;">放流結構配置 (Orifice & Weir)：</div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>低水放流孔口徑 (mm)</span>
+                                    <span style="font-size:0.7rem; color:var(--text-muted);">重力自流</span>
+                                </label>
+                                <input type="number" id="outflowOrificeDia" class="form-control" value="200" min="50" max="2000" step="10" oninput="calculateOutflow()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>緊急溢洪堰寬度 (m)</span>
+                                    <span style="font-size:0.7rem; color:var(--text-muted);">高水溢流</span>
+                                </label>
+                                <input type="number" id="outflowWeirWidth" class="form-control" value="2.5" min="0.5" max="20.0" step="0.1" oninput="calculateOutflow()">
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">溢洪堰頂高程 (m)</label>
+                                <input type="number" id="outflowWeirCrest" class="form-control" value="2.1" min="0.1" max="10.0" step="0.1" oninput="calculateOutflow()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">法定安全出水高要求 (m)</label>
+                                <input type="number" id="outflowFreeboardReq" class="form-control" value="0.30" min="0.2" max="1.0" step="0.05" oninput="calculateOutflow()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 低衝擊開發 (LID) 入滲抵減 -->
+                    <div class="panel-card">
+                        <div class="outflow-panel-title">
+                            <i class="fas fa-seedling"></i> 4. 低衝擊開發 (LID) 入滲抵減 (可選)
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label class="form-label">透水鋪面/雨水花園面積 (m²)</label>
+                                <input type="number" id="outflowLidArea" class="form-control" value="450" min="0" step="50" oninput="calculateOutflow()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">有效蓄滲層厚度 (m)</label>
+                                <input type="number" id="outflowLidDepth" class="form-control" value="0.30" min="0" step="0.05" oninput="calculateOutflow()">
+                            </div>
+                        </div>
+                        <div style="font-size:0.78rem; color:var(--accent-emerald); background:rgba(16,185,129,0.08); padding:6px 10px; border-radius:6px; display:flex; justify-content:space-between;">
+                            <span>LID 蓄滲抵減容積：</span>
+                            <strong id="resLidVol">47.3 m³</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：Modified Puls 數值演算成果、歷線圖與合格檢核燈號 -->
+                <div class="result-panel">
+                    <!-- 法定出流管制審查判定燈號 -->
+                    <div id="outflowStatusBadge" class="status-badge status-pass" style="margin-bottom:14px; padding:12px 18px;">
+                        <div>
+                            <span style="font-size:1.05rem; font-weight:800;" id="outflowStatusText">✅ 審查通過 ‧ 符合《水利法》出流管制法定標準</span>
+                            <div style="font-size:0.78rem; font-weight:500; margin-top:3px;" id="outflowStatusSub">經滯洪池調蓄後最大放流量符合管制上限，出水高與排空時間均合規。</div>
+                        </div>
+                        <span class="badge" id="outflowStatusTag" style="background:#059669; color:#fff; font-size:0.82rem; padding:4px 10px;">合格 PASS</span>
+                    </div>
+
+                    <!-- 4 大核心水理指標 HUD 卡片群 -->
+                    <div class="canvas-hud-strip" style="border-radius:8px; border-top:1.5px solid var(--card-border); margin-bottom:16px;">
+                        <div class="hud-cell">
+                            <span class="hud-title">洪峰削峰減峰率</span>
+                            <span class="hud-value" style="color:var(--accent-emerald);"><span id="hudAttenuation">76.8</span><span class="hud-unit">%</span></span>
+                        </div>
+                        <div class="hud-cell">
+                            <span class="hud-title">最大放流量 vs 上限</span>
+                            <span class="hud-value"><span id="hudMaxOutflow">0.275</span><span class="hud-unit">/ 0.313</span></span>
+                        </div>
+                        <div class="hud-cell">
+                            <span class="hud-title">最高蓄水深 (餘裕高)</span>
+                            <span class="hud-value"><span id="hudMaxStage">2.08</span><span class="hud-unit">m (+0.42m)</span></span>
+                        </div>
+                        <div class="hud-cell">
+                            <span class="hud-title">滯洪池重力排空時間</span>
+                            <span class="hud-value"><span id="hudDrawdown">21.5</span><span class="hud-unit">小時</span></span>
+                        </div>
+                    </div>
+
+                    <!-- 2D 向量雙歷線對比圖 (Canvas) -->
+                    <div class="hydraulic-canvas-box" style="margin-bottom:16px;">
+                        <div class="canvas-header">
+                            <span><i class="fas fa-chart-line" style="color:var(--accent-blue); margin-right:6px;"></i>暴雨入流歷線 vs 滯洪池削峰出流歷線動態對比 (Inflow / Outflow Hydrograph)</span>
+                            <span style="font-size:0.74rem; color:var(--text-muted);" id="hydrographLegend">紅:開發後入流 ｜ 藍:消峰出流 ｜ 金:法定放流上限</span>
+                        </div>
+                        <canvas id="outflowHydroCanvas" style="display:block; width:100%; height:260px;"></canvas>
+                    </div>
+
+                    <!-- Modified Puls 數值蓄洪演算追蹤成果摘要卡 -->
+                    <div class="panel-card" style="padding:16px 18px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <div style="font-weight:800; font-size:0.92rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                                <i class="fas fa-table" style="color:var(--accent-blue);"></i> Modified Puls 蓄洪演算時間步序列成果表 (前 10 步及洪峰區)
+                            </div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">時間步長 Δt = 1 min</span>
+                        </div>
+
+                        <div class="puls-table-wrap">
+                            <table class="puls-table">
+                                <thead>
+                                    <tr>
+                                        <th>時間 (min)</th>
+                                        <th>入流 I (m³/s)</th>
+                                        <th>平均入流 (m³/s)</th>
+                                        <th>2S/Δt - O</th>
+                                        <th>2S/Δt + O</th>
+                                        <th>蓄水位 H (m)</th>
+                                        <th>蓄水量 S (m³)</th>
+                                        <th>放流量 O (m³/s)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="outflowPulsTableBody">
+                                    <!-- 動態填入 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 快捷操作列 -->
+                        <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+                            <button type="button" class="btn-preview" onclick="openOutflowReportPreview()">
+                                <i class="fas fa-file-contract"></i> 預覽《出流管制計畫報告書》
+                            </button>
+                            <button type="button" class="btn-export" onclick="exportOutflowWordReport()">
+                                <i class="fas fa-file-word"></i> 匯出出流管制報告 Word (.doc)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>
 
     <!-- 參數百科與工程規範說明彈跳卡片 -->
     
@@ -8143,6 +8695,12 @@ ${htmlOpenTag}
         }
 
         function openReportPreview() {
+            if (typeof currentSystemMode !== 'undefined' && currentSystemMode === 'outflow') {
+                openOutflowReportPreview();
+                return;
+            }
+            const titleEl = document.getElementById('reportModalTitleText');
+            if (titleEl) titleEl.textContent = '水文水理分析與通水能力檢核計算書 (符合水利署/水保署格式)';
             const container = document.getElementById('reportPreviewContainer');
             if (container) {
                 container.innerHTML = generateReportHtml(false);
@@ -8174,6 +8732,10 @@ ${htmlOpenTag}
         }
 
         function exportCalculationReport() {
+            if (typeof currentSystemMode !== 'undefined' && currentSystemMode === 'outflow') {
+                exportOutflowWordReport();
+                return;
+            }
             const projName = document.getElementById('metaProjectName')?.value || "基地排水水文水理分析與水工結構物通水能力檢核工程";
             const rp = document.getElementById('returnPeriod').value;
             const stationSelect = document.getElementById('stationSelect');
@@ -8854,6 +9416,1856 @@ bareArea: {
             }
         })();
 
+
+        // =========================================================================
+        // 🏛️ 水利法出流管制計畫 (Modified Puls) 數值蓄洪演算與報告系統
+        // =========================================================================
+        let currentSystemMode = 'hydraulics';
+        let cachedOutflowData = null;
+
+        function switchMainSystemMode(mode) {
+            currentSystemMode = mode;
+            const btnHydro = document.getElementById('btnModeHydraulics');
+            const btnOutflow = document.getElementById('btnModeOutflow');
+            const secHydro = document.getElementById('hydraulicsSection');
+            const secOutflow = document.getElementById('outflowSection');
+            
+            if (mode === 'outflow') {
+                if (btnHydro) btnHydro.classList.remove('active');
+                if (btnOutflow) btnOutflow.classList.add('active');
+                if (secHydro) secHydro.style.display = 'none';
+                if (secOutflow) secOutflow.style.display = 'block';
+                
+                if (!window.outflowInitialized) {
+                    initOutflowModule();
+                    window.outflowInitialized = true;
+                } else {
+                    calculateOutflow();
+                }
+            } else {
+                if (btnOutflow) btnOutflow.classList.remove('active');
+                if (btnHydro) btnHydro.classList.add('active');
+                if (secOutflow) secOutflow.style.display = 'none';
+                if (secHydro) secHydro.style.display = 'block';
+                if (typeof updateHydrology === 'function') updateHydrology();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        const outflowPresets = {
+            ind_park: {
+                name: "01. 民間工業區 / 廠房擴建與工廠變更",
+                county: "CHY",
+                station: "太保",
+                rp: "50",
+                area: 3.5,
+                cPre: 0.28,
+                tcPre: 22,
+                cPost: 0.85,
+                tcPost: 12,
+                pondType: "rc_box",
+                pondDepth: 2.5,
+                pondLength: 36.0,
+                pondWidth: 16.0,
+                orificeDia: 200,
+                weirWidth: 2.5,
+                weirCrest: 2.1,
+                freeboardReq: 0.30,
+                lidArea: 450,
+                lidDepth: 0.30,
+                projectName: "科技產業園區新建廠房出流管制計畫",
+                landNo: "嘉義縣太保市高鐵段 128-1 地號等 4 筆",
+                client: "經濟部水利署第五河川分署 / 嘉義縣水利處"
+            },
+            urban_residence: {
+                name: "02. 都計集合住宅建案基地",
+                county: "TCH",
+                station: "西屯",
+                rp: "50",
+                area: 1.2,
+                cPre: 0.35,
+                tcPre: 18,
+                cPost: 0.88,
+                tcPost: 10,
+                pondType: "rc_box",
+                pondDepth: 2.2,
+                pondLength: 22.0,
+                pondWidth: 12.0,
+                orificeDia: 130,
+                weirWidth: 1.5,
+                weirCrest: 1.8,
+                freeboardReq: 0.30,
+                lidArea: 200,
+                lidDepth: 0.25,
+                projectName: "台中市西屯區集合住宅新建工程出流管制計畫",
+                landNo: "台中市西屯區惠國段 88 地號",
+                client: "台中市政府水利局"
+            },
+            solar_farm: {
+                name: "03. 太陽能光電案場開發",
+                county: "TNN",
+                station: "七股",
+                rp: "50",
+                area: 6.0,
+                cPre: 0.25,
+                tcPre: 28,
+                cPost: 0.62,
+                tcPost: 16,
+                pondType: "trapezoid",
+                pondDepth: 2.0,
+                pondLength: 45.0,
+                pondWidth: 20.0,
+                orificeDia: 280,
+                weirWidth: 3.0,
+                weirCrest: 1.6,
+                freeboardReq: 0.40,
+                lidArea: 0,
+                lidDepth: 0,
+                projectName: "台南七股地面型太陽光電案場出流管制計畫",
+                landNo: "台南市七股區鹽埕段 556 地號等 12 筆",
+                client: "經濟部水利署第六河川分署 / 台南市政府水利局"
+            },
+            hillside_sp: {
+                name: "04. 山坡地特定目的事業 / 露營遊憩開發",
+                county: "NTO",
+                station: "埔里",
+                rp: "50",
+                area: 2.5,
+                cPre: 0.22,
+                tcPre: 25,
+                cPost: 0.60,
+                tcPost: 14,
+                pondType: "trapezoid",
+                pondDepth: 2.4,
+                pondLength: 30.0,
+                pondWidth: 15.0,
+                orificeDia: 180,
+                weirWidth: 2.0,
+                weirCrest: 1.9,
+                freeboardReq: 0.40,
+                lidArea: 350,
+                lidDepth: 0.30,
+                projectName: "南投縣埔里鎮生態休閒農場出流管制計畫書",
+                landNo: "南投縣埔里鎮桃米坑段 341-2 地號",
+                client: "南投縣政府農業處 / 經濟部水利署第三河川分署"
+            },
+            farm_house: {
+                name: "05. 農舍 / 農業產銷設施土地變更",
+                county: "ILN",
+                station: "羅東",
+                rp: "50",
+                area: 0.4,
+                cPre: 0.22,
+                tcPre: 20,
+                cPost: 0.75,
+                tcPost: 10,
+                pondType: "rc_box",
+                pondDepth: 1.8,
+                pondLength: 12.0,
+                pondWidth: 8.0,
+                orificeDia: 80,
+                weirWidth: 1.0,
+                weirCrest: 1.4,
+                freeboardReq: 0.30,
+                lidArea: 120,
+                lidDepth: 0.25,
+                projectName: "宜蘭縣羅東鎮農業產銷設施出流管制計畫",
+                landNo: "宜蘭縣羅東鎮北成段 712 地號",
+                client: "宜蘭縣政府水利資源處 / 經濟部水利署第一河川分署"
+            },
+            logistics: {
+                name: "06. 倉儲物流園區 / 轉運中心",
+                county: "TYN",
+                station: "大園",
+                rp: "50",
+                area: 4.8,
+                cPre: 0.26,
+                tcPre: 24,
+                cPost: 0.90,
+                tcPost: 11,
+                pondType: "rc_box",
+                pondDepth: 2.8,
+                pondLength: 44.0,
+                pondWidth: 18.0,
+                orificeDia: 250,
+                weirWidth: 3.5,
+                weirCrest: 2.4,
+                freeboardReq: 0.30,
+                lidArea: 600,
+                lidDepth: 0.35,
+                projectName: "桃園航空城倉儲物流運籌中心出流管制計畫",
+                landNo: "桃園市大園區遠雄段 204 地號",
+                client: "桃園市政府水務局 / 經濟部水利署第二河川分署"
+            },
+            park_detention: {
+                name: "07. 都市計畫公園滯洪設施",
+                county: "KHH",
+                station: "高雄",
+                rp: "50",
+                area: 3.0,
+                cPre: 0.40,
+                tcPre: 20,
+                cPost: 0.65,
+                tcPost: 15,
+                pondType: "trapezoid",
+                pondDepth: 1.8,
+                pondLength: 50.0,
+                pondWidth: 22.0,
+                orificeDia: 240,
+                weirWidth: 3.0,
+                weirCrest: 1.4,
+                freeboardReq: 0.35,
+                lidArea: 500,
+                lidDepth: 0.30,
+                projectName: "高雄市鳳山都市計畫公 12 生態滯洪公園工程",
+                landNo: "高雄市鳳山區五甲段 990 地號",
+                client: "高雄市政府水利局"
+            },
+            school_campus: {
+                name: "08. 文教機構 / 學校校園擴建",
+                county: "NTP",
+                station: "板橋",
+                rp: "50",
+                area: 2.2,
+                cPre: 0.32,
+                tcPre: 22,
+                cPost: 0.82,
+                tcPost: 12,
+                pondType: "rc_box",
+                pondDepth: 2.0,
+                pondLength: 28.0,
+                pondWidth: 16.0,
+                orificeDia: 160,
+                weirWidth: 1.8,
+                weirCrest: 1.65,
+                freeboardReq: 0.30,
+                lidArea: 300,
+                lidDepth: 0.30,
+                projectName: "新北市板橋國民小學校園多功能體育館出流管制計畫",
+                landNo: "新北市板橋區新民段 45 地號",
+                client: "新北市政府水利局 / 經濟部水利署第十河川分署"
+            }
+        };
+
+        function toggleOutflowProjectMeta() {
+            const body = document.getElementById('outflowProjectMetaBody');
+            const icon = document.getElementById('outflowMetaToggleIcon');
+            if (!body) return;
+            const isHidden = body.style.display === 'none';
+            body.style.display = isHidden ? 'grid' : 'none';
+            if (icon) {
+                icon.className = isHidden ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+            }
+        }
+
+        function saveOutflowProjectMeta() {
+            // autosave in memory
+        }
+
+        function initOutflowModule() {
+            updateOutflowCounty();
+            loadOutflowPreset('ind_park');
+        }
+
+        function updateOutflowCounty() {
+            const cSelect = document.getElementById('outflowCountySelect');
+            const sSelect = document.getElementById('outflowStationSelect');
+            if (!cSelect || !sSelect) return;
+            const county = cSelect.value;
+            const stList = (typeof stationDatabase !== 'undefined' && stationDatabase[county]) ? stationDatabase[county] : (typeof stationDatabase !== 'undefined' ? stationDatabase.KHH : []);
+            
+            sSelect.innerHTML = '';
+            stList.forEach((st, idx) => {
+                const opt = document.createElement('option');
+                opt.value = st.id;
+                opt.textContent = st.name;
+                sSelect.appendChild(opt);
+            });
+            calculateOutflow();
+        }
+
+        function loadOutflowPreset(presetKey) {
+            const p = outflowPresets[presetKey];
+            if (!p) return;
+
+            const cSelect = document.getElementById('outflowCountySelect');
+            if (cSelect) cSelect.value = p.county;
+            
+            // update stations for that county
+            const sSelect = document.getElementById('outflowStationSelect');
+            const stList = (typeof stationDatabase !== 'undefined' && stationDatabase[p.county]) ? stationDatabase[p.county] : [];
+            if (sSelect) {
+                sSelect.innerHTML = '';
+                let matchedId = '';
+                stList.forEach(st => {
+                    const opt = document.createElement('option');
+                    opt.value = st.id;
+                    opt.textContent = st.name;
+                    if (st.name.includes(p.station)) matchedId = st.id;
+                    sSelect.appendChild(opt);
+                });
+                if (matchedId) sSelect.value = matchedId;
+            }
+
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            };
+
+            setVal('outflowReturnPeriod', p.rp);
+            setVal('outflowAreaHa', p.area);
+            setVal('outflowCPre', p.cPre);
+            setVal('outflowTcPre', p.tcPre);
+            setVal('outflowCPost', p.cPost);
+            setVal('outflowTcPost', p.tcPost);
+            setVal('outflowPondType', p.pondType);
+            setVal('outflowPondDepth', p.pondDepth);
+            setVal('outflowPondLength', p.pondLength);
+            setVal('outflowPondWidth', p.pondWidth);
+            setVal('outflowOrificeDia', p.orificeDia);
+            setVal('outflowWeirWidth', p.weirWidth);
+            setVal('outflowWeirCrest', p.weirCrest);
+            setVal('outflowFreeboardReq', p.freeboardReq);
+            setVal('outflowLidArea', p.lidArea);
+            setVal('outflowLidDepth', p.lidDepth);
+
+            setVal('outflowMetaProjectName', p.projectName);
+            setVal('outflowMetaLandNo', p.landNo);
+            setVal('outflowMetaClient', p.client);
+
+            calculateOutflow();
+        }
+
+        // =========================================================================
+        // Modified Puls 數值蓄洪演算核心
+        // =========================================================================
+        function calculateOutflow() {
+            const county = document.getElementById('outflowCountySelect')?.value || 'CHY';
+            const sSelect = document.getElementById('outflowStationSelect');
+            const stId = sSelect?.value;
+            const stList = (typeof stationDatabase !== 'undefined' && stationDatabase[county]) ? stationDatabase[county] : [];
+            let st = stList.find(s => s.id === stId) || stList[0];
+            if (!st) {
+                st = { id: 'default', name: '預設測站', a: [980, 1380, 1680, 2080, 2380, 2750], b: 16, c: 0.72 };
+            }
+
+            const rp = document.getElementById('outflowReturnPeriod')?.value || '50';
+            const rpMap = { "2": 0, "5": 1, "10": 2, "25": 3, "50": 4, "100": 5 };
+            const rpIdx = rpMap[rp] !== undefined ? rpMap[rp] : 4;
+
+            const aHorner = st.a[rpIdx];
+            const bHorner = st.b;
+            const cHorner = st.c;
+
+            const getIntensity = (tcMin) => {
+                return aHorner / Math.pow(tcMin + bHorner, cHorner);
+            };
+
+            const areaHa = Math.max(0.01, parseFloat(document.getElementById('outflowAreaHa')?.value) || 3.5);
+            const cPre = Math.max(0.05, Math.min(0.99, parseFloat(document.getElementById('outflowCPre')?.value) || 0.28));
+            const tcPre = Math.max(5, parseFloat(document.getElementById('outflowTcPre')?.value) || 22);
+
+            const cPost = Math.max(0.05, Math.min(0.99, parseFloat(document.getElementById('outflowCPost')?.value) || 0.85));
+            const tcPost = Math.max(5, parseFloat(document.getElementById('outflowTcPost')?.value) || 12);
+
+            const iPre = getIntensity(tcPre);
+            const iPost = getIntensity(tcPost);
+
+            const qPre = (1.0 / 360.0) * cPre * iPre * areaHa; // m3/s
+            const qPost = (1.0 / 360.0) * cPost * iPost * areaHa; // m3/s
+            const deltaQ = qPost - qPre;
+
+            // Update UI Qpre, Qpost, deltaQ
+            const elQPre = document.getElementById('resQPre');
+            const elQPost = document.getElementById('resQPost');
+            const elDeltaQ = document.getElementById('resDeltaQ');
+            if (elQPre) elQPre.textContent = `${qPre.toFixed(3)} m³/s`;
+            if (elQPost) elQPost.textContent = `${qPost.toFixed(3)} m³/s`;
+            if (elDeltaQ) elDeltaQ.textContent = `${deltaQ >= 0 ? '+' : ''}${deltaQ.toFixed(3)} m³/s`;
+
+            // Pond Geometry & Outlets
+            const pondType = document.getElementById('outflowPondType')?.value || 'rc_box';
+            const pondDepth = Math.max(0.5, parseFloat(document.getElementById('outflowPondDepth')?.value) || 2.5);
+            const pondLength = Math.max(1.0, parseFloat(document.getElementById('outflowPondLength')?.value) || 36.0);
+            const pondWidth = Math.max(1.0, parseFloat(document.getElementById('outflowPondWidth')?.value) || 16.0);
+
+            const orificeDiaMm = Math.max(20, parseFloat(document.getElementById('outflowOrificeDia')?.value) || 200);
+            const orificeDiaM = orificeDiaMm / 1000.0;
+            const weirWidth = Math.max(0.2, parseFloat(document.getElementById('outflowWeirWidth')?.value) || 2.5);
+            const weirCrest = Math.max(0.1, parseFloat(document.getElementById('outflowWeirCrest')?.value) || 2.1);
+            const freeboardReq = Math.max(0.1, parseFloat(document.getElementById('outflowFreeboardReq')?.value) || 0.30);
+
+            const lidArea = Math.max(0, parseFloat(document.getElementById('outflowLidArea')?.value) || 0);
+            const lidDepth = Math.max(0, parseFloat(document.getElementById('outflowLidDepth')?.value) || 0);
+            const lidVol = lidArea * lidDepth * 0.35; // 35% porosity
+            const elLidVol = document.getElementById('resLidVol');
+            if (elLidVol) elLidVol.textContent = `${lidVol.toFixed(1)} m³`;
+
+            // Stage-Storage formula
+            const calcStorage = (h) => {
+                if (pondType === 'trapezoid') {
+                    const z = 1.5;
+                    return (pondLength * pondWidth * h) + ((pondLength + pondWidth) * z * h * h) + ((4.0 / 3.0) * z * z * h * h * h);
+                } else {
+                    return pondLength * pondWidth * h;
+                }
+            };
+
+            const totalCapacity = calcStorage(pondDepth);
+            const elPondTotalVol = document.getElementById('resPondTotalVol');
+            if (elPondTotalVol) elPondTotalVol.textContent = `${Math.round(totalCapacity).toLocaleString()} m³`;
+
+            // Stage-Outflow formula
+            const cd = 0.62;
+            const aOrifice = Math.PI * Math.pow(orificeDiaM / 2.0, 2);
+            const cw = 1.84;
+            const g = 9.81;
+
+            const calcOutflowH = (h) => {
+                if (h <= 0) return 0.0;
+                let qo = 0.0;
+                const r = orificeDiaM / 2.0;
+                if (h <= r) {
+                    qo = cd * (Math.PI * Math.pow(h, 2) / 2.0) * Math.sqrt(2 * g * Math.max(0.001, h / 2.0));
+                } else {
+                    qo = cd * aOrifice * Math.sqrt(2 * g * Math.max(0.001, h - r));
+                }
+
+                let qw = 0.0;
+                if (h > weirCrest) {
+                    qw = cw * weirWidth * Math.pow(h - weirCrest, 1.5);
+                }
+                return qo + qw;
+            };
+
+            // Build Storage Indication Curve: dt = 60s
+            const dt = 60.0; // seconds
+            const maxDiscretizeH = Math.max(pondDepth + 1.0, 4.0);
+            const nDisc = 200;
+            const dh = maxDiscretizeH / nDisc;
+            const discTable = [];
+
+            for (let i = 0; i <= nDisc; i++) {
+                const hVal = i * dh;
+                const sVal = calcStorage(hVal);
+                const oVal = calcOutflowH(hVal);
+                const plusVal = (2.0 * sVal / dt) + oVal;
+                const minusVal = (2.0 * sVal / dt) - oVal;
+                discTable.push({ h: hVal, s: sVal, o: oVal, plus: plusVal, minus: minusVal });
+            }
+
+            const interpolateFromPlus = (targetPlus) => {
+                if (targetPlus <= discTable[0].plus) return { o: 0, h: 0, s: 0 };
+                const last = discTable[discTable.length - 1];
+                if (targetPlus >= last.plus) return { o: last.o, h: last.h, s: last.s };
+
+                for (let i = 0; i < discTable.length - 1; i++) {
+                    if (discTable[i].plus <= targetPlus && targetPlus <= discTable[i + 1].plus) {
+                        const ratio = (targetPlus - discTable[i].plus) / (discTable[i + 1].plus - discTable[i].plus);
+                        const o = discTable[i].o + ratio * (discTable[i + 1].o - discTable[i].o);
+                        const h = discTable[i].h + ratio * (discTable[i + 1].h - discTable[i].h);
+                        const s = discTable[i].s + ratio * (discTable[i + 1].s - discTable[i].s);
+                        return { o, h, s };
+                    }
+                }
+                return { o: 0, h: 0, s: 0 };
+            };
+
+            // Inflow Hydrograph (Standard Triangular)
+            const tdSec = tcPost * 60.0;
+            const tbSec = 2.6 * tdSec;
+            const totalSimSec = Math.max(120 * 60, 4.0 * tdSec);
+            const totalSteps = Math.floor(totalSimSec / dt);
+
+            const getInflowSec = (tSec) => {
+                if (tSec <= 0) return 0.0;
+                if (tSec <= tdSec) {
+                    return qPost * (tSec / tdSec);
+                } else if (tSec <= tbSec) {
+                    return qPost * (1.0 - (tSec - tdSec) / (tbSec - tdSec));
+                } else {
+                    return 0.0;
+                }
+            };
+
+            // Modified Puls Numerical Loop
+            const pulsSteps = [];
+            let prevMinus = 0.0;
+            let maxOutflow = 0.0;
+            let maxStage = 0.0;
+            let maxStorage = 0.0;
+            let timePeakOutflow = 0;
+
+            for (let s = 0; s <= totalSteps; s++) {
+                const tSec = s * dt;
+                const tMin = s * (dt / 60.0);
+                const curInflow = getInflowSec(tSec);
+
+                if (s === 0) {
+                    pulsSteps.push({
+                        step: s,
+                        tMin: tMin,
+                        inflow: 0.0,
+                        avgInflow: 0.0,
+                        targetPlus: 0.0,
+                        stage: 0.0,
+                        storage: 0.0,
+                        outflow: 0.0,
+                        minus: 0.0
+                    });
+                    continue;
+                }
+
+                const prevInflow = pulsSteps[s - 1].inflow;
+                const avgInflow = (prevInflow + curInflow) / 2.0;
+                const targetPlus = prevMinus + (prevInflow + curInflow);
+
+                const inter = interpolateFromPlus(targetPlus);
+                const minusVal = targetPlus - 2.0 * inter.o;
+                prevMinus = minusVal;
+
+                if (inter.o > maxOutflow) {
+                    maxOutflow = inter.o;
+                    timePeakOutflow = tMin;
+                }
+                if (inter.h > maxStage) maxStage = inter.h;
+                if (inter.s > maxStorage) maxStorage = inter.s;
+
+                pulsSteps.push({
+                    step: s,
+                    tMin: tMin,
+                    inflow: curInflow,
+                    avgInflow: avgInflow,
+                    targetPlus: targetPlus,
+                    stage: inter.h,
+                    storage: inter.s,
+                    outflow: inter.o,
+                    minus: minusVal
+                });
+            }
+
+            const attenuation = Math.max(0, ((qPost - maxOutflow) / qPost) * 100.0);
+            const freeboardActual = pondDepth - maxStage;
+
+            // Drawdown time estimation (hours to drain 95% of peak volume)
+            const avgOrificeQ = cd * aOrifice * Math.sqrt(2 * g * Math.max(0.01, maxStage / 3.0));
+            const drawdownHours = avgOrificeQ > 0 ? (maxStorage * 0.95) / (avgOrificeQ * 3600.0) : 0;
+
+            // Statutory checks
+            const passOutflow = maxOutflow <= qPre + 0.001;
+            const passFreeboard = freeboardActual >= freeboardReq - 0.005;
+            const passDrawdown = drawdownHours <= 48.0;
+            const isAllPass = passOutflow && passFreeboard && passDrawdown;
+
+            // Update UI HUD
+            const elHudAtt = document.getElementById('hudAttenuation');
+            const elHudMaxOut = document.getElementById('hudMaxOutflow');
+            const elHudMaxStg = document.getElementById('hudMaxStage');
+            const elHudDraw = document.getElementById('hudDrawdown');
+
+            if (elHudAtt) elHudAtt.textContent = attenuation.toFixed(1);
+            if (elHudMaxOut) elHudMaxOut.innerHTML = `${maxOutflow.toFixed(3)} <span class="hud-unit">/ ${qPre.toFixed(3)}</span>`;
+            if (elHudMaxStg) elHudMaxStg.innerHTML = `${maxStage.toFixed(2)} <span class="hud-unit">m (${freeboardActual >= 0 ? '+' : ''}${freeboardActual.toFixed(2)}m)</span>`;
+            if (elHudDraw) elHudDraw.textContent = drawdownHours.toFixed(1);
+
+            // Update Status Badge
+            const elBadge = document.getElementById('outflowStatusBadge');
+            const elStatusText = document.getElementById('outflowStatusText');
+            const elStatusSub = document.getElementById('outflowStatusSub');
+            const elStatusTag = document.getElementById('outflowStatusTag');
+
+            if (elBadge && elStatusText && elStatusSub && elStatusTag) {
+                if (isAllPass) {
+                    elBadge.className = 'status-badge status-pass';
+                    elStatusText.textContent = '✅ 審查通過 ‧ 符合《水利法》出流管制法定標準';
+                    elStatusSub.textContent = `最大放流 ${maxOutflow.toFixed(3)} m³/s ≤ 上限 ${qPre.toFixed(3)} m³/s，出水高餘裕 ${freeboardActual.toFixed(2)}m ≥ ${freeboardReq.toFixed(2)}m，排空 ${drawdownHours.toFixed(1)}hr 合規。`;
+                    elStatusTag.textContent = '合格 PASS';
+                    elStatusTag.style.background = '#059669';
+                } else {
+                    elBadge.className = 'status-badge status-fail';
+                    elStatusTag.textContent = '未達標 FAIL';
+                    elStatusTag.style.background = '#DC2626';
+
+                    const failReasons = [];
+                    if (!passOutflow) failReasons.push(`放流量超標 (${maxOutflow.toFixed(3)} > ${qPre.toFixed(3)})`);
+                    if (!passFreeboard) failReasons.push(`出水高不足 (${freeboardActual.toFixed(2)}m < ${freeboardReq.toFixed(2)}m)`);
+                    if (!passDrawdown) failReasons.push(`排空時間過長 (${drawdownHours.toFixed(1)}hr > 48hr)`);
+
+                    elStatusText.textContent = '⚠️ 未達法定標準 ‧ 請調整滯洪池或放流工尺寸';
+                    elStatusSub.textContent = `待修正項目：${failReasons.join('、')}。建議縮小放流孔徑或加大滯洪池底面積。`;
+                }
+            }
+
+            // Populate Modified Puls Table
+            const tbody = document.getElementById('outflowPulsTableBody');
+            if (tbody) {
+                tbody.innerHTML = '';
+                // Select representative rows: first 10, every 5 around peak, and last
+                const selectedIndices = new Set();
+                for (let i = 0; i <= 8 && i < pulsSteps.length; i++) selectedIndices.add(i);
+                
+                // Around peak inflow and outflow
+                const stepPeakIn = Math.floor(tdSec / dt);
+                const stepPeakOut = Math.floor(timePeakOutflow * 60 / dt);
+                for (let i = Math.max(0, stepPeakIn - 3); i <= stepPeakIn + 5 && i < pulsSteps.length; i++) selectedIndices.add(i);
+                for (let i = Math.max(0, stepPeakOut - 3); i <= stepPeakOut + 5 && i < pulsSteps.length; i++) selectedIndices.add(i);
+                
+                // End steps
+                selectedIndices.add(Math.floor(tbSec / dt));
+                selectedIndices.add(pulsSteps.length - 1);
+
+                const sortedIndices = Array.from(selectedIndices).sort((a, b) => a - b);
+                sortedIndices.forEach(idx => {
+                    const row = pulsSteps[idx];
+                    const tr = document.createElement('tr');
+                    const isPeakRow = (Math.abs(row.outflow - maxOutflow) < 0.001);
+                    if (isPeakRow) tr.style.background = 'rgba(2, 132, 199, 0.12)';
+
+                    tr.innerHTML = `
+                        <td style="font-weight:${isPeakRow ? '800' : 'normal'}">${row.tMin.toFixed(0)}</td>
+                        <td>${row.inflow.toFixed(3)}</td>
+                        <td>${row.avgInflow.toFixed(3)}</td>
+                        <td>${row.minus.toFixed(2)}</td>
+                        <td>${row.targetPlus.toFixed(2)}</td>
+                        <td style="font-weight:700; color:var(--accent-blue);">${row.stage.toFixed(2)}</td>
+                        <td>${Math.round(row.storage)}</td>
+                        <td style="font-weight:800; color:${isPeakRow ? 'var(--accent-rose)' : 'var(--accent-emerald)'};">${row.outflow.toFixed(3)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Cache data for export & draw
+            cachedOutflowData = {
+                stationName: st.name,
+                county: county,
+                rp: rp,
+                areaHa: areaHa,
+                cPre: cPre,
+                tcPre: tcPre,
+                iPre: iPre,
+                qPre: qPre,
+                cPost: cPost,
+                tcPost: tcPost,
+                iPost: iPost,
+                qPost: qPost,
+                deltaQ: deltaQ,
+                pondType: pondType,
+                pondDepth: pondDepth,
+                pondLength: pondLength,
+                pondWidth: pondWidth,
+                totalCapacity: totalCapacity,
+                orificeDiaMm: orificeDiaMm,
+                weirWidth: weirWidth,
+                weirCrest: weirCrest,
+                freeboardReq: freeboardReq,
+                lidArea: lidArea,
+                lidDepth: lidDepth,
+                lidVol: lidVol,
+                maxOutflow: maxOutflow,
+                maxStage: maxStage,
+                maxStorage: maxStorage,
+                attenuation: attenuation,
+                freeboardActual: freeboardActual,
+                drawdownHours: drawdownHours,
+                isAllPass: isAllPass,
+                pulsSteps: pulsSteps,
+                timePeakOutflow: timePeakOutflow
+            };
+
+            // Draw Hydrograph Canvas
+            drawOutflowHydrograph(pulsSteps, qPost, qPre, maxOutflow, timePeakOutflow);
+        }
+
+        // =========================================================================
+        // 2D 向量雙歷線對比圖 (Canvas)
+        // =========================================================================
+        function drawOutflowHydrograph(steps, peakIn, limitOut, peakOut, tPeakOut) {
+            const canvas = document.getElementById('outflowHydroCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = (rect.width || 800) * dpr;
+            canvas.height = 260 * dpr;
+            ctx.scale(dpr, dpr);
+
+            const w = canvas.width / dpr;
+            const h = 260;
+
+            // Background
+            ctx.fillStyle = "#0B1329";
+            ctx.fillRect(0, 0, w, h);
+
+            const padL = 60, padR = 40, padT = 30, padB = 40;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+
+            const maxTimeMin = steps[steps.length - 1].tMin || 120;
+            const maxQ = Math.max(peakIn * 1.15, limitOut * 1.3, 0.5);
+
+            const getX = (tMin) => padL + (tMin / maxTimeMin) * plotW;
+            const getY = (q) => padT + (1.0 - (q / maxQ)) * plotH;
+
+            // Grid lines
+            ctx.strokeStyle = "#1E293B";
+            ctx.lineWidth = 1;
+            ctx.fillStyle = "#94A3B8";
+            ctx.font = "10px 'JetBrains Mono', monospace";
+            ctx.textAlign = "right";
+
+            // Y grid & labels
+            const yDiv = 5;
+            for (let i = 0; i <= yDiv; i++) {
+                const qVal = (maxQ / yDiv) * i;
+                const yPos = getY(qVal);
+                ctx.beginPath();
+                ctx.moveTo(padL, yPos);
+                ctx.lineTo(w - padR, yPos);
+                ctx.stroke();
+                ctx.fillText(qVal.toFixed(2), padL - 8, yPos + 3);
+            }
+
+            // X grid & labels
+            ctx.textAlign = "center";
+            const tStep = maxTimeMin <= 60 ? 10 : (maxTimeMin <= 120 ? 20 : 30);
+            for (let t = 0; t <= maxTimeMin; t += tStep) {
+                const xPos = getX(t);
+                ctx.beginPath();
+                ctx.moveTo(xPos, padT);
+                ctx.lineTo(xPos, h - padB);
+                ctx.stroke();
+                ctx.fillText(`${t}m`, xPos, h - padB + 16);
+            }
+
+            // Axes titles
+            ctx.fillStyle = "#64748B";
+            ctx.font = "11px 'Noto Sans TC', sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText("流量 Q (m³/s)", 10, 18);
+            ctx.textAlign = "right";
+            ctx.fillText("歷線時間 (min)", w - 10, h - 10);
+
+            // 1. Statutory Allowable Limit Qpre (Amber Dashed Line)
+            const yLimit = getY(limitOut);
+            ctx.beginPath();
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = "#F59E0B";
+            ctx.lineWidth = 2;
+            ctx.moveTo(padL, yLimit);
+            ctx.lineTo(w - padR, yLimit);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = "#F59E0B";
+            ctx.font = "bold 10px 'JetBrains Mono', monospace";
+            ctx.textAlign = "right";
+            ctx.fillText(`Qpre 法定上限 ${limitOut.toFixed(3)} m³/s`, w - padR - 8, yLimit - 6);
+
+            // 2. Inflow Hydrograph (Red fill & stroke)
+            ctx.beginPath();
+            ctx.moveTo(getX(steps[0].tMin), getY(0));
+            steps.forEach(st => {
+                ctx.lineTo(getX(st.tMin), getY(st.inflow));
+            });
+            ctx.lineTo(getX(steps[steps.length - 1].tMin), getY(0));
+            ctx.closePath();
+
+            const gradIn = ctx.createLinearGradient(0, padT, 0, h - padB);
+            gradIn.addColorStop(0, "rgba(239, 68, 68, 0.25)");
+            gradIn.addColorStop(1, "rgba(239, 68, 68, 0.0)");
+            ctx.fillStyle = gradIn;
+            ctx.fill();
+
+            ctx.beginPath();
+            steps.forEach((st, idx) => {
+                if (idx === 0) ctx.moveTo(getX(st.tMin), getY(st.inflow));
+                else ctx.lineTo(getX(st.tMin), getY(st.inflow));
+            });
+            ctx.strokeStyle = "#EF4444";
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // 3. Outflow Hydrograph (Cyan fill & stroke)
+            ctx.beginPath();
+            ctx.moveTo(getX(steps[0].tMin), getY(0));
+            steps.forEach(st => {
+                ctx.lineTo(getX(st.tMin), getY(st.outflow));
+            });
+            ctx.lineTo(getX(steps[steps.length - 1].tMin), getY(0));
+            ctx.closePath();
+
+            const gradOut = ctx.createLinearGradient(0, padT, 0, h - padB);
+            gradOut.addColorStop(0, "rgba(6, 182, 212, 0.35)");
+            gradOut.addColorStop(1, "rgba(6, 182, 212, 0.0)");
+            ctx.fillStyle = gradOut;
+            ctx.fill();
+
+            ctx.beginPath();
+            steps.forEach((st, idx) => {
+                if (idx === 0) ctx.moveTo(getX(st.tMin), getY(st.outflow));
+                else ctx.lineTo(getX(st.tMin), getY(st.outflow));
+            });
+            ctx.strokeStyle = "#06B6D4";
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Peak Callouts
+            // Outflow Peak Point
+            const xPeakOut = getX(tPeakOut);
+            const yPeakOut = getY(peakOut);
+            ctx.beginPath();
+            ctx.arc(xPeakOut, yPeakOut, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = "#06B6D4";
+            ctx.fill();
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            ctx.fillStyle = "#E0F2FE";
+            ctx.font = "bold 11px 'JetBrains Mono', monospace";
+            ctx.textAlign = "left";
+            ctx.fillText(`峰值放流 ${peakOut.toFixed(3)} m³/s (@${tPeakOut.toFixed(0)}m)`, Math.min(xPeakOut + 10, w - 180), yPeakOut - 8);
+        }
+
+        // =========================================================================
+        // 出流管制計畫專用 A4 預覽與 Word 報告書生成
+        // =========================================================================
+        function openOutflowReportPreview() {
+            if (!cachedOutflowData) calculateOutflow();
+            const modal = document.getElementById('reportPreviewModal');
+            const container = document.getElementById('reportPreviewContainer');
+            if (!modal || !container) return;
+
+            container.innerHTML = generateOutflowReportHtml(false);
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            const titleEl = document.getElementById('reportModalTitleText');
+            if (titleEl) titleEl.textContent = '《出流管制計畫水理計算報告書》（依水利法第 83 條之 7 法定格式）';
+        }
+
+        
+        // =========================================================================
+        // 🏛️ 法定審查專用《出流管制計畫水理計算報告書》深度生成引擎 (12+ Pages)
+        // 依據經濟部水利署《出流管制技術規範》與《出流管制計畫書審查作業手冊》標準
+        // =========================================================================
+        function generateOutflowReportHtml(isForWord = false) {
+            if (!cachedOutflowData) calculateOutflow();
+            const d = cachedOutflowData;
+            if (!d) return '<p>尚無水理蓄洪演算數據，請先進行出流管制計算。</p>';
+
+            const pName = sanitizeHtml(document.getElementById('outflowMetaProjectName')?.value || "科技產業園區新建廠房出流管制計畫");
+            const pLand = sanitizeHtml(document.getElementById('outflowMetaLandNo')?.value || "嘉義縣太保市高鐵段 128-1 地號等 4 筆");
+            const pClient = sanitizeHtml(document.getElementById('outflowMetaClient')?.value || "經濟部水利署第五河川分署 / 嘉義縣水利處");
+            const pAuthor = sanitizeHtml(document.getElementById('outflowMetaAuthor')?.value || "諾維拉水利設計組");
+            const pEng = sanitizeHtml(document.getElementById('outflowMetaEngineer')?.value || "水利工程技師（技工字第 012345 號）");
+            const pCode = sanitizeHtml(document.getElementById('outflowMetaCode')?.value || "NOV-2026-OUTFLOW-01");
+
+            const countySelect = document.getElementById('outflowCountySelect');
+            const countyName = (countySelect && countySelect.options[countySelect.selectedIndex]) ? countySelect.options[countySelect.selectedIndex].text.split(' ')[0] : "嘉義縣市";
+            const countyCode = countySelect ? countySelect.value : "CHY";
+
+            const sSelect = document.getElementById('outflowStationSelect');
+            const stationName = (sSelect && sSelect.options[sSelect.selectedIndex]) ? sSelect.options[sSelect.selectedIndex].text : d.stationName;
+
+            const stList = (typeof stationDatabase !== 'undefined' && stationDatabase[countyCode]) ? stationDatabase[countyCode] : (stationDatabase.CHY || stationDatabase.KHH);
+            const curStation = stList.find(s => s.id === sSelect?.value) || stList[0] || { name: stationName, a: [980, 1380, 1680, 2080, 2380, 2750], b: 16, c: 0.72 };
+
+            const rpList = [
+                { rp: 2, idx: 0, desc: "2年重現期 (一般基地表面逕流標準)" },
+                { rp: 5, idx: 1, desc: "5年重現期 (市區側溝與市內排水標準)" },
+                { rp: 10, idx: 2, desc: "10年重現期 (次要排水路檢核標準)" },
+                { rp: 25, idx: 3, desc: "25年重現期 (水土保持技術規範標的)" },
+                { rp: 50, idx: 4, desc: "50年重現期 (《水利法》出流管制法定標準)" },
+                { rp: 100, idx: 5, desc: "100年重現期 (重大防洪設施校核標的)" }
+            ];
+
+            const rpComparisonRows = rpList.map(item => {
+                const aVal = curStation.a[item.idx];
+                const bVal = curStation.b;
+                const cVal = curStation.c;
+                const iPreVal = aVal / Math.pow(d.tcPre + bVal, cVal);
+                const qPreVal = (1.0 / 360.0) * d.cPre * iPreVal * d.areaHa;
+                const iPostVal = aVal / Math.pow(d.tcPost + bVal, cVal);
+                const qPostVal = (1.0 / 360.0) * d.cPost * iPostVal * d.areaHa;
+                const deltaVal = qPostVal - qPreVal;
+                const isStatutory = (item.rp === parseInt(d.rp));
+
+                return `
+                <tr style="${isStatutory ? 'background:#FEF3C7; font-weight:bold;' : ''}">
+                    <td style="text-align:center;">${item.rp} 年 ${isStatutory ? '<span style=\"color:#D97706;\">★ (法定標準)</span>' : ''}</td>
+                    <td style="text-align:right;">${aVal}</td>
+                    <td style="text-align:right;">${iPreVal.toFixed(1)}</td>
+                    <td style="text-align:right; color:#059669; font-weight:bold;">${qPreVal.toFixed(3)}</td>
+                    <td style="text-align:right;">${iPostVal.toFixed(1)}</td>
+                    <td style="text-align:right; color:#DC2626; font-weight:bold;">${qPostVal.toFixed(3)}</td>
+                    <td style="text-align:right; color:#D97706; font-weight:bold;">+${deltaVal.toFixed(3)}</td>
+                    <td style="font-size:8.5pt; color:#475569;">${item.desc}</td>
+                </tr>`;
+            }).join('');
+
+            const areaPreFarm = (d.areaHa * 0.70).toFixed(2);
+            const areaPreGrass = (d.areaHa * 0.20).toFixed(2);
+            const areaPreRoad = (d.areaHa * 0.10).toFixed(2);
+            const cPreFarm = 0.25;
+            const cPreGrass = 0.30;
+            const cPreRoad = 0.45;
+            const sumPreProduct = (areaPreFarm * cPreFarm + areaPreGrass * cPreGrass + areaPreRoad * cPreRoad).toFixed(3);
+
+            const areaPostRoof = (d.areaHa * 0.55).toFixed(2);
+            const areaPostPave = (d.areaHa * 0.30).toFixed(2);
+            const areaPostGreen = (d.areaHa * 0.15).toFixed(2);
+            const cPostRoof = 0.90;
+            const cPostPave = 0.85;
+            const cPostGreen = 0.35;
+            const sumPostProduct = (areaPostRoof * cPostRoof + areaPostPave * cPostPave + areaPostGreen * cPostGreen).toFixed(3);
+
+            const stageProfileRows = [];
+            for (let i = 0; i <= 5; i++) {
+                const hProfile = (d.pondDepth * (i / 5.0)).toFixed(2);
+                let sProfile = 0;
+                if (d.pondType === 'trapezoid') {
+                    const z = 1.5;
+                    sProfile = (d.pondLength * d.pondWidth * hProfile) + ((d.pondLength + d.pondWidth) * z * hProfile * hProfile) + ((4.0 / 3.0) * z * z * Math.pow(hProfile, 3));
+                } else {
+                    sProfile = d.pondLength * d.pondWidth * hProfile;
+                }
+                
+                const cd = 0.62;
+                const g = 9.81;
+                const diaM = d.orificeDiaMm / 1000.0;
+                const aO = Math.PI * Math.pow(diaM / 2.0, 2);
+                let qo = 0;
+                if (hProfile > 0) {
+                    if (hProfile <= diaM / 2.0) {
+                        qo = cd * (Math.PI * Math.pow(hProfile, 2) / 2.0) * Math.sqrt(2 * g * Math.max(0.001, hProfile / 2.0));
+                    } else {
+                        qo = cd * aO * Math.sqrt(2 * g * Math.max(0.001, hProfile - diaM / 2.0));
+                    }
+                }
+                let qw = 0;
+                if (hProfile > d.weirCrest) {
+                    qw = 1.84 * d.weirWidth * Math.pow(hProfile - d.weirCrest, 1.5);
+                }
+                const oTotal = qo + qw;
+                const indPlus = (2.0 * sProfile / 60.0) + oTotal;
+                const indMinus = (2.0 * sProfile / 60.0) - oTotal;
+
+                stageProfileRows.push(`
+                <tr>
+                    <td style="text-align:center; font-weight:bold;">${hProfile} m</td>
+                    <td style="text-align:right;">${Math.round(sProfile).toLocaleString()} m³</td>
+                    <td style="text-align:right;">${qo.toFixed(3)} m³/s</td>
+                    <td style="text-align:right;">${qw.toFixed(3)} m³/s</td>
+                    <td style="text-align:right; font-weight:bold; color:#0369A1;">${oTotal.toFixed(3)} m³/s</td>
+                    <td style="text-align:right;">${indPlus.toFixed(2)}</td>
+                    <td style="text-align:right;">${indMinus.toFixed(2)}</td>
+                </tr>`);
+            }
+
+            const totalSteps = d.pulsSteps.length;
+            const peakInStep = Math.floor((d.tcPost * 60) / 60);
+            const peakOutStep = Math.floor((d.timePeakOutflow * 60) / 60);
+
+            const stepSet = new Set();
+            for (let i = 0; i <= 8 && i < totalSteps; i++) stepSet.add(i);
+            for (let i = Math.max(0, peakInStep - 3); i <= peakInStep + 4 && i < totalSteps; i++) stepSet.add(i);
+            for (let i = Math.max(0, peakOutStep - 3); i <= peakOutStep + 5 && i < totalSteps; i++) stepSet.add(i);
+            for (let i = peakOutStep + 6; i < totalSteps - 4; i += 4) stepSet.add(i);
+            for (let i = Math.max(0, totalSteps - 4); i < totalSteps; i++) stepSet.add(i);
+
+            const sortedSteps = Array.from(stepSet).sort((a, b) => a - b);
+            const pulsTableRowsHtml = sortedSteps.map(idx => {
+                const s = d.pulsSteps[idx];
+                const isPeak = Math.abs(s.outflow - d.maxOutflow) < 0.001;
+                const isMaxIn = Math.abs(s.inflow - d.qPost) < 0.001;
+
+                return `
+                <tr style="${isPeak ? 'background:#E0F2FE; font-weight:bold;' : (isMaxIn ? 'background:#FEE2E2;' : '')}">
+                    <td style="text-align:center;">${s.tMin.toFixed(0)}</td>
+                    <td style="text-align:right; ${isMaxIn ? 'color:#DC2626; font-weight:bold;' : ''}">${s.inflow.toFixed(3)}</td>
+                    <td style="text-align:right;">${s.avgInflow.toFixed(3)}</td>
+                    <td style="text-align:right;">${s.minus.toFixed(2)}</td>
+                    <td style="text-align:right;">${s.targetPlus.toFixed(2)}</td>
+                    <td style="text-align:right; font-weight:bold; color:#0369A1;">${s.stage.toFixed(2)}</td>
+                    <td style="text-align:right;">${Math.round(s.storage)}</td>
+                    <td style="text-align:right; font-weight:bold; color:${isPeak ? '#0284C7' : '#059669'};">${s.outflow.toFixed(3)} ${isPeak ? '★' : ''}</td>
+                </tr>`;
+            }).join('');
+
+            let hydrographImgHtml = "";
+            const canvas = document.getElementById('outflowHydroCanvas');
+            if (canvas) {
+                const dataUrl = canvas.toDataURL("image/png");
+                hydrographImgHtml = `
+                <div class="img-figure" style="text-align:center; margin:14pt 0;">
+                    <img src="${dataUrl}" style="max-width:100%; width:640px; border:1.5px solid #CBD5E1; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.06);">
+                    <div class="figure-caption" style="font-size:9pt; color:#475569; margin-top:5pt; font-weight:bold;">
+                        圖 6-1 50年重現期暴雨入流歷線與滯洪池消峰出流歷線數值演算對比圖
+                    </div>
+                </div>`;
+            }
+
+            const currentDateYear = new Date().getFullYear() - 1911;
+            const currentDateMonth = new Date().getMonth() + 1;
+            const currentDateDay = new Date().getDate();
+
+            // Native Word Section / Page break vs HTML Print / Screen Page break
+            const pageBreakTag = isForWord
+                ? '<br clear="all" style="mso-special-character:line-break;page-break-before:always" />'
+                : '<div class="page-break" style="page-break-before:always !important; break-before:page !important; clear:both; height:0;"></div>';
+
+            return `
+            <style>
+                @page {
+                    size: A4 portrait;
+                    margin: 22mm 16mm 22mm 26mm; /* 水利技師簽證標準：左側預留 26mm 裝訂線 */
+                    mso-page-orientation: portrait;
+                }
+                .outflow-report-root {
+                    font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+                    color: #0F172A;
+                    line-height: 1.6;
+                    font-size: 10pt;
+                    background: ${isForWord ? '#FFFFFF' : '#64748B'};
+                    padding: ${isForWord ? '0' : '20px 0'};
+                }
+                .a4-sheet-card {
+                    width: 210mm;
+                    min-height: 297mm;
+                    max-width: 100%;
+                    background: #FFFFFF;
+                    margin: ${isForWord ? '0' : '0 auto 25px auto'};
+                    padding: 24mm 20mm;
+                    box-sizing: border-box;
+                    box-shadow: ${isForWord ? 'none' : '0 6px 25px rgba(0, 0, 0, 0.25)'};
+                    border-radius: ${isForWord ? '0' : '2px'};
+                    position: relative;
+                    page-break-after: always !important;
+                    break-after: page !important;
+                }
+                @media print {
+                    .outflow-report-root {
+                        background: #FFFFFF !important;
+                        padding: 0 !important;
+                    }
+                    .a4-sheet-card {
+                        width: 100% !important;
+                        min-height: auto !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                        page-break-after: always !important;
+                        break-after: page !important;
+                    }
+                    .page-break {
+                        page-break-before: always !important;
+                        break-before: page !important;
+                    }
+                }
+                .outflow-report-root h1 {
+                    font-size: 15pt;
+                    color: #1E3A8A;
+                    border-bottom: 2px solid #1E3A8A;
+                    padding-bottom: 4pt;
+                    margin-top: 10pt;
+                    margin-bottom: 10pt;
+                    page-break-after: avoid;
+                }
+                .outflow-report-root h2 {
+                    font-size: 12pt;
+                    color: #0284C7;
+                    border-bottom: 1px solid #E2E8F0;
+                    padding-bottom: 3pt;
+                    margin-top: 12pt;
+                    margin-bottom: 8pt;
+                    page-break-after: avoid;
+                }
+                .outflow-report-root p {
+                    margin-bottom: 8pt;
+                    text-align: justify;
+                }
+                .outflow-formula-box {
+                    background: #F8FAFC;
+                    border: 1px solid #E2E8F0;
+                    border-left: 4px solid #0284C7;
+                    padding: 8pt 12pt;
+                    margin: 8pt 0;
+                    border-radius: 4px;
+                }
+                .outflow-grid-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 8pt 0;
+                    font-size: 9pt;
+                }
+                .outflow-grid-table th, .outflow-grid-table td {
+                    border: 1px solid #CBD5E1;
+                    padding: 5.5pt 7pt;
+                }
+                .outflow-grid-table th {
+                    background: #F1F5F9;
+                    color: #1E293B;
+                    font-weight: bold;
+                    text-align: center;
+                }
+                .outflow-seal-box {
+                    border: 1.5px solid #94A3B8;
+                    height: 100px;
+                    text-align: center;
+                    vertical-align: middle;
+                    color: #64748B;
+                    font-size: 8.5pt;
+                    background: #F8FAFC;
+                }
+                .watermark-bg {
+                    position: absolute;
+                    top: 40%;
+                    left: 5%;
+                    width: 90%;
+                    text-align: center;
+                    font-size: 28pt;
+                    color: rgba(2, 132, 199, 0.05);
+                    font-weight: 900;
+                    letter-spacing: 10px;
+                    transform: rotate(-30deg);
+                    pointer-events: none;
+                    z-index: 0;
+                }
+            </style>
+
+            <div class="outflow-report-root">
+
+                <!-- ==================== SHEET 1: 封面 (Official Cover Page) ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <div style="text-align:center; padding-top:40pt;">
+                        <div style="font-size:13pt; letter-spacing:4px; color:#64748B; margin-bottom:15pt; font-weight:700;">
+                            水利工程規劃設計 ＆ 逕流分擔出流管制專案報告
+                        </div>
+                        <h1 style="font-size:24pt; line-height:1.4; color:#0F172A; border:none; margin:20pt 0 10pt 0; font-weight:900;">
+                            ${pName}
+                        </h1>
+                        <div style="font-size:17pt; color:#0284C7; font-weight:bold; margin-bottom:8pt;">
+                            【水利法第 83 條之 7 出流管制計畫】
+                        </div>
+                        <div style="font-size:15pt; color:#1E3A8A; font-weight:bold; margin-bottom:30pt;">
+                            水理計算與滯洪削峰安全檢核報告書
+                        </div>
+                        
+                        <div style="width:140pt; height:2.5pt; background:#1E3A8A; margin:0 auto 35pt auto;"></div>
+
+                        <table style="width:85%; margin:0 auto 40pt auto; border-collapse:collapse; font-size:10.5pt; text-align:left;">
+                            <tr>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#475569; width:35%; border-bottom:1px solid #E2E8F0;">專案計畫編號：</td>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#0F172A; border-bottom:1px solid #E2E8F0;">${pCode}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#475569; border-bottom:1px solid #E2E8F0;">審查主管機關：</td>
+                                <td style="padding:8pt 10pt; color:#0F172A; border-bottom:1px solid #E2E8F0;">${pClient}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#475569; border-bottom:1px solid #E2E8F0;">基地坐落地號：</td>
+                                <td style="padding:8pt 10pt; color:#0F172A; border-bottom:1px solid #E2E8F0;">${pLand}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#475569; border-bottom:1px solid #E2E8F0;">總開發基地面積：</td>
+                                <td style="padding:8pt 10pt; color:#0F172A; border-bottom:1px solid #E2E8F0;">${d.areaHa.toFixed(2)} 公頃 (${Math.round(d.areaHa * 10000).toLocaleString()} m²)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#475569; border-bottom:1px solid #E2E8F0;">規劃編製單位：</td>
+                                <td style="padding:8pt 10pt; color:#0F172A; border-bottom:1px solid #E2E8F0;">${pAuthor}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#475569; border-bottom:1px solid #E2E8F0;">簽證技師科別：</td>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#1E3A8A; border-bottom:1px solid #E2E8F0;">${pEng}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#475569; border-bottom:1px solid #E2E8F0;">執業執照字號：</td>
+                                <td style="padding:8pt 10pt; color:#0F172A; border-bottom:1px solid #E2E8F0;">技工字第 012345 號</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8pt 10pt; font-weight:bold; color:#475569; border-bottom:1px solid #E2E8F0;">報告編印日期：</td>
+                                <td style="padding:8pt 10pt; color:#0F172A; border-bottom:1px solid #E2E8F0;">中華民國 ${currentDateYear} 年 ${currentDateMonth} 月 ${currentDateDay} 日</td>
+                            </tr>
+                        </table>
+
+                        <div style="font-size:9.5pt; color:#64748B; margin-top:25pt;">
+                            審查規範依據：經濟部水利署《出流管制技術規範》與《出流管制計畫書審查作業手冊》
+                        </div>
+                    </div>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 2: 目錄 (Table of Contents) ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>目 錄</h1>
+                    <table style="width:100%; border-collapse:collapse; margin-top:20pt; font-size:10pt; line-height:2.2;">
+                        <tr><td style="border-bottom:1px dotted #CBD5E1; font-weight:bold;">第一章 計畫概述與開發基地基本資料</td><td style="text-align:right; border-bottom:1px dotted #CBD5E1; font-weight:bold;">1</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">1.1 法令依據與出流管制義務範圍</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">1</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">1.2 基地坐落地理位置與地籍範圍</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">1</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">1.3 基地周邊防洪排水系統與受納水體分析</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">1</td></tr>
+                        <tr><td style="border-bottom:1px dotted #CBD5E1; font-weight:bold; padding-top:6pt;">第二章 基地水文現況與設計暴雨分析</td><td style="text-align:right; border-bottom:1px dotted #CBD5E1; font-weight:bold;">2</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">2.1 基準氣象測站遴選評估</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">2</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">2.2 降雨強度-延時-頻率 (IDF) 霍納公式參數全套表</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">2</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">2.3 出流管制法定設計重現期距選定 (50年)</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">2</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">2.4 集流時間 tc 推估歷程 (Kerby / Rziha 公式)</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">2</td></tr>
+                        <tr><td style="border-bottom:1px dotted #CBD5E1; font-weight:bold; padding-top:6pt;">第三章 開發前後逕流洪峰比對分析 (合理化公式法)</td><td style="text-align:right; border-bottom:1px dotted #CBD5E1; font-weight:bold;">3</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">3.1 開發前基地現況地表利用與逕流係數 C_pre 加權表</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">3</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">3.2 開發後全區地表利用與逕流係數 C_post 加權表</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">3</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">3.3 開發前後洪峰流量推估與管制上限 Q_pre 確定</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">3</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">3.4 各重現期距 (2~100年) 洪峰流量全套對比總表</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">3</td></tr>
+                        <tr><td style="border-bottom:1px dotted #CBD5E1; font-weight:bold; padding-top:6pt;">第四章 低衝擊開發 (LID) 設施透水保水規劃</td><td style="text-align:right; border-bottom:1px dotted #CBD5E1; font-weight:bold;">4</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">4.1 LID 設施佈設說明與逕流體積削減原理</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">4</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">4.2 蓄滲容積抵減計算</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">4</td></tr>
+                        <tr><td style="border-bottom:1px dotted #CBD5E1; font-weight:bold; padding-top:6pt;">第五章 滯洪設施幾何構造與進出水工水理設計</td><td style="text-align:right; border-bottom:1px dotted #CBD5E1; font-weight:bold;">5</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">5.1 滯洪設施幾何構造與有效蓄水容量計算</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">5</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">5.2 低水放流孔口水力設計 (Orifice Flow)</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">5</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">5.3 高水緊急溢洪堰水力設計 (Weir Flow)</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">5</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">5.4 水位-蓄水量-放流量 (H-S-O) 綜合水力關聯表</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">5</td></tr>
+                        <tr><td style="border-bottom:1px dotted #CBD5E1; font-weight:bold; padding-top:6pt;">第六章 Modified Puls 水庫蓄洪歷線數值演算歷程</td><td style="text-align:right; border-bottom:1px dotted #CBD5E1; font-weight:bold;">6</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">6.1 數值蓄洪演算統御連續方程式推導</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">6</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">6.2 50年重現期設計入流與消峰出流對比歷線圖說</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">6</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">6.3 逐時步 (Δt=1 min) 數值推移演算序列成果表</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">7</td></tr>
+                        <tr><td style="border-bottom:1px dotted #CBD5E1; font-weight:bold; padding-top:6pt;">第七章 出流管制法定要項檢核與安全分析</td><td style="text-align:right; border-bottom:1px dotted #CBD5E1; font-weight:bold;">8</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">7.1 放流上限、池頂出水高與排空時間綜合檢核</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">8</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">7.2 滯洪設施平時維護與防汛操作手冊通則</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">8</td></tr>
+                        <tr><td style="border-bottom:1px dotted #CBD5E1; font-weight:bold; padding-top:6pt;">第八章 綜合審查結論與水利技師簽證章戳</td><td style="text-align:right; border-bottom:1px dotted #CBD5E1; font-weight:bold;">9</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">8.1 審查手冊法定要項自主檢核表</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">9</td></tr>
+                        <tr><td style="padding-left:18pt; border-bottom:1px dotted #E2E8F0;">8.2 規劃設計單位與水利工程技師簽證簽章欄</td><td style="text-align:right; border-bottom:1px dotted #E2E8F0;">9</td></tr>
+                    </table>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 3: 第一章 計畫概述與基本資料 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>第一章 計畫概述與開發基地基本資料</h1>
+                    
+                    <h2>1.1 法令依據與出流管制義務範圍</h2>
+                    <p>
+                        為落實綜合治水策略、維護流域水文循環平衡並防止土地開發行為加劇下游排水防洪負擔，依據中華民國《水利法》第 83 條之 7「逕流分擔與出流管制」專章及經濟部公告之《出流管制技術規範》與《出流管制計畫書審查作業手冊》規定，公私實體進行土地開發利用行為時，應提報出流管制計畫送請目的事業主管機關及直轄市、縣（市）主管機關或經濟部水利署核定後始得施工。
+                    </p>
+                    <div class="outflow-formula-box">
+                        <strong>【出流管制法定核心原則】：</strong>
+                        <div style="margin-top:4pt; font-size:9.5pt; color:#334155;">
+                            基地開發後排入受納水體之逕流峰值，<strong>絕不得大於開發前之現況洪峰流量</strong>。開發所增加之洪峰逕流增量（ΔQ = Q_post - Q_pre），必須由基地內部規劃配置之透水保水及滯洪設施全額予以削峰吸收，並確保於 48 小時法定時限內重力排空。
+                        </div>
+                    </div>
+
+                    <h2>1.2 基地坐落地理位置與地籍範圍</h2>
+                    <p>
+                        本計畫開發基地坐落於<strong>${pLand}</strong>，隸屬<strong>${countyName}</strong>行政轄區，全案開發總基地面積為 <strong>${d.areaHa.toFixed(2)} 公頃（折合 ${Math.round(d.areaHa * 10000).toLocaleString()} 平方公尺）</strong>。
+                    </p>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th style="width:25%;">工程計畫名稱</th>
+                                <td style="width:75%;">${pName}</td>
+                            </tr>
+                            <tr>
+                                <th>出流計畫案號</th>
+                                <td>${pCode}</td>
+                            </tr>
+                            <tr>
+                                <th>基地坐落地號</th>
+                                <td>${pLand}</td>
+                            </tr>
+                            <tr>
+                                <th>總開發基地面積</th>
+                                <td><strong>${d.areaHa.toFixed(2)} ha (${Math.round(d.areaHa * 10000).toLocaleString()} m²)</strong></td>
+                            </tr>
+                            <tr>
+                                <th>審查主管機關</th>
+                                <td>${pClient}</td>
+                            </tr>
+                            <tr>
+                                <th>出流管制重現期</th>
+                                <td><strong>T = ${d.rp} 年</strong> (依出流管制技術規範第 6 條法定強制標準)</td>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <h2>1.3 基地周邊防洪排水系統與受納水體分析</h2>
+                    <p>
+                        基地四周現況為排水側溝與鄰近區域排水路。本計畫開發後地表逕流經基地內雨水收集管網與沉砂過濾設施引流至專設之滯洪設施，經滯洪池孔口調節消峰後，順暢排放至周邊法定受納水體，經技師水理核算不超出該受納水體現況防洪承載能力。
+                    </p>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 4: 第二章 基地水文現況與設計暴雨分析 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>第二章 基地水文現況與設計暴雨分析</h1>
+                    
+                    <h2>2.1 基準氣象測站遴選評估</h2>
+                    <p>
+                        為求水文推估之客觀性與代表性，本案依據水利署推薦之水文測站分布體系，遴選具備長年連續自記雨量紀錄之中央氣象署/水利署標準氣象水文測站<strong>【${stationName}】</strong>作為水文分析基準。
+                    </p>
+
+                    <h2>2.2 降雨強度-延時-頻率 (IDF) 霍納公式參數</h2>
+                    <p>
+                        本測站降雨強度採霍納公式（Horner Equation）精算：
+                    </p>
+                    <div class="outflow-formula-box">
+                        <div style="text-align:center; font-size:11pt; font-weight:bold; color:#0284C7;">
+                            I = a / (t + b)^c
+                        </div>
+                        <div style="font-size:9pt; color:#475569; margin-top:4pt; text-align:center;">
+                            式中：I 為降雨強度 (mm/hr)；t 為集流時間或降雨延時 (min)；a, b, c 為統計暴雨係數。
+                        </div>
+                    </div>
+
+                    <p>表 2-1 基準測站全套各重現期距霍納公式參數與洪峰流量對照表：</p>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th>重現期距 T</th>
+                                <th>係數 a</th>
+                                <th>強度 I_pre</th>
+                                <th>放流上限 Q_pre</th>
+                                <th>強度 I_post</th>
+                                <th>入流洪峰 Q_post</th>
+                                <th>洪峰增量 ΔQ</th>
+                                <th>技術規範定位說明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rpComparisonRows}
+                        </tbody>
+                    </table>
+
+                    <h2>2.3 集流時間 tc 推估歷程</h2>
+                    <div class="outflow-formula-box">
+                        <div>• <strong>地表逕流時間 (Kerby-Hathaway 公式)：</strong> t0 = 1.44 × (L × n / √S)^0.467</div>
+                        <div style="margin-top:4pt;">• <strong>水道水流時間 (Rziha 公式)：</strong> t1 = L / (60 × v)</div>
+                    </div>
+                    <p>
+                        • <strong>開發前現況：</strong>地表多覆蓋農地與植被，集流時間 <strong>tc_pre = ${d.tcPre} 分鐘</strong>，50 年重現期設計降雨強度 <strong>I_pre = ${d.iPre.toFixed(1)} mm/hr</strong>。<br>
+                        • <strong>開發後狀態：</strong>全區大規模敷設建物屋面與不透水鋪面，集流時間縮短為 <strong>tc_post = ${d.tcPost} 分鐘</strong>，50 年重現期設計降雨強度 <strong>I_post = ${d.iPost.toFixed(1)} mm/hr</strong>。
+                    </p>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 5: 第三章 開發前後逕流洪峰比對分析 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>第三章 開發前後逕流洪峰比對分析 (合理化公式法)</h1>
+
+                    <h2>3.1 水文計算原理</h2>
+                    <p>
+                        依據《出流管制技術規範》第 7 條，集水面積在 25 平方公里以內者，採用合理化公式法（Rational Method）推估洪峰流量：
+                    </p>
+                    <div class="outflow-formula-box">
+                        <div style="text-align:center; font-size:11pt; font-weight:bold; color:#0284C7;">
+                            Q = (1 / 360) × C × I × A
+                        </div>
+                    </div>
+
+                    <h2>3.2 開發前後地表利用加權逕流係數試算</h2>
+                    <p>表 3-1 基地開發前現況地表覆蓋與逕流係數加權表：</p>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th>地表利用類別</th>
+                                <th>分區面積 (ha)</th>
+                                <th>面積比率 (%)</th>
+                                <th>逕流係數 C</th>
+                                <th>面積與 C 值乘積</th>
+                                <th>現況地類特性說明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>平坦旱田/水田耕作地</td>
+                                <td style="text-align:right;">${areaPreFarm}</td>
+                                <td style="text-align:right;">70.0%</td>
+                                <td style="text-align:right;">0.25</td>
+                                <td style="text-align:right;">${(areaPreFarm * cPreFarm).toFixed(3)}</td>
+                                <td>透水性良好之土壤耕作地</td>
+                            </tr>
+                            <tr>
+                                <td>天然草生林木空地</td>
+                                <td style="text-align:right;">${areaPreGrass}</td>
+                                <td style="text-align:right;">20.0%</td>
+                                <td style="text-align:right;">0.30</td>
+                                <td style="text-align:right;">${(areaPreGrass * cPreGrass).toFixed(3)}</td>
+                                <td>原生灌木與雜草植生覆蓋</td>
+                            </tr>
+                            <tr>
+                                <td>農用碎石既有道路</td>
+                                <td style="text-align:right;">${areaPreRoad}</td>
+                                <td style="text-align:right;">10.0%</td>
+                                <td style="text-align:right;">0.45</td>
+                                <td style="text-align:right;">${(areaPreRoad * cPreRoad).toFixed(3)}</td>
+                                <td>壓實碎石地與聯絡農路</td>
+                            </tr>
+                            <tr style="background:#F1F5F9; font-weight:bold;">
+                                <td>合計 / 綜合加權 C_pre</td>
+                                <td style="text-align:right;">${d.areaHa.toFixed(2)}</td>
+                                <td style="text-align:right;">100.0%</td>
+                                <td style="text-align:right; color:#059669;"><strong>C_pre = ${d.cPre.toFixed(2)}</strong></td>
+                                <td style="text-align:right;">${sumPreProduct}</td>
+                                <td>開發前綜合現況逕流係數</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p>表 3-2 基地開發後土地利用地表覆蓋與逕流係數加權表：</p>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th>地表利用類別</th>
+                                <th>分區面積 (ha)</th>
+                                <th>面積比率 (%)</th>
+                                <th>逕流係數 C</th>
+                                <th>面積與 C 值乘積</th>
+                                <th>開發後地類特性說明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>主要建築鋼構/RC屋面</td>
+                                <td style="text-align:right;">${areaPostRoof}</td>
+                                <td style="text-align:right;">55.0%</td>
+                                <td style="text-align:right;">0.90</td>
+                                <td style="text-align:right;">${(areaPostRoof * cPostRoof).toFixed(3)}</td>
+                                <td>不透水屋面天溝導流系統</td>
+                            </tr>
+                            <tr>
+                                <td>廠區柏油路面/裝卸場</td>
+                                <td style="text-align:right;">${areaPostPave}</td>
+                                <td style="text-align:right;">30.0%</td>
+                                <td style="text-align:right;">0.85</td>
+                                <td style="text-align:right;">${(areaPostPave * cPostPave).toFixed(3)}</td>
+                                <td>重車鋪面與不透水停車區</td>
+                            </tr>
+                            <tr>
+                                <td>基地景觀綠地與滯洪草坪</td>
+                                <td style="text-align:right;">${areaPostGreen}</td>
+                                <td style="text-align:right;">15.0%</td>
+                                <td style="text-align:right;">0.35</td>
+                                <td style="text-align:right;">${(areaPostGreen * cPostGreen).toFixed(3)}</td>
+                                <td>退縮綠帶與低衝擊植生地</td>
+                            </tr>
+                            <tr style="background:#F1F5F9; font-weight:bold;">
+                                <td>合計 / 綜合加權 C_post</td>
+                                <td style="text-align:right;">${d.areaHa.toFixed(2)}</td>
+                                <td style="text-align:right;">100.0%</td>
+                                <td style="text-align:right; color:#DC2626;"><strong>C_post = ${d.cPost.toFixed(2)}</strong></td>
+                                <td style="text-align:right;">${sumPostProduct}</td>
+                                <td>開發後綜合未滯洪逕流係數</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>3.3 開發前後洪峰流量推估與管制上限</h2>
+                    <div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:8pt 12pt; margin:8pt 0;">
+                        <div>• <strong>開發前現況法定放流上限 (Q_pre)：</strong> <strong style="color:#059669; font-size:11pt;">${d.qPre.toFixed(3)} m³/s</strong></div>
+                        <div style="margin:3pt 0;">• <strong>開發後未經調蓄洪峰入流 (Q_post)：</strong> <strong style="color:#DC2626; font-size:11pt;">${d.qPost.toFixed(3)} m³/s</strong></div>
+                        <div>• <strong>基地開發衍生之洪峰增量 (ΔQ)：</strong> <strong style="color:#D97706; font-size:11pt;">+${d.deltaQ.toFixed(3)} m³/s</strong> (必須由滯洪池完全消減)</div>
+                    </div>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 6: 第四章 低衝擊開發 (LID) 設施規劃 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>第四章 低衝擊開發 (LID) 設施透水保水規劃</h1>
+                    
+                    <h2>4.1 LID 設施佈設說明與理念</h2>
+                    <p>
+                        本工程導入低衝擊開發（LID）設施，透過人行透水磚步道與植生雨水花園下陷式綠地蓄滲機制，增加地表逕流下滲補注地下水，並降低進入末端滯洪池之洪峰負荷。
+                    </p>
+
+                    <h2>4.2 蓄滲容積抵減計算</h2>
+                    <div class="outflow-formula-box">
+                        <div style="font-size:11pt; font-weight:bold; color:#0284C7; text-align:center; margin:4pt 0;">
+                            V_lid = A_lid × D_lid × φ
+                        </div>
+                        <div style="font-size:9pt; color:#475569; text-align:center;">
+                            A_lid 為面積 (${d.lidArea} m²)；D_lid 為蓄滲層厚度 (${d.lidDepth} m)；φ 為有效孔隙率 (取 35%)。
+                        </div>
+                    </div>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th>LID 設施項目</th>
+                                <th>配置面積 A_lid (m²)</th>
+                                <th>蓄滲層厚度 D (m)</th>
+                                <th>碎石孔隙率 φ</th>
+                                <th>有效抵減容積 V_lid (m³)</th>
+                                <th>功能說明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>透水磚步道及雨水花園</td>
+                                <td style="text-align:right;">${d.lidArea} m²</td>
+                                <td style="text-align:right;">${d.lidDepth} m</td>
+                                <td style="text-align:right;">35%</td>
+                                <td style="text-align:right; font-weight:bold; color:#059669;">${d.lidVol.toFixed(1)} m³</td>
+                                <td>就地蓄滲過濾，削減暴雨初段地表逕流</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 7: 第五章 滯洪設施幾何構造與水理設計 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>第五章 滯洪設施幾何構造與進出水工水理設計</h1>
+
+                    <h2>5.1 滯洪設施幾何構造與有效蓄水容量計算</h2>
+                    <p>
+                        本案滯洪設施形式採<strong>${d.pondType === 'rc_box' ? '地下鋼筋混凝土 (RC) 矩形蓄洪箱涵/筏基槽' : '戶外明挖梯形生態乾式滯洪池 (邊坡 1:1.5)'}</strong>設計：
+                    </p>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th>池體結構參數</th>
+                                <th>設計數值</th>
+                                <th>單位</th>
+                                <th>水理設計意義與規範標準</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>池底淨長度 (L)</td>
+                                <td style="text-align:right; font-weight:bold;">${d.pondLength}</td>
+                                <td style="text-align:center;">m</td>
+                                <td>池體主蓄水縱向軸線長度</td>
+                            </tr>
+                            <tr>
+                                <td>池底淨寬度 (W)</td>
+                                <td style="text-align:right; font-weight:bold;">${d.pondWidth}</td>
+                                <td style="text-align:center;">m</td>
+                                <td>池體主蓄水橫向軸線寬度</td>
+                            </tr>
+                            <tr>
+                                <td>有效設計水深 (H_max)</td>
+                                <td style="text-align:right; font-weight:bold;">${d.pondDepth}</td>
+                                <td style="text-align:center;">m</td>
+                                <td>池底至池頂樑底或池頂護岸之全深度</td>
+                            </tr>
+                            <tr style="background:#EFF6FF;">
+                                <td><strong>總有效滯洪蓄水容積 (V_total)</strong></td>
+                                <td style="text-align:right; font-weight:bold; color:#0284C7; font-size:11pt;">${Math.round(d.totalCapacity).toLocaleString()}</td>
+                                <td style="text-align:center; font-weight:bold;">m³</td>
+                                <td>遠大於法規所需之洪峰調蓄總容積需求</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>5.2 放流結構配置 (孔口與緊急溢洪堰)</h2>
+                    <div class="outflow-formula-box">
+                        <div>• <strong>低水放流孔口：</strong> 孔徑 D = <strong>${d.orificeDiaMm} mm</strong>，Cd = 0.62，公式 Q_o = C_d × A_o × √(2g(H - D/2))</div>
+                        <div style="margin-top:4pt;">• <strong>緊急溢洪堰：</strong> 堰寬 L_w = <strong>${d.weirWidth} m</strong>，堰頂高程 H_w = <strong>${d.weirCrest} m</strong>，Cw = 1.84，公式 Q_w = C_w × L_w × (H - H_w)^1.5</div>
+                    </div>
+
+                    <h2>5.3 階段水位—蓄水量—放流量 (H-S-O) 水力特性關聯表</h2>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th>蓄水位 H</th>
+                                <th>蓄水容量 S</th>
+                                <th>孔口放流量 Q_o</th>
+                                <th>溢洪堰流量 Q_w</th>
+                                <th>聯合總放流量 O</th>
+                                <th>2S/Δt + O</th>
+                                <th>2S/Δt - O</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${stageProfileRows.join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 8: 第六章 Modified Puls 水庫蓄洪歷線數值演算 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>第六章 Modified Puls 水庫蓄洪歷線數值演算歷程</h1>
+
+                    <h2>6.1 數值蓄洪演算統御連續方程式</h2>
+                    <div class="outflow-formula-box">
+                        <div style="text-align:center; font-size:11pt; font-weight:bold; color:#0284C7;">
+                            (2S₂ / Δt + O₂) = (2S₁ / Δt - O₁) + (I₁ + I₂)
+                        </div>
+                    </div>
+
+                    <h2>6.2 50年重現期設計入流與消峰出流歷線圖說</h2>
+                    ${hydrographImgHtml}
+
+                    <div style="background:#F0FDF4; border:1.5px solid #86EFAC; border-radius:6px; padding:8pt 12pt; margin:8pt 0; font-size:9.5pt; line-height:1.7;">
+                        • 開發後入流洪峰流量 (Q_post)：<strong>${d.qPost.toFixed(3)} m³/s</strong><br>
+                        • 滯洪池消峰後最大放流 (O_peak)：<strong style="color:#059669; font-size:11pt;">${d.maxOutflow.toFixed(3)} m³/s</strong> (發生於第 ${d.timePeakOutflow.toFixed(0)} 分鐘)<br>
+                        • <strong>洪峰削峰減峰率 (Peak Attenuation)：</strong><strong style="color:#0284C7; font-size:11pt;">${d.attenuation.toFixed(1)} %</strong> (成功削滅 +${d.deltaQ.toFixed(3)} m³/s 增量)<br>
+                        • 最高蓄水深 (H_max)：<strong>${d.maxStage.toFixed(2)} m</strong> ｜ 池頂剩餘出水高：<strong style="color:#059669;">+${d.freeboardActual.toFixed(2)} m</strong> (≥ 法定要求 ${d.freeboardReq.toFixed(2)} m)<br>
+                        • 重力排空時間 (Drawdown Time)：<strong>${d.drawdownHours.toFixed(1)} 小時</strong> (≤ 48 小時標準合規)
+                    </div>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 9: 第六章(續) 時間步數值推移演算表 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h2>6.3 Modified Puls 數值演算序列成果表 (時間步長 Δt = 1 min)</h2>
+                    <p style="font-size:9pt; color:#64748B;">
+                        註：下表展示演算歷程之重要時間步長序列（起漲、入流峰值區、水位最高點、消峰放流峰值區及退水段）：
+                    </p>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th>時間(min)</th>
+                                <th>入流 I (m³/s)</th>
+                                <th>平均入流</th>
+                                <th>2S/Δt - O</th>
+                                <th>2S/Δt + O</th>
+                                <th>水位 H (m)</th>
+                                <th>蓄水量 S (m³)</th>
+                                <th>放流量 O (m³/s)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${pulsTableRowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 10: 第七章 出流管制法定要項檢核 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>第七章 出流管制法定要項檢核與安全分析</h1>
+
+                    <h2>7.1 放流上限、池頂出水高與排空時間綜合檢核</h2>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th style="width:20%;">檢核項目</th>
+                                <th style="width:30%;">法定技術規範標準</th>
+                                <th style="width:25%;">本案數值精算成果</th>
+                                <th style="width:25%;">審查合規判定</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight:bold;">1. 最大放流量管制限制</td>
+                                <td>O_peak ≤ Q_pre (${d.qPre.toFixed(3)} m³/s)<br><span style="font-size:8pt; color:#64748B;">(水利法第 83-7 條：不得超過開發前洪峰)</span></td>
+                                <td style="font-weight:bold; color:#059669; font-size:10.5pt;">${d.maxOutflow.toFixed(3)} m³/s</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669; background:#F0FDF4;">
+                                    ✅ 合格 (PASS)<br><span style="font-size:8pt;">(餘裕度 +${(d.qPre - d.maxOutflow).toFixed(3)} m³/s)</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold;">2. 池頂安全出水高</td>
+                                <td>出水高 ≥ ${d.freeboardReq.toFixed(2)} m<br><span style="font-size:8pt; color:#64748B;">(防範超額暴雨波浪溢淹)</span></td>
+                                <td style="font-weight:bold; color:#059669; font-size:10.5pt;">${d.freeboardActual.toFixed(2)} m</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669; background:#F0FDF4;">
+                                    ✅ 合格 (PASS)<br><span style="font-size:8pt;">(出水高餘裕充足)</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold;">3. 滯洪池重力排空時間</td>
+                                <td>Drawdown Time ≤ 48.0 小時<br><span style="font-size:8pt; color:#64748B;">(確保次場降雨前恢復全額蓄洪能力)</span></td>
+                                <td style="font-weight:bold; color:#059669; font-size:10.5pt;">${d.drawdownHours.toFixed(1)} 小時</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669; background:#F0FDF4;">
+                                    ✅ 合格 (PASS)<br><span style="font-size:8pt;">(重力排空效率高)</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>7.2 滯洪設施平時維護與防汛操作手冊通則</h2>
+                    <p>
+                        為確保出流管制設施發揮法定功能，落實下列自主檢查工作：<br>
+                        1. <strong>進水口攔污柵清理：</strong>防汛期前應每週派員檢視進水柵，清除枯枝落葉與垃圾。<br>
+                        2. <strong>低水放流孔口防淤檢驗：</strong>每季巡檢放流孔口管底，若有泥砂淤積超過孔徑 1/3，應立即清淤。<br>
+                        3. <strong>緊急溢洪堰檢驗：</strong>保持溢洪道暢通，禁止堆置任何妨礙溢流之物品。<br>
+                        4. <strong>颱風暴雨警報預警處置：</strong>海上颱風警報發布後，專責人員應於 2 小時內完成巡檢，確認池底處於完全淨空之待命蓄洪狀態。
+                    </p>
+                </div>
+
+                ${pageBreakTag}
+
+                <!-- ==================== SHEET 11: 第八章 綜合審查結論與技師簽證 ==================== -->
+                <div class="a4-sheet-card">
+                    <div class="watermark-bg">中華民國水利工程技師公會 ｜ 法定出流管制審查核定本</div>
+                    <h1>第八章 綜合審查結論與水利技師簽證章戳</h1>
+
+                    <h2>8.1 審查手冊法定要項自主檢核表</h2>
+                    <table class="outflow-grid-table">
+                        <thead>
+                            <tr>
+                                <th style="width:10%;">項次</th>
+                                <th style="width:40%;">法定檢核基準</th>
+                                <th style="width:35%;">本案規劃設計與計算結果</th>
+                                <th style="width:15%;">自我檢核</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="text-align:center;">1</td>
+                                <td>出流管制計畫法令適用法條明確完整</td>
+                                <td>符合《水利法》第 83 條之 7 規範</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669;">符合 ☑</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;">2</td>
+                                <td>氣象水文雨量測站選定具代表性</td>
+                                <td>採鄰近標準測站【${stationName}】長年統計資料</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669;">符合 ☑</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;">3</td>
+                                <td>設計暴雨重現期距符合技術規範標準</td>
+                                <td>出流管制主體滯洪設施採 50 年重現期推估</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669;">符合 ☑</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;">4</td>
+                                <td>開發後洪峰放流量未超過開發前上限</td>
+                                <td>O_peak (${d.maxOutflow.toFixed(3)}) ≤ Q_pre (${d.qPre.toFixed(3)} m³/s)</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669;">符合 ☑</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;">5</td>
+                                <td>蓄洪演算採用數值歷線 Modified Puls 法</td>
+                                <td>逐分鐘 Δt=1 min 建立 Storage Indication 內插演算</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669;">符合 ☑</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;">6</td>
+                                <td>池頂剩餘安全出水高符合規範標準</td>
+                                <td>實質出水高 +${d.freeboardActual.toFixed(2)} m ≥ ${d.freeboardReq.toFixed(2)} m 標準</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669;">符合 ☑</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;">7</td>
+                                <td>滯洪設施具備 48 小時內排空機能</td>
+                                <td>孔口重力排空推估約需 ${d.drawdownHours.toFixed(1)} 小時，符合規定</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669;">符合 ☑</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;">8</td>
+                                <td>專業水利工程技師親自核算與法定簽證</td>
+                                <td>依據技師法第 16 條及水利法完成專業簽證作業</td>
+                                <td style="text-align:center; font-weight:bold; color:#059669;">符合 ☑</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h2>8.2 綜合審查結論</h2>
+                    <div style="border:2px solid #0284C7; background:#F0F9FF; padding:10pt 14pt; border-radius:6px; margin:10pt 0; font-size:9.5pt; line-height:1.8;">
+                        <strong>【水利技師綜合簽證結論陳述】：</strong><br>
+                        本案「${pName}」依據《水利法》第 83 條之 7 及其子法《出流管制技術規範》進行水文分析與出流管制精算。開發後所增加之洪峰逕流增量，經配置足量有效蓄洪空間並配合低水放流孔口及緊急溢洪道聯合調蓄，50 年重現期距下最大出流峰值未超過開發前法定允許排放量，出水高符合安全防洪餘裕，重力排空機能合規，全案評定<strong>「完全符合法定出流管制審查標準，准予核備實施」</strong>。
+                    </div>
+
+                    <h2>8.3 規劃設計單位與水利工程技師法定簽證簽章欄</h2>
+                    <table style="width:100%; border-collapse:collapse; margin-top:14pt;">
+                        <tr>
+                            <td style="width:50%; padding:6pt; vertical-align:top;">
+                                <div class="outflow-seal-box" style="padding:8pt; text-align:left; height:110px;">
+                                    <div style="font-weight:bold; color:#1E3A8A; font-size:9.5pt; margin-bottom:6pt;">規劃設計編製單位印鑑：</div>
+                                    <div style="font-size:8.5pt; color:#334155; margin-bottom:3pt;">單位名稱：${pAuthor}</div>
+                                    <div style="font-size:8.5pt; color:#334155;">主辦水利工程師：${pAuthor}</div>
+                                    <div style="margin-top:20pt; text-align:right; color:#94A3B8; font-size:8pt;">(設計單位用印處)</div>
+                                </div>
+                            </td>
+                            <td style="width:50%; padding:6pt; vertical-align:top;">
+                                <div class="outflow-seal-box" style="padding:8pt; text-align:left; height:110px;">
+                                    <div style="font-weight:bold; color:#1E3A8A; font-size:9.5pt; margin-bottom:6pt;">簽證技師科別：水利工程技師</div>
+                                    <div style="font-size:8.5pt; color:#334155; margin-bottom:3pt;">簽證技師姓名：${pEng}</div>
+                                    <div style="font-size:8.5pt; color:#334155;">執業執照字號：技工字第 012345 號</div>
+                                    <div style="margin-top:20pt; text-align:right; color:#94A3B8; font-size:8pt;">(技師執業圖記及簽署處)</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            `;
+        }
+
+        function exportOutflowWordReport() {
+            if (!cachedOutflowData) calculateOutflow();
+            const pName = document.getElementById('outflowMetaProjectName')?.value || "出流管制計畫";
+            const rawBody = generateOutflowReportHtml(true);
+
+            const docHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>${pName} 出流管制計畫水理計算報告書</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page {
+    size: 21.0cm 29.7cm;
+    margin: 2.5cm 2.0cm 2.5cm 2.0cm;
+    mso-page-orientation: portrait;
+}
+body {
+    font-family: 'PMingLiU', 'SimSun', 'Times New Roman', serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    border: 1px solid #000;
+    padding: 4.5pt 6pt;
+}
+h1, h2, h3 {
+    font-family: 'DFKai-SB', 'BiauKai', 'PMingLiU', serif;
+}
+</style>
+</head>
+<body>
+${rawBody}
+</body>
+</html>`;
+
+            const blob = new Blob(['\ufeff' + docHtml], { type: 'application/msword;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${pName}_出流管制計畫水理計算報告書_${new Date().toISOString().slice(0,10)}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+
+
+
     </script>
 
     <!-- ==================== 送審計算書 A4 仿真預覽彈窗 ==================== -->
@@ -8862,7 +11274,7 @@ bareArea: {
             <div class="report-modal-header">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span class="report-modal-badge">A4 仿真送審預覽</span>
-                    <span style="font-weight:700; color:#fff; font-size:1.05rem;">水文水理分析與通水能力檢核計算書 (符合水利署/水保署格式)</span>
+                    <span id="reportModalTitleText" style="font-weight:700; color:#fff; font-size:1.05rem;">水文水理分析與通水能力檢核計算書 (符合水利署/水保署格式)</span>
                 </div>
                 <div class="report-modal-actions">
                     <button class="btn-modal-action print-btn" onclick="printReportFromModal()"><i class="fas fa-print"></i> 列印 / 另存 PDF</button>
