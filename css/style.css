@@ -235,15 +235,18 @@ h1, h2, h3, h4, h5, h6 {
     gap: 12px;
     text-decoration: none;
     cursor: pointer;
+    max-height: 56px;
+    overflow: hidden;
 }
 
 .logo-img {
-    height: 42px;
-    width: auto;
-    max-height: 46px;
-    object-fit: contain;
+    height: 40px !important;
+    max-height: 42px !important;
+    width: auto !important;
+    object-fit: contain !important;
     border-radius: 6px;
     display: block;
+    flex-shrink: 0;
     transition: transform 0.25s ease;
 }
 
