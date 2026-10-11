@@ -1,7 +1,7 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-10-11 10:02",
-  "total": 715,
+  "updated_at": "2026-10-11 18:56",
+  "total": 716,
   "tenders": [
     {
       "id": "cmps11501",
@@ -5178,6 +5178,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjIzOTQ="
     },
     {
+      "id": "115FH1210489342710",
+      "name": "涼山營區175靶場整修工程",
+      "org": "國防部陸軍司令部",
+      "county": "中央/陸軍",
+      "category": "work",
+      "budget": 13731552,
+      "deadline": "115/10/19",
+      "publish_date": "115/10/13",
+      "transmissions": "第 04 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDcxMDY="
+    },
+    {
       "id": "115FA01915836400110",
       "name": "紅柴林營區手榴彈實彈投擲場新建工程",
       "org": "國防部陸軍司令部",
@@ -5449,6 +5462,19 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開取得報價單或企劃書",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDI2OTk="
+    },
+    {
+      "id": "115022",
+      "name": "舉重場地整修工程",
+      "org": "國立玉里高級中學",
+      "county": "全國",
+      "category": "work",
+      "budget": 1435910,
+      "deadline": "115/10/15",
+      "publish_date": "115/10/12",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得電子報價單",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDIyMDg="
     },
     {
       "id": "FS1151001",
@@ -6294,19 +6320,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 02 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDcxODY="
-    },
-    {
-      "id": "115-052-23",
-      "name": "林內鄉林中村榮興村里聯絡道路改善工程等2案",
-      "org": "雲林縣林內鄉公所",
-      "county": "雲林縣",
-      "category": "work",
-      "budget": 8526000,
-      "deadline": "115/10/13",
-      "publish_date": "115/10/08",
-      "transmissions": "第 03 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDcxNzc="
     },
     {
       "id": "115-2-002",
