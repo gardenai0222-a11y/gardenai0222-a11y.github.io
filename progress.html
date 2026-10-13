@@ -370,26 +370,29 @@
             </div>
 
             <div id="tab-content-planned" class="hidden flex-grow min-h-0 overflow-y-auto">
-                <div class="grid grid-cols-1 gap-6">
+                <div class="flex flex-col gap-6">
+                    <!-- 上圖：預定排程雙包絡香蕉曲線全覽 (ES/LS Banana Envelope) -->
                     <div class="chart-box rounded-xl flex flex-col">
                         <button data-action="download-single-chart" data-canvas-id="plannedCombinedCanvas" class="chart-download-btn">
-                            <i class="fas fa-download"></i> 下載圖檔
+                            <i class="fas fa-download"></i> 下載解析圖
                         </button>
-                        <div class="relative flex-grow min-h-[380px]"><canvas id="plannedCombinedCanvas"></canvas></div>
+                        <div class="relative flex-grow min-h-[420px]"><canvas id="plannedCombinedCanvas"></canvas></div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="chart-box rounded-xl flex flex-col">
-                            <button data-action="download-single-chart" data-canvas-id="plannedSCurveCanvas" class="chart-download-btn">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <div class="relative flex-grow min-h-[340px]"><canvas id="plannedSCurveCanvas"></canvas></div>
-                        </div>
-                        <div class="chart-box rounded-xl flex flex-col">
-                            <button data-action="download-single-chart" data-canvas-id="plannedGanttCanvas" class="chart-download-btn">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <div class="relative flex-grow min-h-[340px]"><canvas id="plannedGanttCanvas"></canvas></div>
-                        </div>
+
+                    <!-- 中圖：預定排程香蕉雙包絡 S 曲線 (早期 ES vs. 晚期 LS 容許界限) -->
+                    <div class="chart-box rounded-xl flex flex-col">
+                        <button data-action="download-single-chart" data-canvas-id="plannedSCurveCanvas" class="chart-download-btn">
+                            <i class="fas fa-download"></i> 下載解析圖
+                        </button>
+                        <div class="relative flex-grow min-h-[420px]"><canvas id="plannedSCurveCanvas"></canvas></div>
+                    </div>
+
+                    <!-- 下圖：公共工程標準要徑甘特圖 (CPM Gantt Chart ＆ 總浮時展示) - 100% 全寬呈現 -->
+                    <div class="chart-box rounded-xl flex flex-col">
+                        <button data-action="download-single-chart" data-canvas-id="plannedGanttCanvas" class="chart-download-btn">
+                            <i class="fas fa-download"></i> 下載解析圖
+                        </button>
+                        <div class="relative flex-grow min-h-[480px]"><canvas id="plannedGanttCanvas"></canvas></div>
                     </div>
                 </div>
                 <div class="text-center mt-4">
@@ -1556,7 +1559,7 @@
                             </div>
                         </div>
                         <div class="transition-all duration-300 overflow-hidden ${isCollapsed ? 'max-h-0' : 'max-h-[9999px]'}">
-                            <div class="bg-gray-50 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 p-4 md:p-6 flex flex-col gap-6">
                                 ${renderTaskPlanningSection(project, summary.lastTaskEndDate)}
                                 ${renderProgressUpdateSection(project, progressDisplayDate)}
                             </div>
@@ -1710,18 +1713,24 @@
                 const placeholderText = progressForDate !== '' ? '修改進度' : '填入 %';
                 return `
                 <tr class="group hover:bg-blue-50/50">
+                    <td class="p-2.5 text-center font-mono text-xs font-bold text-gray-600 bg-gray-50/50">${task.wbsCode || ''}</td>
                     <td class="p-2.5 font-bold text-gray-800">${task.taskName}</td>
                     <td class="p-2.5 text-center font-mono font-bold text-amber-600" id="task-planned-progress-${task.id}">${getTaskPlannedProgress(task, asOfDate).toFixed(1)}%</td>
                     <td id="task-total-progress-${task.id}" class="p-2.5 text-center font-mono font-bold text-blue-700">${getTaskProgressAsOf(task, asOfDate).toFixed(1)}%</td>
-                    <td class="p-2.5 text-center"><input type="number" id="task-progress-${task.id}" value="${progressForDate}" min="0" max="100" class="w-24 p-1 text-center font-mono font-bold input-eng" placeholder="${placeholderText}"></td>
+                    <td class="p-2.5 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <input type="number" id="task-progress-${task.id}" value="${progressForDate}" min="0" max="100" class="w-24 p-1.5 text-center font-mono font-bold input-eng text-sm" placeholder="${placeholderText}">
+                            <span class="text-xs font-bold text-gray-500">%</span>
+                        </div>
+                    </td>
                 </tr>`;
             }).join('');
 
             return `
                 <div class="border border-gray-200 p-4 rounded-xl bg-white shadow-sm">
                     <h3 class="text-lg font-bold mb-3 text-primary-navy border-b border-gray-200 pb-2 flex items-center justify-between">
-                        <span><i class="fas fa-calendar-check text-blue-600"></i> II. 實際進度回報 (Tracking)</span>
-                        <span class="text-xs font-normal text-gray-500">歷史紀錄自動儲存</span>
+                        <span class="flex items-center gap-2"><i class="fas fa-calendar-check text-blue-600"></i> II. 實際進度回報 (Tracking)</span>
+                        <span class="text-xs font-normal text-gray-500">歷史紀錄自動儲存於本機</span>
                     </h3>
                     <div class="flex items-center flex-wrap gap-3 mb-3 bg-gray-50 p-2.5 rounded-lg border border-gray-200">
                         <label for="progressDate-${project.id}" class="text-xs font-bold text-gray-700">回報/修改基準日:</label>
@@ -1731,8 +1740,16 @@
                     </div>
                     <div class="overflow-x-auto rounded-lg border border-gray-200 max-h-[300px] overflow-y-auto">
                         <table class="min-w-full text-sm task-table">
-                            <thead><tr><th class="p-2 text-left">分項工程</th><th class="p-2">預定進度</th><th class="p-2">累計實際進度</th><th class="p-2">本日回報 %</th></tr></thead>
-                            <tbody class="divide-y divide-gray-200">${taskRows || '<tr><td colspan="4" class="p-4 text-center text-gray-400">請先於左側新增分項工程</td></tr>'}</tbody>
+                            <thead>
+                                <tr>
+                                    <th class="p-2 text-center w-16">WBS</th>
+                                    <th class="p-2 text-left">分項工程名稱</th>
+                                    <th class="p-2 text-center w-32">預定累積進度</th>
+                                    <th class="p-2 text-center w-32">累計實際進度</th>
+                                    <th class="p-2 text-center w-36">本日回報 %</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">${taskRows || '<tr><td colspan="5" class="p-4 text-center text-gray-400">請先於上方新增分項工程</td></tr>'}</tbody>
                         </table>
                     </div>
                 </div>`;
@@ -1893,14 +1910,37 @@
             },
             scales: {
                 x: {
-                    type: 'time', time: { unit: 'day', tooltipFormat: 'yyyy-MM-dd' },
-                    grid: { color: '#E2E8F0' }, ticks: { color: '#475569' },
+                    type: 'time', 
+                    time: { 
+                        unit: 'day',
+                        displayFormats: {
+                            day: 'MM/dd',
+                            week: 'MM/dd',
+                            month: 'yyyy/MM'
+                        }
+                    },
+                    grid: { color: '#F1F5F9' }, 
+                    ticks: { 
+                        color: '#475569',
+                        font: { size: 11, weight: '600' },
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 12,
+                        callback: function(val) {
+                            const d = new Date(val);
+                            if (isNaN(d.getTime())) return '';
+                            const m = String(d.getMonth() + 1).padStart(2, '0');
+                            const day = String(d.getDate()).padStart(2, '0');
+                            return `${m}/${day}`;
+                        }
+                    },
                     min: minDate, max: maxDate,
-                    title: { display: true, text: '日期', color: '#1E293B' }
+                    title: { display: true, text: '期程日期 (月/日)', color: '#0E1B2E', font: { weight: 'bold' } }
                 },
                 y: {
-                    grid: { color: '#E2E8F0' }, ticks: { color: '#475569' },
-                    title: { display: true, text: '分項工程', color: '#1E293B' },
+                    grid: { color: '#F1F5F9' }, 
+                    ticks: { color: '#1E293B', font: { weight: 'bold' } },
+                    title: { display: true, text: '分項工程', color: '#0E1B2E', font: { weight: 'bold' } },
                     stacked: false
                 }
             }
@@ -1957,40 +1997,47 @@
                     labels: project.tasks.map(t => `${t.wbsCode ? t.wbsCode + ' ' : ''}${t.taskName}`), 
                     datasets: [
                         { 
-                            label: '分項工程作業工期 (紅: ★要徑 / 藍: 非要徑)', 
+                            label: '分項工程作業工期', 
                             data: project.tasks.map(t => [t.plannedStartDate, t.plannedEndDate]), 
                             backgroundColor: project.tasks.map(t => t.isCritical ? '#DC2626' : '#2563EB'),
                             borderRadius: 4,
                             borderWidth: 1,
                             borderColor: project.tasks.map(t => t.isCritical ? '#991B1B' : '#1D4ED8'),
-                            barPercentage: 0.65
+                            barPercentage: 0.6,
+                            maxBarThickness: 22
                         },
                         { 
-                            label: '總浮時寬限緩衝 (Total Float Buffer)', 
+                            label: '總浮時寬限緩衝', 
                             data: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate && t.lateEndDate && t.plannedEndDate !== t.lateEndDate) ? [t.plannedEndDate, t.lateEndDate] : [t.plannedEndDate, t.plannedEndDate]), 
-                            backgroundColor: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate !== t.lateEndDate) ? 'rgba(245, 158, 11, 0.35)' : 'transparent'),
+                            backgroundColor: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate !== t.lateEndDate) ? 'rgba(245, 158, 11, 0.45)' : 'transparent'),
                             borderColor: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate !== t.lateEndDate) ? '#D97706' : 'transparent'),
                             borderWidth: 1.5,
                             borderDash: [4, 4],
                             borderRadius: 4,
-                            barPercentage: 0.4
+                            barPercentage: 0.35,
+                            maxBarThickness: 14
                         }
                     ] 
                 },
                 options: { 
                     ...defGanttOpts, 
                     indexAxis: 'y', 
-                    layout: { padding: { right: 80 } }, 
+                    layout: { padding: { left: 10, right: 120, top: 10, bottom: 15 } }, 
                     scales: {
                         x: {
                             ...defGanttOpts.scales.x,
                             stacked: false,
-                            title: { display: true, text: '期程日曆天 (Date)', color: '#0E1B2E', font: { weight: 'bold' } }
+                            title: { display: true, text: '期程日期 (月/日)', color: '#0E1B2E', font: { weight: 'bold' } }
                         },
                         y: {
                             type: 'category',
                             stacked: false,
-                            ticks: { font: { weight: 'bold', size: 12 }, color: '#0E1B2E' }
+                            ticks: { 
+                                font: { weight: 'bold', size: 12 }, 
+                                color: '#0E1B2E',
+                                padding: 8
+                            },
+                            grid: { color: '#F1F5F9' }
                         }
                     },
                     plugins: { 
@@ -1998,28 +2045,59 @@
                         legend: {
                             display: true,
                             position: 'top',
+                            align: 'center',
                             labels: {
+                                generateLabels: function(chart) {
+                                    return [
+                                        {
+                                            text: '★ 要徑作業工期 (TF=0)',
+                                            fillStyle: '#DC2626',
+                                            strokeStyle: '#991B1B',
+                                            lineWidth: 1,
+                                            hidden: false
+                                        },
+                                        {
+                                            text: '非要徑作業工期',
+                                            fillStyle: '#2563EB',
+                                            strokeStyle: '#1D4ED8',
+                                            lineWidth: 1,
+                                            hidden: false
+                                        },
+                                        {
+                                            text: '總浮時寬限緩衝 (Total Float Buffer)',
+                                            fillStyle: 'rgba(245, 158, 11, 0.45)',
+                                            strokeStyle: '#D97706',
+                                            lineWidth: 1.5,
+                                            lineDash: [3, 3],
+                                            hidden: false
+                                        }
+                                    ];
+                                },
                                 font: { weight: 'bold', size: 12 },
-                                color: '#0E1B2E'
+                                color: '#0E1B2E',
+                                padding: 20,
+                                boxWidth: 22,
+                                boxHeight: 12
                             }
                         },
                         datalabels: { 
-                            align: 'end', 
+                            align: 'right', 
                             anchor: 'end', 
-                            color: '#1E293B', 
-                            backgroundColor: 'rgba(241, 245, 249, 0.95)', 
+                            offset: 6,
+                            color: '#0E1B2E', 
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)', 
                             borderColor: '#CBD5E1',
                             borderWidth: 1,
                             borderRadius: 4, 
-                            padding: 3, 
-                            font: { size: 10, weight: 'bold' }, 
+                            padding: { top: 2, bottom: 2, left: 6, right: 6 }, 
+                            font: { size: 11, weight: 'bold' }, 
                             formatter: (v, ctx) => {
                                 const task = project.tasks[ctx.dataIndex];
                                 if (!task) return null;
                                 if (ctx.datasetIndex === 0) {
                                     return task.isCritical ? '★ 要徑 (TF=0)' : `${task.duration}天`;
                                 } else {
-                                    return task.totalFloat > 0 ? `+${task.totalFloat}d 浮時` : null;
+                                    return (task.totalFloat > 0 && task.plannedEndDate !== task.lateEndDate) ? `浮時+${task.totalFloat}天` : null;
                                 }
                             }
                         } 
@@ -2472,46 +2550,85 @@
                 return;
             }
 
-            const padding = 60;
-            const titleHeight = 80;
+            const padding = 40;
+            const headerHeight = 110;
+            const footerHeight = 40;
+            const exportWidth = 1600;
             
-            const totalWidth = Math.max(...canvasElements.map(c => c.width || 800)) + padding * 2;
-            const totalHeight = canvasElements.reduce((sum, canvas) => sum + (canvas.height || 400), 0) + (padding * (canvasElements.length + 1)) + titleHeight;
+            // 依真實比例計算各圖表高度，不失真拉伸
+            let totalChartHeight = 0;
+            const scaledCanvases = canvasElements.map(c => {
+                const w = c.width || 800;
+                const h = c.height || 400;
+                const scaledH = (h / w) * (exportWidth - padding * 2);
+                totalChartHeight += scaledH;
+                return { canvas: c, height: scaledH };
+            });
+            const interChartSpacing = 30;
+            const totalHeight = headerHeight + totalChartHeight + (interChartSpacing * (canvasElements.length - 1)) + footerHeight + padding;
 
             const combinedCanvas = document.createElement('canvas');
-            combinedCanvas.width = totalWidth;
+            combinedCanvas.width = exportWidth;
             combinedCanvas.height = totalHeight;
             const ctx = combinedCanvas.getContext('2d');
             
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
+            ctx.fillRect(0, 0, exportWidth, totalHeight);
             
-            // Navy Top Header Bar
-            ctx.fillStyle = '#0E1B2E';
-            ctx.fillRect(0, 0, combinedCanvas.width, 10);
-            
-            ctx.font = 'bold 26px "Noto Sans TC", sans-serif';
-            ctx.fillStyle = '#0E1B2E';
-            ctx.textAlign = 'center';
-            ctx.fillText(`【NOVERA 諾維拉工程顧問】${project.name} ─ S-Curve 工程進度分析圖`, combinedCanvas.width / 2, 45);
+            // Navy/Gold Gradient Accent Bar
+            const grad = ctx.createLinearGradient(0, 0, exportWidth, 0);
+            grad.addColorStop(0, '#0E1B2E');
+            grad.addColorStop(0.7, '#1E3A8A');
+            grad.addColorStop(1, '#C27803');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, exportWidth, 10);
 
-            ctx.font = '14px "Noto Sans TC", sans-serif';
+            // 企業與標案抬頭 (不贅述單圖標題，避免重複)
+            ctx.font = 'bold 24px "Noto Sans TC", sans-serif';
+            ctx.fillStyle = '#0E1B2E';
+            ctx.textAlign = 'left';
+            ctx.fillText(`【NOVERA 諾維拉工程顧問】${project.name} ─ 工程進度綜合分析圖`, padding, 52);
+
+            ctx.font = '13px "Noto Sans TC", sans-serif';
             ctx.fillStyle = '#64748B';
-            ctx.fillText(`製圖日期：${formatDate(new Date())} ｜ 契約總價：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`, combinedCanvas.width / 2, 70);
+            ctx.fillText(`製表基準日：${formatDate(new Date())} ｜ 契約發包總額：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`, padding, 82);
 
-            let currentY = padding + titleHeight;
-            canvasElements.forEach(canvas => {
-                ctx.drawImage(canvas, padding, currentY);
-                currentY += canvas.height + padding;
+            // 分隔線
+            ctx.strokeStyle = '#E2E8F0';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(padding, 98);
+            ctx.lineTo(exportWidth - padding, 98);
+            ctx.stroke();
+
+            let currentY = headerHeight;
+            scaledCanvases.forEach((item, idx) => {
+                ctx.drawImage(item.canvas, padding, currentY, exportWidth - padding * 2, item.height);
+                currentY += item.height;
+                if (idx < scaledCanvases.length - 1) {
+                    ctx.strokeStyle = '#F1F5F9';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(padding, currentY + interChartSpacing / 2);
+                    ctx.lineTo(exportWidth - padding, currentY + interChartSpacing / 2);
+                    ctx.stroke();
+                    currentY += interChartSpacing;
+                }
             });
+
+            // 底部專業標註
+            ctx.font = '12px "Noto Sans TC", sans-serif';
+            ctx.fillStyle = '#94A3B8';
+            ctx.textAlign = 'center';
+            ctx.fillText('行政院公共工程委員會標準進度管制與 CPM 要徑管考系統 ‧ NOVERA ENGINEERING CONSULTANT ‧ 機密工程文件', exportWidth / 2, totalHeight - 15);
             
             const a = document.createElement('a');
             a.href = combinedCanvas.toDataURL('image/png');
-            a.download = `NOVERA_${project.name}_${tabName}_進度分析圖_${formatDate(new Date())}.png`;
+            a.download = `NOVERA_${project.name}_${tabName}_進度分析全景圖_${formatDate(new Date())}.png`;
             document.body.appendChild(a);
             a.click();
             a.remove();
-            showMessage('進度圖表已成功下載為高解析 PNG 圖檔。', 'success');
+            showMessage('進度分析圖表已成功下載為高解析 PNG 圖檔。', 'success');
         }
         
         function downloadSingleChartAsPNG(canvasId, projectId) {
@@ -2523,44 +2640,69 @@
                 return;
             }
 
-            const landscapeCanvas = document.createElement('canvas');
-            landscapeCanvas.width = 1920;
-            landscapeCanvas.height = 1080;
-            const ctx = landscapeCanvas.getContext('2d');
-            
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, 1920, 1080);
-            
             const chart = Chart.getChart(sourceCanvas);
             const title = (chart && chart.options && chart.options.plugins && chart.options.plugins.title && chart.options.plugins.title.text) || '工程進度圖表';
             
-            ctx.font = 'bold 30px "Noto Sans TC", sans-serif';
+            // 建立高解析滿版畫布 (依圖表真實比例適應，不再留荒謬大白邊)
+            const padding = 40;
+            const headerHeight = 110;
+            const footerHeight = 40;
+            const exportWidth = 1600;
+            const scale = (exportWidth - padding * 2) / (sourceCanvas.width || 800);
+            const chartHeight = (sourceCanvas.height || 400) * scale;
+            const exportHeight = headerHeight + chartHeight + footerHeight + padding;
+
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = exportWidth;
+            exportCanvas.height = exportHeight;
+            const ctx = exportCanvas.getContext('2d');
+            
+            // 背景純白
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, exportWidth, exportHeight);
+            
+            // 頂部工程深藍企業裝飾條
+            const grad = ctx.createLinearGradient(0, 0, exportWidth, 0);
+            grad.addColorStop(0, '#0E1B2E');
+            grad.addColorStop(0.7, '#1E3A8A');
+            grad.addColorStop(1, '#C27803');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, exportWidth, 10);
+
+            // 標題 (絕不與圖表內標題重複，只呈現企業與專案抬頭)
+            ctx.font = 'bold 24px "Noto Sans TC", sans-serif';
             ctx.fillStyle = '#0E1B2E';
-            ctx.textAlign = 'center';
-            ctx.fillText(`NOVERA 諾維拉 ｜ ${project.name} - ${title}`, 1920 / 2, 60);
+            ctx.textAlign = 'left';
+            ctx.fillText(`【NOVERA 諾維拉工程顧問】${project.name}`, padding, 52);
 
-            ctx.font = '16px "Noto Sans TC", sans-serif';
+            ctx.font = '13px "Noto Sans TC", sans-serif';
             ctx.fillStyle = '#64748B';
-            ctx.fillText(`製圖日期：${formatDate(new Date())} ｜ 契約總價：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`, 1920 / 2, 90);
+            ctx.fillText(`製表基準日：${formatDate(new Date())} ｜ 契約發包總額：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期起訖：${project.startDate} ~ ${project.plannedCompletionDate} (共 ${project.contractDuration || 0} 天)`, padding, 82);
 
-            const padding = 60;
-            const targetWidth = 1920 - (padding * 2);
-            const targetHeight = 1080 - 110 - padding;
-            const ratio = Math.min(targetWidth / (sourceCanvas.width || 800), targetHeight / (sourceCanvas.height || 400));
-            const newWidth = (sourceCanvas.width || 800) * ratio;
-            const newHeight = (sourceCanvas.height || 400) * ratio;
-            const x = (1920 - newWidth) / 2;
-            const y = 110 + (targetHeight - newHeight) / 2;
+            // 分隔線
+            ctx.strokeStyle = '#E2E8F0';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(padding, 98);
+            ctx.lineTo(exportWidth - padding, 98);
+            ctx.stroke();
 
-            ctx.drawImage(sourceCanvas, x, y, newWidth, newHeight);
+            // 繪製高解析圖表畫布 (完美滿版無黑邊、無拉伸)
+            ctx.drawImage(sourceCanvas, padding, headerHeight, exportWidth - padding * 2, chartHeight);
+
+            // 底部專業標註
+            ctx.font = '12px "Noto Sans TC", sans-serif';
+            ctx.fillStyle = '#94A3B8';
+            ctx.textAlign = 'center';
+            ctx.fillText('行政院公共工程委員會標準進度管制與 CPM 要徑管考系統 ‧ NOVERA ENGINEERING CONSULTANT ‧ 機密工程文件', exportWidth / 2, exportHeight - 15);
 
             const a = document.createElement('a');
-            a.href = landscapeCanvas.toDataURL('image/png');
+            a.href = exportCanvas.toDataURL('image/png');
             a.download = `NOVERA_${project.name}_${title.replace(/\s+/g, '_')}_${formatDate(new Date())}.png`;
             document.body.appendChild(a);
             a.click();
             a.remove();
-            showMessage(`圖表「${title}」已成功下載為 1080P 高解析圖檔。`, 'success');
+            showMessage(`圖表「${title}」已成功下載為高解析工程圖檔。`, 'success');
         }
         
         function exportProjectToExcel(button) {
