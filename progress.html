@@ -344,13 +344,15 @@
             </h3>
             <div class="border-b border-gray-200 mt-3 mb-4">
                 <nav class="-mb-px flex space-x-4">
-                    <button id="tab-btn-comparison" data-tab="comparison" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base active"><i class="fas fa-balance-scale"></i> 預計 vs. 實際 S 曲線 (推薦)</button>
-                    <button id="tab-btn-planned" data-tab="planned" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-tasks"></i> 預定進度與甘特圖</button>
+                    <button id="tab-btn-comparison" data-tab="comparison" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base active"><i class="fas fa-layer-group text-accent-gold"></i> 雙包絡香蕉 S-Curve ＆ EVM 實獲值分析</button>
+                    <button id="tab-btn-planned" data-tab="planned" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-tasks"></i> 預定排程 (早期 vs. 晚期 S 曲線)</button>
                     <button id="tab-btn-actual" data-tab="actual" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-history"></i> 實際累積進度 S 曲線</button>
                 </nav>
             </div>
             
             <div id="tab-content-comparison" class="flex-grow min-h-0 overflow-y-auto">
+                <!-- EVM 實獲值綜合分析儀表板 -->
+                <div id="evm-metrics-dashboard" class="mb-4"></div>
                 <div class="grid grid-cols-1 gap-6">
                     <div class="chart-box rounded-xl flex flex-col">
                         <button data-action="download-single-chart" data-canvas-id="comparisonSCurveCanvas" class="chart-download-btn">
@@ -399,6 +401,8 @@
             </div>
 
             <div id="tab-content-actual" class="hidden flex-grow min-h-0 overflow-y-auto">
+                <!-- 實際進度現況綜合指標卡 -->
+                <div id="actual-metrics-dashboard" class="mb-4"></div>
                 <div class="grid grid-cols-1 gap-6">
                     <div class="chart-box rounded-xl flex flex-col">
                         <button data-action="download-single-chart" data-canvas-id="actualSCurveCanvas" class="chart-download-btn">
@@ -463,11 +467,50 @@
             <h3 class="text-xl font-bold mb-4 text-primary-navy border-b-2 border-accent-gold pb-2">修改分項工程工項</h3>
             <input type="hidden" id="editTaskProjectId">
             <input type="hidden" id="editTaskId">
-            <div class="space-y-4">
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">分項工程名稱 *</label><input type="text" id="editTaskName" class="w-full p-2 input-eng"></div>
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">工項金額 (NT$) *</label><input type="number" id="editTaskCost" class="w-full p-2 input-eng"></div>
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">預計開始日期 *</label><input type="date" id="editTaskStartDate" class="w-full p-2 input-eng"></div>
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">預計完成日期 *</label><input type="date" id="editTaskEndDate" class="w-full p-2 input-eng"></div>
+            <div class="space-y-3">
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">WBS 編碼</label>
+                        <input type="text" id="editTaskWbs" class="w-full p-2 input-eng font-mono text-sm" placeholder="例: 1.2">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">分項工程名稱 *</label>
+                        <input type="text" id="editTaskName" class="w-full p-2 input-eng text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">工項金額 (NT$) *</label>
+                        <input type="number" id="editTaskCost" class="w-full p-2 input-eng font-mono text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">工期 (天) *</label>
+                        <input type="number" id="editTaskDuration" class="w-full p-2 input-eng font-mono text-sm" min="1">
+                    </div>
+                </div>
+                <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <label class="block text-xs font-bold text-primary-navy mb-2 flex items-center gap-1">
+                        <i class="fas fa-project-diagram text-accent-gold"></i> 要徑網絡緊前相依關係 (Predecessor)
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] text-gray-500 mb-0.5">緊前分項工程</label>
+                            <select id="editTaskPred" class="w-full p-2 input-eng text-xs"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-gray-500 mb-0.5">依賴類型</label>
+                            <select id="editTaskPredType" class="w-full p-2 input-eng text-xs font-mono">
+                                <option value="FS">FS (完成-開始)</option>
+                                <option value="SS">SS (同時開始)</option>
+                                <option value="FF">FF (同時完成)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <label class="block text-[11px] text-gray-500 mb-0.5">延遲天數 Lag (天)</label>
+                        <input type="number" id="editTaskPredLag" value="0" class="w-28 p-1.5 input-eng text-xs font-mono">
+                    </div>
+                </div>
             </div>
             <div class="mt-6 flex justify-end items-center gap-3">
                 <button onclick="hideEditTaskModal()" class="px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 font-semibold">取消</button>
@@ -801,7 +844,7 @@
             
             saveToLocalStorage();
             renderProjects();
-            showMessage(`✅ 工程案件「${newProject.name}」已成功建立。`, 'success');
+            showMessage(`工程案件「${newProject.name}」已成功建立。`, 'success');
             toggleCreationForm();
         }
 
@@ -859,7 +902,7 @@
             saveToLocalStorage();
             renderProjects();
             hideEditModal();
-            showMessage(`✅ 工程案件「${projects[projectIndex].name}」資訊已更新。`, 'success');
+            showMessage(`工程案件「${projects[projectIndex].name}」資訊已更新。`, 'success');
         }
         
         function toggleCollapse(projectId) {
@@ -913,19 +956,70 @@
             return totalDuration > 0 ? Math.min(100, (elapsedDuration / totalDuration) * 100) : 0;
         }
 
-        function getOverallPlannedProgressByTasks(project, asOfDateStr) {
-            const { tasks } = project;
-            if (!tasks || tasks.length === 0) return 0;
-            let totalWeightedPlannedProgress = 0;
-            const totalCost = tasks.reduce((sum, task) => sum + (task.taskCost || 0), 0);
+                /**
+         * 計算指定日期之專案早期排程累積進度 (Early S-Curve, ES Upper Bound)
+         */
+        function getProjectEarlyProgressAtDate(project, dateStr) {
+            if (!project || !project.tasks || project.tasks.length === 0 || !dateStr) return 0;
+            const targetDate = new Date(dateStr);
+            const totalCost = project.tasks.reduce((sum, t) => sum + (parseFloat(t.taskCost) || 0), 0);
             if (totalCost <= 0) return 0;
-            tasks.forEach(task => {
-                const weight = (task.taskCost || 0) / totalCost;
-                const taskPlannedProgress = getTaskPlannedProgress(task, asOfDateStr);
-                totalWeightedPlannedProgress += (taskPlannedProgress / 100) * weight;
+
+            let totalWeighted = 0;
+            project.tasks.forEach(t => {
+                const cost = parseFloat(t.taskCost) || 0;
+                const weight = cost / totalCost;
+                const start = new Date(t.plannedStartDate);
+                const end = new Date(t.plannedEndDate);
+                let progress = 0;
+                if (targetDate < start) {
+                    progress = 0;
+                } else if (targetDate >= end) {
+                    progress = 100;
+                } else {
+                    const dur = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
+                    const elapsed = Math.max(0, Math.round((targetDate - start) / (1000 * 60 * 60 * 24)) + 1);
+                    progress = Math.min(100, (elapsed / dur) * 100);
+                }
+                totalWeighted += (progress / 100) * weight;
             });
-            return totalWeightedPlannedProgress * 100;
+            return totalWeighted * 100;
         }
+
+        /**
+         * 計算指定日期之專案晚期排程累積進度 (Late S-Curve, LS Lower Bound - 臨界要徑警戒線)
+         */
+        function getProjectLateProgressAtDate(project, dateStr) {
+            if (!project || !project.tasks || project.tasks.length === 0 || !dateStr) return 0;
+            const targetDate = new Date(dateStr);
+            const totalCost = project.tasks.reduce((sum, t) => sum + (parseFloat(t.taskCost) || 0), 0);
+            if (totalCost <= 0) return 0;
+
+            let totalWeighted = 0;
+            project.tasks.forEach(t => {
+                const cost = parseFloat(t.taskCost) || 0;
+                const weight = cost / totalCost;
+                const start = new Date(t.lateStartDate || t.plannedStartDate);
+                const end = new Date(t.lateEndDate || t.plannedEndDate);
+                let progress = 0;
+                if (targetDate < start) {
+                    progress = 0;
+                } else if (targetDate >= end) {
+                    progress = 100;
+                } else {
+                    const dur = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
+                    const elapsed = Math.max(0, Math.round((targetDate - start) / (1000 * 60 * 60 * 24)) + 1);
+                    progress = Math.min(100, (elapsed / dur) * 100);
+                }
+                totalWeighted += (progress / 100) * weight;
+            });
+            return totalWeighted * 100;
+        }
+
+        function getOverallPlannedProgressByTasks(project, asOfDateStr) {
+            return getProjectEarlyProgressAtDate(project, asOfDateStr);
+        }
+
 
         function getStatus(actualProgress, plannedProgress) {
             const diff = actualProgress - plannedProgress;
@@ -935,34 +1029,206 @@
             return { text: `進度落後`, color: "text-red-700 bg-red-100 border-red-500", diff };
         }
 
+                /**
+         * 行政院工程會標準 CPM 要徑網圖演算引擎
+         * 包含: DAG 拓撲排序、順推 (Forward Pass)、逆推 (Backward Pass)、總浮時與自由浮時、要徑標定
+         */
+        function calculateProjectCPM(project) {
+            if (!project || !project.tasks || project.tasks.length === 0) return;
+            const tasks = project.tasks;
+            const taskMap = {};
+            tasks.forEach((t, idx) => {
+                if (!t.wbsCode) t.wbsCode = `1.${idx + 1}`;
+                if (!t.predecessors) t.predecessors = [];
+                t.duration = parseInt(t.duration) || 1;
+                taskMap[t.id] = t;
+            });
+
+            const MS_PER_DAY = 1000 * 60 * 60 * 24;
+            const baseDate = new Date(project.startDate);
+
+            // 1. 順推 (Forward Pass) 計算 ES (最早開始) 與 EF (最早完成)
+            const resolved = new Set();
+            let iterations = 0;
+            const maxIterations = tasks.length * 4;
+
+            while (resolved.size < tasks.length && iterations < maxIterations) {
+                iterations++;
+                let progressMade = false;
+                for (const t of tasks) {
+                    if (resolved.has(t.id)) continue;
+                    const predsReady = t.predecessors.every(p => resolved.has(p.taskId));
+                    if (predsReady) {
+                        if (t.predecessors.length === 0) {
+                            t.es = 0;
+                        } else {
+                            let maxES = 0;
+                            t.predecessors.forEach(p => {
+                                const pred = taskMap[p.taskId];
+                                if (pred) {
+                                    const lag = parseInt(p.lag) || 0;
+                                    let candidateES = 0;
+                                    if (p.type === 'SS') {
+                                        candidateES = pred.es + lag;
+                                    } else if (p.type === 'FF') {
+                                        candidateES = pred.ef + lag - t.duration;
+                                    } else { // 預設 FS (Finish-to-Start)
+                                        candidateES = pred.ef + lag;
+                                    }
+                                    if (candidateES > maxES) maxES = candidateES;
+                                }
+                            });
+                            t.es = Math.max(0, maxES);
+                        }
+                        t.ef = t.es + t.duration;
+                        resolved.add(t.id);
+                        progressMade = true;
+                    }
+                }
+                if (!progressMade && resolved.size < tasks.length) {
+                    tasks.forEach(t => {
+                        if (!resolved.has(t.id)) {
+                            t.es = t.es || 0;
+                            t.ef = t.es + t.duration;
+                            resolved.add(t.id);
+                        }
+                    });
+                    break;
+                }
+            }
+
+            // 專案最早總工期天數
+            const projectDurationDays = Math.max(...tasks.map(t => t.ef), 1);
+
+            // 2. 建立緊後作業對照表 (Successors Map)
+            const succMap = {};
+            tasks.forEach(t => succMap[t.id] = []);
+            tasks.forEach(t => {
+                t.predecessors.forEach(p => {
+                    if (succMap[p.taskId]) {
+                        succMap[p.taskId].push({ succId: t.id, type: p.type || 'FS', lag: parseInt(p.lag) || 0 });
+                    }
+                });
+            });
+
+            // 3. 逆推 (Backward Pass) 計算 LS (最晚開始) 與 LF (最晚完成)
+            const revResolved = new Set();
+            iterations = 0;
+            while (revResolved.size < tasks.length && iterations < maxIterations) {
+                iterations++;
+                let progressMade = false;
+                for (const t of tasks) {
+                    if (revResolved.has(t.id)) continue;
+                    const succs = succMap[t.id] || [];
+                    const succsReady = succs.every(s => revResolved.has(s.succId));
+                    if (succsReady) {
+                        if (succs.length === 0) {
+                            t.lf = projectDurationDays;
+                        } else {
+                            let minLF = Infinity;
+                            succs.forEach(s => {
+                                const succ = taskMap[s.succId];
+                                if (succ) {
+                                    let candidateLF = Infinity;
+                                    if (s.type === 'SS') {
+                                        candidateLF = succ.ls - s.lag + t.duration;
+                                    } else if (s.type === 'FF') {
+                                        candidateLF = succ.lf - s.lag;
+                                    } else { // 預設 FS
+                                        candidateLF = succ.ls - s.lag;
+                                    }
+                                    if (candidateLF < minLF) minLF = candidateLF;
+                                }
+                            });
+                            t.lf = minLF === Infinity ? projectDurationDays : minLF;
+                        }
+                        t.ls = t.lf - t.duration;
+                        t.totalFloat = Math.max(0, t.ls - t.es);
+                        t.isCritical = (t.totalFloat <= 0.001);
+                        revResolved.add(t.id);
+                        progressMade = true;
+                    }
+                }
+                if (!progressMade && revResolved.size < tasks.length) {
+                    tasks.forEach(t => {
+                        if (!revResolved.has(t.id)) {
+                            t.lf = t.ef;
+                            t.ls = t.es;
+                            t.totalFloat = 0;
+                            t.isCritical = true;
+                            revResolved.add(t.id);
+                        }
+                    });
+                    break;
+                }
+            }
+
+            // 4. 自由浮時 (Free Float) 計算
+            tasks.forEach(t => {
+                const succs = succMap[t.id] || [];
+                if (succs.length === 0) {
+                    t.freeFloat = Math.max(0, projectDurationDays - t.ef);
+                } else {
+                    let minSuccES = Infinity;
+                    succs.forEach(s => {
+                        const succ = taskMap[s.succId];
+                        if (succ) {
+                            const val = (s.type === 'FS') ? (succ.es - s.lag) : succ.es;
+                            if (val < minSuccES) minSuccES = val;
+                        }
+                    });
+                    t.freeFloat = minSuccES === Infinity ? 0 : Math.max(0, minSuccES - t.ef);
+                }
+            });
+
+            // 5. 日期反向對齊
+            tasks.forEach(t => {
+                const earlyStart = new Date(baseDate.getTime() + t.es * MS_PER_DAY);
+                const earlyEnd = new Date(baseDate.getTime() + (t.ef - 1) * MS_PER_DAY);
+                const lateStart = new Date(baseDate.getTime() + t.ls * MS_PER_DAY);
+                const lateEnd = new Date(baseDate.getTime() + (t.lf - 1) * MS_PER_DAY);
+                
+                t.plannedStartDate = formatDate(earlyStart);
+                t.plannedEndDate = formatDate(earlyEnd);
+                t.lateStartDate = formatDate(lateStart);
+                t.lateEndDate = formatDate(lateEnd);
+            });
+
+            // 同步專案總工期與預定完工日
+            const projectEndDate = new Date(baseDate.getTime() + (projectDurationDays - 1) * MS_PER_DAY);
+            project.plannedCompletionDate = formatDate(projectEndDate);
+            project.contractDuration = projectDurationDays;
+        }
+
         function calculateProjectSummary(project, asOfDate) {
             const { tasks } = project;
-            if (tasks.length === 0) {
-                return { totalTaskCost: 0, overallProgress: 0, plannedProgress: 0, lastTaskEndDate: project.startDate };
+            if (!tasks || tasks.length === 0) {
+                return { totalTaskCost: 0, overallProgress: 0, plannedProgress: 0, criticalTasksCount: 0, projectDuration: 0, lastTaskEndDate: project.startDate };
             }
+            
+            // 執行 CPM 要徑與浮時運算
+            calculateProjectCPM(project);
+
             let totalWeightedProgress = 0;
-            const totalCost = tasks.reduce((sum, task) => sum + (task.taskCost || 0), 0);
+            let criticalCount = 0;
+            const totalCost = tasks.reduce((sum, task) => sum + (parseFloat(task.taskCost) || 0), 0);
+            
             tasks.forEach(task => {
-                const weight = totalCost > 0 ? ((task.taskCost || 0) / totalCost) * 100 : 0;
+                const cost = parseFloat(task.taskCost) || 0;
+                const weight = totalCost > 0 ? (cost / totalCost) * 100 : 0;
                 task.weight = weight;
                 const currentProgress = getTaskProgressAsOf(task, asOfDate);
                 totalWeightedProgress += (currentProgress / 100) * (weight / 100);
+                if (task.isCritical) criticalCount++;
             });
-            let nextStartDate = project.startDate;
-            if (tasks.length > 0) {
-                const sortedTasks = [...tasks].sort((a,b) => new Date(a.plannedEndDate) - new Date(b.plannedEndDate));
-                const lastTask = sortedTasks[sortedTasks.length - 1];
-                if (lastTask && lastTask.plannedEndDate) {
-                    const tempDate = new Date(lastTask.plannedEndDate);
-                    tempDate.setDate(tempDate.getDate() + 1);
-                    nextStartDate = formatDate(tempDate);
-                }
-            }
+
             return {
                 totalTaskCost: totalCost,
                 overallProgress: totalWeightedProgress * 100,
                 plannedProgress: getOverallPlannedProgressByTasks(project, asOfDate),
-                lastTaskEndDate: nextStartDate
+                criticalTasksCount: criticalCount,
+                projectDuration: project.contractDuration,
+                lastTaskEndDate: project.plannedCompletionDate
             };
         }
 
@@ -974,7 +1240,7 @@
             a.download = `NOVERA_進度管考備份_${formatDate(new Date())}.json`;
             a.click();
             URL.revokeObjectURL(a.href);
-            showMessage('✅ 所有工程專案數據已成功匯出為 JSON 備份檔。', 'success');
+            showMessage('所有工程專案數據已成功匯出為 JSON 備份檔。', 'success');
         }
         
         function importJSON() {
@@ -991,7 +1257,7 @@
                         projects = importedData;
                         saveToLocalStorage();
                         renderProjects();
-                        showMessage(`✅ 成功匯入 ${projects.length} 個工程案件！`, 'success');
+                        showMessage(`成功匯入 ${projects.length} 個工程案件！`, 'success');
                         if(isCreationFormVisible) toggleCreationForm();
                     } else { throw new Error('Invalid format'); }
                 } catch (error) { showMessage('錯誤：JSON 檔案格式無效。', 'danger'); }
@@ -1003,28 +1269,39 @@
             const project = projects.find(p => p.id === projectId);
             if (!project) return;
             
+            const taskWbs = document.getElementById(`taskWbs-${projectId}`) ? document.getElementById(`taskWbs-${projectId}`).value.trim() : '';
             const taskName = document.getElementById(`taskName-${projectId}`).value.trim();
             const taskCost = parseFloat(document.getElementById(`taskCost-${projectId}`).value); 
-            const plannedStartDate = document.getElementById(`taskStartDate-${projectId}`).value;
             const duration = parseInt(document.getElementById(`taskDuration-${projectId}`).value);
             
-            if (!taskName || isNaN(taskCost) || !plannedStartDate || isNaN(duration) || duration <= 0) {
-                showMessage('錯誤：請確保分項工程所有欄位皆已正確填寫 (名稱、金額、開始日期、工期)。', 'danger');
+            const predSelect = document.getElementById(`taskPred-${projectId}`);
+            const predId = predSelect ? predSelect.value : '';
+            const predType = document.getElementById(`taskPredType-${projectId}`) ? document.getElementById(`taskPredType-${projectId}`).value : 'FS';
+            const predLag = document.getElementById(`taskPredLag-${projectId}`) ? (parseInt(document.getElementById(`taskPredLag-${projectId}`).value) || 0) : 0;
+            
+            if (!taskName || isNaN(taskCost) || isNaN(duration) || duration <= 0) {
+                showMessage('錯誤：請確保分項工程名稱、金額與工期皆已正確填寫。', 'danger');
                 return;
             }
             
-            const startDate = new Date(plannedStartDate);
-            const endDate = new Date(startDate.getTime());
-            endDate.setDate(endDate.getDate() + duration - 1);
-            const plannedEndDate = formatDate(endDate);
-
+            const predecessors = predId ? [{ taskId: predId, type: predType, lag: predLag }] : [];
+            const wbs = taskWbs || `1.${project.tasks.length + 1}`;
+            
             project.tasks.push({ 
-                id: generateId(), taskName, taskCost, plannedStartDate, plannedEndDate, duration,
-                weight: 0, progressHistory: [] 
+                id: generateId(),
+                wbsCode: wbs,
+                taskName,
+                taskCost,
+                duration,
+                predecessors,
+                weight: 0,
+                progressHistory: [] 
             });
+            
+            calculateProjectCPM(project);
             saveToLocalStorage();
             renderProjects();
-            showMessage(`✅ 分項工程「${taskName}」已新增。`, 'success');
+            showMessage(`分項工程「${taskName}」已成功新增並完成 CPM 網圖計算。`, 'success');
         }
         
         function saveAllTaskProgress(projectId) {
@@ -1053,7 +1330,7 @@
             project.ui_selectedProgressDate = asOfDate;
             saveToLocalStorage();
             renderProjects();
-            showMessage(`✅ 已於 ${asOfDate} 儲存 ${updatedCount} 個工項進度！`, 'success');
+            showMessage(`已於 ${asOfDate} 儲存 ${updatedCount} 個工項進度！`, 'success');
         }
 
         function loadProgressForDate(projectId) {
@@ -1093,12 +1370,19 @@
             if (!project) return;
             const task = project.tasks.find(t => t.id === taskId);
             if (!task) return;
-
-            showConfirmModal(`您確定要永久刪除分項工程「${task.taskName}」嗎？此操作無法復原。`, () => {
+            
+            showConfirmModal(`確定要刪除分項工程「${task.taskName}」嗎？此操作無法復原。`, () => {
                 project.tasks = project.tasks.filter(t => t.id !== taskId);
+                // 清理其他工項對被刪除工項的緊前相依關係
+                project.tasks.forEach(t => {
+                    if (t.predecessors) {
+                        t.predecessors = t.predecessors.filter(p => p.taskId !== taskId);
+                    }
+                });
+                calculateProjectCPM(project);
                 saveToLocalStorage();
                 renderProjects();
-                showMessage('分項工程已刪除。', 'warning');
+                showMessage('分項工程已刪除，並自動重算 CPM 網圖。', 'warning');
             });
         }
         
@@ -1110,10 +1394,24 @@
             
             document.getElementById('editTaskProjectId').value = projectId;
             document.getElementById('editTaskId').value = taskId;
+            document.getElementById('editTaskWbs').value = task.wbsCode || '';
             document.getElementById('editTaskName').value = task.taskName;
             document.getElementById('editTaskCost').value = task.taskCost;
-            document.getElementById('editTaskStartDate').value = task.plannedStartDate;
-            document.getElementById('editTaskEndDate').value = task.plannedEndDate;
+            document.getElementById('editTaskDuration').value = task.duration || 1;
+            
+            // 動態組裝緊前作業下拉選單 (排除自己以防自循環)
+            const predSelect = document.getElementById('editTaskPred');
+            predSelect.innerHTML = '<option value="">首工項 (無緊前作業 / 開工即動工)</option>';
+            project.tasks.forEach(t => {
+                if (t.id !== taskId) {
+                    predSelect.innerHTML += `<option value="${t.id}">${t.wbsCode ? t.wbsCode + ' ' : ''}${t.taskName} (${t.duration}天)</option>`;
+                }
+            });
+            
+            const currentPred = (task.predecessors && task.predecessors.length > 0) ? task.predecessors[0] : null;
+            predSelect.value = currentPred ? currentPred.taskId : '';
+            document.getElementById('editTaskPredType').value = currentPred ? (currentPred.type || 'FS') : 'FS';
+            document.getElementById('editTaskPredLag').value = currentPred ? (currentPred.lag || 0) : 0;
             
             document.getElementById('edit-task-modal').classList.remove('hidden');
         }
@@ -1130,16 +1428,30 @@
             const task = project.tasks.find(t => t.id === taskId);
             if (!task) return;
 
-            task.taskName = document.getElementById('editTaskName').value;
-            task.taskCost = parseFloat(document.getElementById('editTaskCost').value);
-            task.plannedStartDate = document.getElementById('editTaskStartDate').value;
-            task.plannedEndDate = document.getElementById('editTaskEndDate').value;
-            task.duration = getDurationDays(task.plannedStartDate, task.plannedEndDate);
+            const taskWbs = document.getElementById('editTaskWbs').value.trim();
+            const taskName = document.getElementById('editTaskName').value.trim();
+            const taskCost = parseFloat(document.getElementById('editTaskCost').value);
+            const duration = parseInt(document.getElementById('editTaskDuration').value);
+            const predId = document.getElementById('editTaskPred').value;
+            const predType = document.getElementById('editTaskPredType').value || 'FS';
+            const predLag = parseInt(document.getElementById('editTaskPredLag').value) || 0;
 
+            if (!taskName || isNaN(taskCost) || isNaN(duration) || duration <= 0) {
+                showMessage('錯誤：請完整填寫工項名稱、金額與有效工期。', 'danger');
+                return;
+            }
+
+            task.wbsCode = taskWbs || task.wbsCode || '1.1';
+            task.taskName = taskName;
+            task.taskCost = taskCost;
+            task.duration = duration;
+            task.predecessors = predId ? [{ taskId: predId, type: predType, lag: predLag }] : [];
+
+            calculateProjectCPM(project);
             saveToLocalStorage();
             renderProjects();
             hideEditTaskModal();
-            showMessage('分項工程資訊已更新。', 'success');
+            showMessage(`分項工程「${taskName}」資訊與要徑網圖已更新。`, 'success');
         }
 
         function saveToLocalStorage() {
@@ -1155,12 +1467,26 @@
                     const parsed = JSON.parse(data);
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         projects = parsed;
+                        // 資料相容性檢查與 CPM 初始計算
+                        projects.forEach(p => {
+                            if (!p.tasks) p.tasks = [];
+                            p.tasks.forEach((t, idx) => {
+                                if (!t.wbsCode) t.wbsCode = `1.${idx + 1}`;
+                                if (!t.predecessors) {
+                                    t.predecessors = idx > 0 ? [{ taskId: p.tasks[idx - 1].id, type: 'FS', lag: 0 }] : [];
+                                }
+                                if (!t.duration) {
+                                    t.duration = getDurationDays(t.plannedStartDate, t.plannedEndDate) || 10;
+                                }
+                            });
+                            calculateProjectCPM(p);
+                        });
                         return;
                     }
                 }
             } catch (e) {}
             
-            // 若無資料，預先載入一個專業公共工程展示案例
+            // 若無歷史資料，載入嚴謹的公共工程展示案例 (具備平行工項與要徑/浮時驗證)
             projects = [{
                 id: 'demo-sample-01',
                 name: '台南市安南區雨水下水道第 2 期推進工程',
@@ -1174,13 +1500,15 @@
                 plannedCompletionDate: '2026-10-26',
                 isCollapsed: false,
                 tasks: [
-                    { id: 't1', taskName: '施工前置準備與交通維持設施', taskCost: 2800000, plannedStartDate: '2026-03-01', plannedEndDate: '2026-03-25', duration: 25, weight: 5.77, progressHistory: [{ date: '2026-03-20', progress: 85 }, { date: '2026-03-25', progress: 100 }] },
-                    { id: 't2', taskName: '工作井與沉箱開挖支撐工程', taskCost: 11500000, plannedStartDate: '2026-03-20', plannedEndDate: '2026-05-15', duration: 57, weight: 23.71, progressHistory: [{ date: '2026-04-15', progress: 50 }, { date: '2026-05-15', progress: 95 }] },
-                    { id: 't3', taskName: 'RCP 鋼筋混凝土管推進 (Φ1500mm)', taskCost: 21800000, plannedStartDate: '2026-05-10', plannedEndDate: '2026-08-30', duration: 113, weight: 44.95, progressHistory: [{ date: '2026-06-30', progress: 40 }] },
-                    { id: 't4', taskName: '人孔井體澆置與管線銜接', taskCost: 7600000, plannedStartDate: '2026-08-15', plannedEndDate: '2026-09-30', duration: 47, weight: 15.67, progressHistory: [] },
-                    { id: 't5', taskName: '路面瀝青刨鋪與全線閉水試驗', taskCost: 4800000, plannedStartDate: '2026-09-20', plannedEndDate: '2026-10-26', duration: 37, weight: 9.90, progressHistory: [] }
+                    { id: 't1', wbsCode: '1.1', taskName: '施工前置準備與交通維持設施', taskCost: 2800000, duration: 25, predecessors: [], progressHistory: [{ date: '2026-03-20', progress: 85 }, { date: '2026-03-25', progress: 100 }] },
+                    { id: 't2', wbsCode: '1.2', taskName: '工作井與沉箱開挖支撐工程', taskCost: 11500000, duration: 55, predecessors: [{ taskId: 't1', type: 'FS', lag: 0 }], progressHistory: [{ date: '2026-04-15', progress: 50 }, { date: '2026-05-15', progress: 95 }] },
+                    { id: 't3', wbsCode: '1.3', taskName: 'RCP 鋼筋混凝土管推進 (Φ1500mm)', taskCost: 21800000, duration: 90, predecessors: [{ taskId: 't2', type: 'FS', lag: 0 }], progressHistory: [{ date: '2026-06-30', progress: 40 }] },
+                    { id: 't4_sub', wbsCode: '1.4', taskName: '周邊沉陷監測與地盤改良灌漿', taskCost: 4800000, duration: 40, predecessors: [{ taskId: 't2', type: 'FS', lag: 0 }], progressHistory: [{ date: '2026-06-30', progress: 80 }] },
+                    { id: 't5', wbsCode: '1.5', taskName: '人孔井體澆置與管線銜接', taskCost: 7600000, duration: 45, predecessors: [{ taskId: 't3', type: 'FS', lag: 0 }, { taskId: 't4_sub', type: 'FS', lag: 0 }], progressHistory: [] },
+                    { id: 't6', wbsCode: '1.6', taskName: '路面瀝青刨鋪與全線閉水試驗', taskCost: 4800000, duration: 25, predecessors: [{ taskId: 't5', type: 'FS', lag: 0 }], progressHistory: [] }
                 ]
             }];
+            projects.forEach(p => calculateProjectCPM(p));
         }
 
         function renderProjects() {
@@ -1189,7 +1517,7 @@
             projectListContainer.innerHTML = '';
             
             if (projects.length === 0) {
-                 projectListContainer.innerHTML = `<div class="text-center py-12 text-gray-500 border-2 border-dashed border-gray-300 rounded-xl bg-white"><p class="text-xl font-bold mb-2 text-primary-navy">💡 系統目前無工程案件資料</p><p class="text-sm">請於上方控制台點擊「建立新工程專案」，或使用「JSON 數據匯入」載入歷史備份。</p></div>`;
+                 projectListContainer.innerHTML = `<div class="text-center py-12 text-gray-500 border-2 border-dashed border-gray-300 rounded-xl bg-white"><p class="text-xl font-bold mb-2 text-primary-navy">系統目前無工程案件資料</p><p class="text-sm">請於上方控制台點擊「建立新工程專案」，或使用「JSON 數據匯入」載入歷史備份。</p></div>`;
                 return;
             }
 
@@ -1219,11 +1547,12 @@
                                 <div><span class="label">開工日期:</span> ${project.startDate}</div>
                                 <div><span class="label">預定完工日:</span> ${project.plannedCompletionDate}</div>
                             </div>
-                            <div class="w-full grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">契約總額</p><p class="text-lg md:text-xl font-black text-primary-navy font-mono">NT$ ${formatCurrency(project.contractSum)}</p></div>
-                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">實際累積進度</p><p class="text-xl md:text-2xl font-black text-blue-700 font-mono">${summary.overallProgress.toFixed(2)}%</p></div>
-                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">預定累積進度</p><p class="text-xl md:text-2xl font-black text-amber-600 font-mono">${summary.plannedProgress.toFixed(2)}%</p></div>
-                                <div class="p-3 rounded-lg border ${status.color}"><p class="text-xs font-bold">進度管考判定</p><p class="text-xl md:text-2xl font-black font-mono">${status.text} (${status.diff >= 0 ? '+' : ''}${status.diff.toFixed(2)}%)</p></div>
+                            <div class="w-full grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
+                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">契約總額</p><p class="text-base md:text-lg font-black text-primary-navy font-mono">NT$ ${formatCurrency(project.contractSum)}</p></div>
+                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">總工期 / 要徑數</p><p class="text-base md:text-lg font-black text-primary-navy font-mono">${summary.projectDuration || project.contractDuration || 0} 天 <span class="text-xs text-red-600 font-bold">(${summary.criticalTasksCount || 0}項要徑)</span></p></div>
+                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">實際累積進度</p><p class="text-lg md:text-xl font-black text-blue-700 font-mono">${summary.overallProgress.toFixed(2)}%</p></div>
+                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">預定累積進度</p><p class="text-lg md:text-xl font-black text-amber-600 font-mono">${summary.plannedProgress.toFixed(2)}%</p></div>
+                                <div class="p-3 rounded-lg border ${status.color}"><p class="text-xs font-bold">進度管考判定</p><p class="text-base md:text-lg font-black font-mono">${status.text} (${status.diff >= 0 ? '+' : ''}${status.diff.toFixed(2)}%)</p></div>
                             </div>
                         </div>
                         <div class="transition-all duration-300 overflow-hidden ${isCollapsed ? 'max-h-0' : 'max-h-[9999px]'}">
@@ -1244,46 +1573,132 @@
         }
 
         function renderTaskPlanningSection(project, nextStartDate) {
-            const taskRows = project.tasks.map((task) => `
-                <tr class="group hover:bg-amber-50/50">
+            const taskMap = {};
+            project.tasks.forEach(t => taskMap[t.id] = t);
+
+            const taskRows = project.tasks.map((task, idx) => {
+                // 緊前作業標籤
+                let predHtml = '<span class="text-xs text-gray-400 font-mono">首工項 (無)</span>';
+                if (task.predecessors && task.predecessors.length > 0) {
+                    predHtml = task.predecessors.map(p => {
+                        const predTask = taskMap[p.taskId];
+                        const predLabel = predTask ? (predTask.wbsCode || predTask.taskName) : '未知';
+                        const lagStr = p.lag ? (p.lag > 0 ? `+${p.lag}d` : `${p.lag}d`) : '';
+                        return `<span class="inline-block px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 text-slate-800 border border-slate-300 rounded" title="${predTask ? predTask.taskName : ''}">${predLabel} (${p.type || 'FS'}${lagStr})</span>`;
+                    }).join(' ');
+                }
+
+                // 要徑判定標籤與邊線樣式
+                const isCrit = task.isCritical;
+                const rowBorder = isCrit ? 'border-l-4 border-l-red-600 bg-red-50/20' : '';
+                const critBadge = isCrit
+                    ? '<span class="inline-flex items-center px-2 py-0.5 text-xs font-black bg-red-600 text-white rounded shadow-sm">★ 要徑 (TF=0)</span>'
+                    : `<span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200 rounded">浮時 ${task.totalFloat || 0}天</span>`;
+
+                return `
+                <tr class="group hover:bg-amber-50/50 ${rowBorder}">
+                    <td class="p-2.5 text-center font-mono text-xs font-bold text-gray-600 bg-gray-50/50">${task.wbsCode || (idx + 1)}</td>
                     <td class="p-2.5 font-bold text-gray-800">${task.taskName}</td>
                     <td class="p-2.5 text-right font-mono font-semibold text-gray-700">NT$ ${formatCurrency(task.taskCost)}</td>
-                    <td class="p-2.5 text-center text-xs font-mono text-gray-600">${task.plannedStartDate || '---'}</td>
-                    <td class="p-2.5 text-center text-xs font-mono text-gray-600">${task.plannedEndDate || '---'}</td>
-                    <td class="p-2.5 text-center font-mono font-bold text-primary-navy">${task.duration || '---'} 天</td>
+                    <td class="p-2.5 text-center font-mono text-xs font-bold text-accent-gold">${(task.weight || 0).toFixed(2)}%</td>
+                    <td class="p-2.5 text-center font-mono font-bold text-primary-navy">${task.duration || 1} 天</td>
+                    <td class="p-2.5 text-center">${predHtml}</td>
+                    <td class="p-2.5 text-center text-xs font-mono text-gray-600">${task.plannedStartDate || '---'} ~ ${task.plannedEndDate || '---'}</td>
+                    <td class="p-2.5 text-center font-mono font-bold ${isCrit ? 'text-red-600' : 'text-slate-700'}">${task.totalFloat ?? 0} 天</td>
+                    <td class="p-2.5 text-center">${critBadge}</td>
                     <td class="p-2.5 text-center">
                         <div class="flex justify-center items-center space-x-1.5">
-                            <button data-action="edit-task" data-project-id="${project.id}" data-task-id="${task.id}" title="修改工項" class="p-1.5 rounded bg-gray-200 hover:bg-amber-500 hover:text-white text-gray-700 transition">
+                            <button data-action="edit-task" data-project-id="${project.id}" data-task-id="${task.id}" title="修改工項" class="p-1.5 rounded bg-gray-100 hover:bg-amber-500 hover:text-white text-gray-700 transition border border-gray-200">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}" title="刪除工項" class="p-1.5 rounded bg-gray-200 hover:bg-red-500 hover:text-white text-gray-700 transition">
+                            <button data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}" title="刪除工項" class="p-1.5 rounded bg-gray-100 hover:bg-red-500 hover:text-white text-gray-700 transition border border-gray-200">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </td>
-                </tr>`).join('');
+                </tr>`;
+            }).join('');
+
+            // 新增工項之緊前作業下拉選單
+            const nextWbs = `1.${project.tasks.length + 1}`;
+            let predOptions = '<option value="">首工項 (無緊前 / 開工即動工)</option>';
+            project.tasks.forEach(t => {
+                predOptions += `<option value="${t.id}">${t.wbsCode ? t.wbsCode + ' ' : ''}${t.taskName} (${t.duration}天)</option>`;
+            });
 
             return `
                 <div class="border border-gray-200 p-4 rounded-xl bg-white shadow-sm">
                     <h3 class="text-lg font-bold mb-3 text-primary-navy border-b border-gray-200 pb-2 flex items-center justify-between">
-                        <span><i class="fas fa-list-ol text-accent-gold"></i> I. 預定工項規劃 (Planning)</span>
-                        <span class="text-xs font-normal text-gray-500">共 ${project.tasks.length} 項分項工程</span>
+                        <span class="flex items-center gap-2"><i class="fas fa-project-diagram text-accent-gold"></i> I. 分項工程要徑排程規劃 (CPM Network Planning)</span>
+                        <span class="text-xs font-normal text-gray-500">共 ${project.tasks.length} 項作業 ‧ 總工期 ${project.contractDuration || 0} 天</span>
                     </h3>
-                    <div class="overflow-x-auto rounded-lg border border-gray-200 mb-4 max-h-[300px] overflow-y-auto">
-                        <table class="min-w-full text-sm task-table">
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 mb-4 max-h-[340px] overflow-y-auto">
+                        <table class="min-w-full text-xs task-table">
                             <thead>
-                                <tr><th class="p-2 text-left">分項工程</th><th class="p-2 text-right">金額</th><th class="p-2">預定開始</th><th class="p-2">預定完成</th><th class="p-2">工期</th><th class="p-2">操作</th></tr>
+                                <tr>
+                                    <th class="p-2 text-center w-14">WBS</th>
+                                    <th class="p-2 text-left">分項工程名稱</th>
+                                    <th class="p-2 text-right">金額 (NT$)</th>
+                                    <th class="p-2 text-center">權重</th>
+                                    <th class="p-2 text-center">工期</th>
+                                    <th class="p-2 text-center">緊前作業</th>
+                                    <th class="p-2 text-center">最早起訖 (ES~EF)</th>
+                                    <th class="p-2 text-center">總浮時</th>
+                                    <th class="p-2 text-center">要徑判定</th>
+                                    <th class="p-2 text-center w-20">操作</th>
+                                </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">${taskRows || '<tr><td colspan="6" class="p-4 text-center text-gray-400">尚未新增任何分項工程</td></tr>'}</tbody>
+                            <tbody class="divide-y divide-gray-200">${taskRows || '<tr><td colspan="10" class="p-4 text-center text-gray-400">尚未新增任何分項工程</td></tr>'}</tbody>
                         </table>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <input type="text" id="taskName-${project.id}" placeholder="分項工程名稱 (如: 基礎灌漿)" class="input-eng p-2">
-                        <input type="number" id="taskCost-${project.id}" placeholder="金額 (NT$)" class="input-eng p-2">
-                        <input type="date" id="taskStartDate-${project.id}" value="${nextStartDate}" class="input-eng p-2">
-                        <input type="number" id="taskDuration-${project.id}" placeholder="工期 (天)" class="input-eng p-2">
-                        <div class="md:col-span-2">
-                           <button onclick="addTask('${project.id}')" class="w-full btn-eng-navy py-2 rounded-lg font-bold text-sm"><i class="fas fa-plus"></i> 新增分項工程</button>
+                    
+                    <!-- 新增分項工程表單 (CPM 前後相依輸入) -->
+                    <div class="p-3.5 bg-gray-50 rounded-lg border border-gray-200 space-y-2.5">
+                        <div class="text-xs font-bold text-primary-navy flex items-center gap-1.5 border-b border-gray-200 pb-1.5">
+                            <i class="fas fa-plus-circle text-accent-gold"></i> 新增分項工程作業 (自動計算 CPM 網圖)
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-6 gap-2.5">
+                            <div class="md:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">WBS 編碼</label>
+                                <input type="text" id="taskWbs-${project.id}" value="${nextWbs}" placeholder="例: 1.1" class="w-full input-eng p-2 text-xs font-mono">
+                            </div>
+                            <div class="md:col-span-3">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">分項工程名稱 *</label>
+                                <input type="text" id="taskName-${project.id}" placeholder="如: 基礎擋土排樁施作" class="w-full input-eng p-2 text-xs">
+                            </div>
+                            <div class="md:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">契約金額 (NT$) *</label>
+                                <input type="number" id="taskCost-${project.id}" placeholder="金額" class="w-full input-eng p-2 text-xs font-mono">
+                            </div>
+                            <div class="md:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">工期 (天) *</label>
+                                <input type="number" id="taskDuration-${project.id}" placeholder="天數" min="1" class="w-full input-eng p-2 text-xs font-mono">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-6 gap-2.5 pt-1">
+                            <div class="md:col-span-3">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">緊前分項工程 (依賴前置作業)</label>
+                                <select id="taskPred-${project.id}" class="w-full input-eng p-2 text-xs">
+                                    ${predOptions}
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">邏輯關係類型</label>
+                                <select id="taskPredType-${project.id}" class="w-full input-eng p-2 text-xs font-mono">
+                                    <option value="FS">FS (前項完成後，本項開始)</option>
+                                    <option value="SS">SS (前項開始時，本項同時開始)</option>
+                                    <option value="FF">FF (前項完成時，本項同時完成)</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-1">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">延遲 Lag (天)</label>
+                                <input type="number" id="taskPredLag-${project.id}" value="0" placeholder="0" class="w-full input-eng p-2 text-xs font-mono">
+                            </div>
+                        </div>
+                        <div class="pt-1">
+                           <button onclick="addTask('${project.id}')" class="w-full btn-eng-navy py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                               <i class="fas fa-check"></i> 新增工項並執行 CPM 要徑推算
+                           </button>
                         </div>
                     </div>
                 </div>`;
@@ -1349,12 +1764,15 @@
         
         function switchChartTab(button) {
             const tabName = button.dataset.tab;
-            const projectId = button.dataset.projectId;
+            const projectId = button.dataset.projectId || currentModalProjectId;
             ['planned', 'actual', 'comparison'].forEach(t => {
-                document.getElementById(`tab-content-${t}`).classList.add('hidden');
-                document.getElementById(`tab-btn-${t}`).classList.remove('active');
+                const contentEl = document.getElementById(`tab-content-${t}`);
+                const btnEl = document.getElementById(`tab-btn-${t}`);
+                if (contentEl) contentEl.classList.add('hidden');
+                if (btnEl) btnEl.classList.remove('active');
             });
-            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+            const targetContent = document.getElementById(`tab-content-${tabName}`);
+            if (targetContent) targetContent.classList.remove('hidden');
             button.classList.add('active');
             setTimeout(() => drawChartsForTab(tabName, projectId), 50);
         }
@@ -1377,7 +1795,8 @@
         }
 
         function drawChartsForTab(tabName, projectId) {
-            const project = projects.find(p => p.id === projectId);
+            const targetId = projectId || currentModalProjectId;
+            const project = projects.find(p => p.id === targetId);
             const asOfDate = formatDate(new Date());
             const chartCanvasIds = ['plannedSCurveCanvas', 'plannedGanttCanvas', 'plannedCombinedCanvas', 'actualSCurveCanvas', 'comparisonSCurveCanvas'];
 
@@ -1497,163 +1916,538 @@
             return new Chart(canvas.getContext('2d'), config);
         }
 
-        function drawPlannedCharts(project) {
-            const dateLabels = [], plannedData = [];
+                function drawPlannedCharts(project) {
+            const dateLabels = [], earlyData = [], lateData = [];
             for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
                 const dateStr = formatDate(d);
                 dateLabels.push(dateStr);
-                plannedData.push(getOverallPlannedProgressByTasks(project, dateStr));
+                earlyData.push(getProjectEarlyProgressAtDate(project, dateStr));
+                lateData.push(getProjectLateProgressAtDate(project, dateStr));
             }
 
+            const defSCurveOpts = chartDefaultOptions('預定排程香蕉雙包絡 S 曲線 (早期 vs. 晚期)', project.startDate, project.plannedCompletionDate);
             createOrUpdateChart('plannedSCurveCanvas', {
-                type: 'line', data: { labels: dateLabels, datasets: [{ label: '預定累積進度', data: plannedData, borderColor: '#D97706', tension: 0.4, pointRadius: 0, borderWidth: 2.5 }] },
-                options: { ...chartDefaultOptions('預定 S-Curve 曲線', project.startDate, project.plannedCompletionDate), layout: { padding: { right: 60 } }, scales: { ...chartDefaultOptions().scales, y: { min: 0, max: 100, title: {display: true, text: '累積進度 (%)', color: '#1E293B'}, ticks: { callback: v => v + '%' } } }, plugins: { ...chartDefaultOptions().plugins, datalabels: { align: 'top', anchor: 'end', color: '#B45309', backgroundColor: 'rgba(254,243,199,0.8)', borderRadius: 4, font: { weight: 'bold', size: 11 }, formatter: (v, ctx) => (ctx.dataIndex === ctx.dataset.data.length - 1 || Math.floor(v / 15) > Math.floor((ctx.dataset.data[ctx.dataIndex - 1] || 0) / 15)) ? v.toFixed(1) + '%' : null } } }
+                type: 'line', 
+                data: { 
+                    labels: dateLabels, 
+                    datasets: [
+                        { label: '早期排程 S 曲線 (ES Upper Bound)', data: earlyData, borderColor: '#059669', borderWidth: 2.5, tension: 0.35, pointRadius: 0 },
+                        { label: '晚期容許 S 曲線 (LS Lower Bound)', data: lateData, borderColor: '#DC2626', borderDash: [5, 5], borderWidth: 2, tension: 0.35, pointRadius: 0, fill: '-1', backgroundColor: 'rgba(217, 119, 6, 0.12)' }
+                    ] 
+                },
+                options: { 
+                    ...defSCurveOpts, 
+                    layout: { padding: { right: 60 } }, 
+                    scales: { 
+                        x: defSCurveOpts.scales.x, 
+                        y: { min: 0, max: 100, title: {display: true, text: '累積進度 (%)', color: '#1E293B'}, ticks: { callback: v => v + '%' } } 
+                    }, 
+                    plugins: { 
+                        ...defSCurveOpts.plugins, 
+                        datalabels: { display: false } 
+                    } 
+                }
             });
 
+            // 專業工程甘特圖：要徑亮紅條、非要徑深藍條、總浮時 (Total Float) 琥珀色半透明寬限條
+            const defGanttOpts = chartDefaultOptions('公共工程標準要徑甘特圖 (CPM Gantt Chart ＆ 總浮時展示)', project.startDate, project.plannedCompletionDate);
             createOrUpdateChart('plannedGanttCanvas', {
-                type: 'bar', data: { labels: project.tasks.map(t => t.taskName), datasets: [{ label: '預定工期', data: project.tasks.map(t => [t.plannedStartDate, t.plannedEndDate]), backgroundColor: '#3B82F6' }] },
-                options: { ...chartDefaultOptions('預定甘特圖 (Gantt Chart)', project.startDate, project.plannedCompletionDate), indexAxis: 'y', layout: { padding: { right: 60 } }, plugins: { ...chartDefaultOptions().plugins, datalabels: { align: 'end', anchor: 'end', color: '#FFFFFF', backgroundColor: 'rgba(14,27,46,0.8)', borderRadius: 4, padding: 3, font: { size: 10, weight: 'bold' }, formatter: (v) => v && v[1] ? formatDate(v[1]) : null } } }
+                type: 'bar', 
+                data: { 
+                    labels: project.tasks.map(t => `${t.wbsCode ? t.wbsCode + ' ' : ''}${t.taskName}`), 
+                    datasets: [
+                        { 
+                            label: '分項工程作業工期 (紅: ★要徑 / 藍: 非要徑)', 
+                            data: project.tasks.map(t => [t.plannedStartDate, t.plannedEndDate]), 
+                            backgroundColor: project.tasks.map(t => t.isCritical ? '#DC2626' : '#2563EB'),
+                            borderRadius: 4,
+                            borderWidth: 1,
+                            borderColor: project.tasks.map(t => t.isCritical ? '#991B1B' : '#1D4ED8'),
+                            barPercentage: 0.65
+                        },
+                        { 
+                            label: '總浮時寬限緩衝 (Total Float Buffer)', 
+                            data: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate && t.lateEndDate && t.plannedEndDate !== t.lateEndDate) ? [t.plannedEndDate, t.lateEndDate] : [t.plannedEndDate, t.plannedEndDate]), 
+                            backgroundColor: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate !== t.lateEndDate) ? 'rgba(245, 158, 11, 0.35)' : 'transparent'),
+                            borderColor: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate !== t.lateEndDate) ? '#D97706' : 'transparent'),
+                            borderWidth: 1.5,
+                            borderDash: [4, 4],
+                            borderRadius: 4,
+                            barPercentage: 0.4
+                        }
+                    ] 
+                },
+                options: { 
+                    ...defGanttOpts, 
+                    indexAxis: 'y', 
+                    layout: { padding: { right: 80 } }, 
+                    scales: {
+                        x: {
+                            ...defGanttOpts.scales.x,
+                            stacked: false,
+                            title: { display: true, text: '期程日曆天 (Date)', color: '#0E1B2E', font: { weight: 'bold' } }
+                        },
+                        y: {
+                            type: 'category',
+                            stacked: false,
+                            ticks: { font: { weight: 'bold', size: 12 }, color: '#0E1B2E' }
+                        }
+                    },
+                    plugins: { 
+                        ...defGanttOpts.plugins, 
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: { weight: 'bold', size: 12 },
+                                color: '#0E1B2E'
+                            }
+                        },
+                        datalabels: { 
+                            align: 'end', 
+                            anchor: 'end', 
+                            color: '#1E293B', 
+                            backgroundColor: 'rgba(241, 245, 249, 0.95)', 
+                            borderColor: '#CBD5E1',
+                            borderWidth: 1,
+                            borderRadius: 4, 
+                            padding: 3, 
+                            font: { size: 10, weight: 'bold' }, 
+                            formatter: (v, ctx) => {
+                                const task = project.tasks[ctx.dataIndex];
+                                if (!task) return null;
+                                if (ctx.datasetIndex === 0) {
+                                    return task.isCritical ? '★ 要徑 (TF=0)' : `${task.duration}天`;
+                                } else {
+                                    return task.totalFloat > 0 ? `+${task.totalFloat}d 浮時` : null;
+                                }
+                            }
+                        } 
+                    } 
+                }
             });
             
+            const defCombOpts = chartDefaultOptions('預定排程雙包絡 S 曲線全景分析圖', project.startDate, project.plannedCompletionDate);
             createOrUpdateChart('plannedCombinedCanvas', {
-                type: 'bar',
-                data: {
-                    labels: dateLabels,
-                    datasets: [ { type: 'line', label: '預定累積進度 (%)', data: plannedData, borderColor: '#D97706', tension: 0.4, pointRadius: 0, borderWidth: 3, yAxisID: 'ySCurve', datalabels: { display: false } } ]
-                },
-                options: {
-                    ...chartDefaultOptions('預定進度複合圖 (甘特圖 + S-Curve)', project.startDate, project.plannedCompletionDate),
-                    scales: { 
-                        x: { ...chartDefaultOptions().scales.x, stacked: true }, 
-                        yGantt: { type: 'category', labels: project.tasks.map(t => t.taskName), offset: true, position: 'left', stacked: true, grid: { drawOnChartArea: false }, ticks: { color: '#1E293B', font: { weight: 'bold' } }, title: { display: true, text: '分項工程', color: '#1E3A8A' } }, 
-                        ySCurve: { type: 'linear', position: 'right', min: 0, max: 100, grid: { color: '#E2E8F0' }, title: { display: true, text: '累積進度 (%)', color: '#D97706'}, ticks: { color: '#D97706', callback: v => v + '%' } } 
-                    },
-                    plugins: { ...chartDefaultOptions().plugins, tooltip: { ...chartDefaultOptions().plugins.tooltip, mode: 'index', intersect: false }, datalabels: { display: false } }
-                },
-                plugins: [{
-                    id: 'ganttBackground',
-                    beforeDatasetsDraw: (chart) => {
-                        const { ctx, scales: { x, yGantt } } = chart;
-                        ctx.save();
-                        const barHeight = yGantt.getPixelForTick(0) - yGantt.getPixelForTick(1);
-                        project.tasks.forEach((task, index) => {
-                            const y = yGantt.getPixelForTick(index);
-                            const startPixel = x.getPixelForValue(new Date(task.plannedStartDate));
-                            const endPixel = x.getPixelForValue(new Date(task.plannedEndDate));
-                            ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
-                            ctx.fillRect(startPixel, y - barHeight * 0.4, endPixel - startPixel, barHeight * 0.8);
-                        });
-                        ctx.restore();
-                    }
-                }]
-            });
-        }
-
-        function drawActualCharts(project, asOfDate) {
-            const dateLabels = [], actualData = [];
-            for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
-                const dateStr = formatDate(d);
-                dateLabels.push(dateStr);
-                let actualOverall = project.tasks.length > 0 ? project.tasks.reduce((sum, task) => {
-                    const totalCost = project.tasks.reduce((s, t) => s + (t.taskCost || 0), 0);
-                    if (totalCost === 0) return sum;
-                    const weight = (task.taskCost || 0) / totalCost;
-                    return sum + (getTaskProgressAsOf(task, dateStr) / 100) * weight;
-                }, 0) * 100 : 0;
-                actualData.push(actualOverall);
-            }
-            createOrUpdateChart('actualSCurveCanvas', {
                 type: 'line',
                 data: {
                     labels: dateLabels,
-                    datasets: [{
-                        label: '實際累積進度',
-                        data: actualData,
-                        borderColor: '#2563EB',
-                        backgroundColor: 'rgba(37,99,235,0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        borderWidth: 3
-                    }]
+                    datasets: [ 
+                        { type: 'line', label: '早期累積進度 (%)', data: earlyData, borderColor: '#059669', tension: 0.35, pointRadius: 0, borderWidth: 2.5, datalabels: { display: false } },
+                        { type: 'line', label: '晚期累積進度 (%)', data: lateData, borderColor: '#DC2626', borderDash: [5, 5], tension: 0.35, pointRadius: 0, borderWidth: 2, fill: '-1', backgroundColor: 'rgba(217, 119, 6, 0.12)', datalabels: { display: false } }
+                    ]
                 },
                 options: {
-                    ...chartDefaultOptions('實際進度 S-Curve 曲線', project.startDate, project.plannedCompletionDate),
-                    layout: { padding: { right: 60 } },
-                    scales: {
-                        ...chartDefaultOptions().scales,
-                        y: {
-                            min: 0,
-                            max: 100,
-                            title: { display: true, text: '累積進度 (%)', color: '#1E293B' },
-                            ticks: { callback: v => v + '%' }
-                        }
+                    ...defCombOpts,
+                    scales: { 
+                        x: defCombOpts.scales.x, 
+                        y: { min: 0, max: 100, grid: { color: '#E2E8F0' }, title: { display: true, text: '累積進度 (%)', color: '#0E1B2E'}, ticks: { color: '#0E1B2E', callback: v => v + '%' } } 
                     },
-                    plugins: {
-                        ...chartDefaultOptions().plugins,
-                        datalabels: {
-                            align: 'top',
-                            anchor: 'end',
-                            color: '#1E40AF',
-                            backgroundColor: 'rgba(219,234,254,0.8)',
-                            borderRadius: 4,
-                            font: { weight: 'bold', size: 11 },
-                            formatter: (v, ctx) => (ctx.dataIndex === ctx.dataset.data.length - 1 || Math.floor(v / 15) > Math.floor((ctx.dataset.data[ctx.dataIndex - 1] || 0) / 15)) ? v.toFixed(1) + '%' : null
-                        }
-                    }
+                    plugins: { ...defCombOpts.plugins, tooltip: { ...defCombOpts.plugins.tooltip, mode: 'index', intersect: false }, datalabels: { display: false } }
                 }
             });
         }
 
         function drawComparisonCharts(project, asOfDate) {
-            const dateLabels = [], plannedData = [], actualData = [];
+            const dateLabels = [], earlyData = [], lateData = [], actualData = [];
+            
+            // 尋找各工項實際進度回報的最晚基準日 (Data Date)
+            let latestReportDate = null;
+            project.tasks.forEach(t => {
+                if (t.progressHistory) {
+                    t.progressHistory.forEach(h => {
+                        if (!latestReportDate || h.date > latestReportDate) {
+                            latestReportDate = h.date;
+                        }
+                    });
+                }
+            });
+            const dataDate = latestReportDate || asOfDate || formatDate(new Date());
+
             for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
                 const dateStr = formatDate(d);
                 dateLabels.push(dateStr);
-                plannedData.push(getOverallPlannedProgressByTasks(project, dateStr));
-                let actualOverall = project.tasks.length > 0 ? project.tasks.reduce((sum, task) => {
-                    const totalCost = project.tasks.reduce((s, t) => s + (t.taskCost || 0), 0);
-                    if (totalCost === 0) return sum;
-                    const weight = (task.taskCost || 0) / totalCost;
-                    return sum + (getTaskProgressAsOf(task, dateStr) / 100) * weight;
-                }, 0) * 100 : 0;
-                actualData.push(actualOverall);
+                
+                const earlyVal = getProjectEarlyProgressAtDate(project, dateStr);
+                const lateVal = getProjectLateProgressAtDate(project, dateStr);
+                earlyData.push(earlyVal);
+                lateData.push(lateVal);
+
+                // 實際進度只繪製到最新回報基準日，未來日期填入 null 避免亂畫假進度
+                if (dateStr <= dataDate) {
+                    const totalCost = project.tasks.reduce((s, t) => s + (parseFloat(t.taskCost) || 0), 0);
+                    let actualVal = 0;
+                    if (totalCost > 0) {
+                        project.tasks.forEach(task => {
+                            const weight = (parseFloat(task.taskCost) || 0) / totalCost;
+                            actualVal += (getTaskProgressAsOf(task, dateStr) / 100) * weight;
+                        });
+                        actualVal *= 100;
+                    }
+                    actualData.push(actualVal);
+                } else {
+                    actualData.push(null);
+                }
             }
+
+            // --- EVM 實獲值管理指標精算 ---
+            const totalBAC = project.tasks.reduce((sum, t) => sum + (parseFloat(t.taskCost) || 0), 0);
+            const currentEarlyPct = getProjectEarlyProgressAtDate(project, dataDate);
+            const currentLatePct = getProjectLateProgressAtDate(project, dataDate);
+            
+            let currentActualPct = 0;
+            if (totalBAC > 0) {
+                project.tasks.forEach(task => {
+                    const weight = (parseFloat(task.taskCost) || 0) / totalBAC;
+                    currentActualPct += (getTaskProgressAsOf(task, dataDate) / 100) * weight;
+                });
+                currentActualPct *= 100;
+            }
+
+            const PV = totalBAC * (currentEarlyPct / 100);
+            const PV_late = totalBAC * (currentLatePct / 100);
+            const EV = totalBAC * (currentActualPct / 100);
+            const SV_cost = EV - PV;
+            const SV_pct = currentActualPct - currentEarlyPct;
+            const SPI = currentEarlyPct > 0 ? (currentActualPct / currentEarlyPct) : 1.0;
+            const bananaBufferMargin = currentActualPct - currentLatePct;
+
+            // 香蕉包絡狀態判定
+            let bananaStatusText = "";
+            let bananaStatusBadge = "";
+            let bananaAdvice = "";
+
+            if (currentActualPct >= currentEarlyPct) {
+                bananaStatusText = "進度超前 (高於早期上限)";
+                bananaStatusBadge = "text-emerald-700 bg-emerald-100 border-emerald-500";
+                bananaAdvice = "實際進度高於早期排程，施工進度積極，可預先準備後續工項備料與檢驗。";
+            } else if (bananaBufferMargin >= 0) {
+                bananaStatusText = "香蕉容許帶內 (進度正常)";
+                bananaStatusBadge = "text-blue-700 bg-blue-100 border-blue-500";
+                bananaAdvice = "實際進度在早期與晚期曲線之間，非要徑工項浮時正常調節中，工期安全受控。";
+            } else {
+                bananaStatusText = "跌破晚期線 (要徑失守 ‧ 違約落後)";
+                bananaStatusBadge = "text-red-700 bg-red-100 border-red-500";
+                bananaAdvice = "已消耗所有自由浮時與總浮時，要徑已實質延誤！依工程會規範應立即召開趕工協調會並提報趕工計畫書。";
+            }
+
+            // 預估完工天數與日期推算
+            let forecastEndDateStr = project.plannedCompletionDate;
+            let delayDays = 0;
+            if (SPI > 0.05 && SPI < 0.999) {
+                const estimatedDuration = Math.round(project.contractDuration / SPI);
+                delayDays = estimatedDuration - project.contractDuration;
+                const fDate = new Date(new Date(project.startDate).getTime() + (estimatedDuration - 1) * 86400000);
+                forecastEndDateStr = formatDate(fDate);
+            }
+
+            // 渲染 EVM 儀表板
+            const evmDashboard = document.getElementById('evm-metrics-dashboard');
+            if (evmDashboard) {
+                evmDashboard.innerHTML = `
+                    <div class="eng-card p-4 border border-gray-200 bg-white shadow-sm mb-4">
+                        <div class="flex justify-between items-center flex-wrap gap-2 mb-3 pb-2 border-b border-gray-200">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-1 text-xs font-bold bg-primary-navy text-white rounded">
+                                    <i class="fas fa-calendar-check text-accent-gold"></i> 管考基準日 (Data Date): ${dataDate}
+                                </span>
+                                <span class="text-xs font-bold text-gray-600">契約總值 BAC: NT$ ${formatCurrency(totalBAC)}</span>
+                            </div>
+                            <div class="px-3 py-1 rounded text-xs font-black border ${bananaStatusBadge}">
+                                <i class="fas fa-traffic-light"></i> 監造狀態: ${bananaStatusText}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center mb-3">
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-gray-500">計畫價值 PV (早期)</div>
+                                <div class="text-sm font-black font-mono text-emerald-800">NT$ ${formatCurrency(PV)}</div>
+                                <div class="text-[10px] text-gray-500">目標: ${currentEarlyPct.toFixed(2)}%</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-gray-500">晚期極限 PV_late</div>
+                                <div class="text-sm font-black font-mono text-red-800">NT$ ${formatCurrency(PV_late)}</div>
+                                <div class="text-[10px] text-gray-500">警戒下限: ${currentLatePct.toFixed(2)}%</div>
+                            </div>
+                            <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-blue-700">實獲價值 EV</div>
+                                <div class="text-sm font-black font-mono text-blue-900">NT$ ${formatCurrency(EV)}</div>
+                                <div class="text-[10px] font-bold text-blue-700">實質完成: ${currentActualPct.toFixed(2)}%</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-gray-500">進度差異 SV</div>
+                                <div class="text-sm font-black font-mono ${SV_cost >= 0 ? 'text-emerald-700' : 'text-red-700'}">
+                                    ${SV_cost >= 0 ? '+' : ''}${formatCurrency(SV_cost)}
+                                </div>
+                                <div class="text-[10px] font-bold ${SV_pct >= 0 ? 'text-emerald-600' : 'text-red-600'}">
+                                    ${SV_pct >= 0 ? '+' : ''}${SV_pct.toFixed(2)}%
+                                </div>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-gray-500">績效指標 SPI</div>
+                                <div class="text-sm font-black font-mono ${SPI >= 1.0 ? 'text-emerald-700' : SPI >= 0.9 ? 'text-amber-600' : 'text-red-700'}">
+                                    ${SPI.toFixed(3)}
+                                </div>
+                                <div class="text-[10px] font-bold ${SPI >= 1.0 ? 'text-emerald-600' : 'text-red-600'}">
+                                    ${SPI >= 1.0 ? '進度良好' : (SPI >= 0.9 ? '微幅落後' : '嚴重延誤')}
+                                </div>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-gray-500">香蕉安全裕度 Δ</div>
+                                <div class="text-sm font-black font-mono ${bananaBufferMargin >= 0 ? 'text-blue-700' : 'text-red-700'}">
+                                    ${bananaBufferMargin >= 0 ? '+' : ''}${bananaBufferMargin.toFixed(2)}%
+                                </div>
+                                <div class="text-[10px] text-gray-500">${bananaBufferMargin >= 0 ? '在緩衝區內' : '要徑已失守'}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between flex-wrap gap-2 text-xs bg-gray-50 p-2 rounded border border-gray-200">
+                            <div class="text-gray-700">
+                                <span class="font-bold text-primary-navy"><i class="fas fa-info-circle text-blue-600"></i> 監造指引:</span> ${bananaAdvice}
+                            </div>
+                            <div class="text-right font-mono">
+                                <span class="font-bold text-gray-600">合約完工:</span> ${project.plannedCompletionDate} | 
+                                <span class="font-bold ${delayDays > 0 ? 'text-red-600' : 'text-emerald-600'}">預估完工:</span> ${forecastEndDateStr} ${delayDays > 0 ? `(延誤 ${delayDays}天)` : '(按期完工)'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 繪製雙包絡香蕉曲線
             createOrUpdateChart('comparisonSCurveCanvas', {
                 type: 'line',
                 data: {
                     labels: dateLabels,
                     datasets: [
-                        { label: '預定累積進度', data: plannedData, borderColor: '#D97706', borderWidth: 2.5, fill: false, tension: 0.4, pointRadius: 0, datalabels: { color: '#B45309' } },
-                        { label: '實際累積進度', data: actualData, borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)', borderWidth: 3.5, fill: true, tension: 0.4, pointRadius: 0, datalabels: { color: '#1E40AF' } }
+                        { 
+                            label: '早期排程上限 (ES Early Curve)', 
+                            data: earlyData, 
+                            borderColor: '#059669', 
+                            borderWidth: 2.5, 
+                            fill: false, 
+                            tension: 0.35, 
+                            pointRadius: 0,
+                            datalabels: { display: false } 
+                        },
+                        { 
+                            label: '晚期容許下限 (LS Late Curve - 要徑警戒線)', 
+                            data: lateData, 
+                            borderColor: '#DC2626', 
+                            borderDash: [5, 5], 
+                            borderWidth: 2, 
+                            fill: '-1', 
+                            backgroundColor: 'rgba(217, 119, 6, 0.12)', 
+                            tension: 0.35, 
+                            pointRadius: 0,
+                            datalabels: { display: false } 
+                        },
+                        { 
+                            label: '實際累積進度 (Actual S-Curve)', 
+                            data: actualData, 
+                            borderColor: '#2563EB', 
+                            backgroundColor: 'rgba(37, 99, 235, 0.15)', 
+                            borderWidth: 3.5, 
+                            fill: false, 
+                            tension: 0.35, 
+                            pointRadius: 2.5, 
+                            pointBackgroundColor: '#1E3A8A',
+                            spanGaps: false,
+                            datalabels: { display: false } 
+                        }
                     ]
                 },
                 options: {
-                    ...chartDefaultOptions('預定進度 vs. 實際進度 S-Curve 比較圖', project.startDate, project.plannedCompletionDate),
+                    ...chartDefaultOptions('公共工程標準雙包絡香蕉曲線 (Banana S-Curve ＆ 浮時容許區間)', project.startDate, project.plannedCompletionDate),
+                    layout: { padding: { right: 40 } },
+                    scales: {
+                        ...chartDefaultOptions().scales,
+                        y: {
+                            min: 0,
+                            max: 100,
+                            title: { display: true, text: '累積完成進度 (%)', color: '#0E1B2E', font: { weight: 'bold' } },
+                            ticks: { callback: v => v + '%' }
+                        }
+                    },
+                    plugins: {
+                        ...chartDefaultOptions().plugins,
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null && context.parsed.y !== undefined) {
+                                        label += context.parsed.y.toFixed(2) + '%';
+                                    } else {
+                                        label += '尚未回報 (未來日期)';
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        datalabels: { display: false }
+                    }
+                }
+            });
+        }
+
+        /**
+         * 繪製第三分頁：分項工程實際累積進度 S 曲線 (Actual S-Curve) 與即時完成率指標
+         */
+        function drawActualCharts(project, asOfDate) {
+            const dateLabels = [], actualData = [], plannedRefData = [];
+            
+            // 尋找各工項實際進度回報的最晚基準日 (Data Date)
+            let latestReportDate = null;
+            project.tasks.forEach(t => {
+                if (t.progressHistory) {
+                    t.progressHistory.forEach(h => {
+                        if (!latestReportDate || h.date > latestReportDate) {
+                            latestReportDate = h.date;
+                        }
+                    });
+                }
+            });
+            const dataDate = latestReportDate || asOfDate || formatDate(new Date());
+            const totalBAC = project.tasks.reduce((sum, t) => sum + (parseFloat(t.taskCost) || 0), 0);
+
+            for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
+                const dateStr = formatDate(d);
+                dateLabels.push(dateStr);
+                
+                // 預定早期排程參考線 (早期上限作為基準對照)
+                const plannedVal = getProjectEarlyProgressAtDate(project, dateStr);
+                plannedRefData.push(plannedVal);
+
+                // 實際進度只繪製到最新回報基準日，未來日期為 null
+                if (dateStr <= dataDate) {
+                    let actualVal = 0;
+                    if (totalBAC > 0) {
+                        project.tasks.forEach(task => {
+                            const weight = (parseFloat(task.taskCost) || 0) / totalBAC;
+                            actualVal += (getTaskProgressAsOf(task, dateStr) / 100) * weight;
+                        });
+                        actualVal *= 100;
+                    }
+                    actualData.push(actualVal);
+                } else {
+                    actualData.push(null);
+                }
+            }
+
+            // 渲染實際進度指標儀表板
+            const actualDashboard = document.getElementById('actual-metrics-dashboard');
+            if (actualDashboard) {
+                const currentActualPct = actualData.filter(v => v !== null).slice(-1)[0] || 0;
+                const plannedAtDataDate = getProjectEarlyProgressAtDate(project, dataDate);
+                const diffPct = currentActualPct - plannedAtDataDate;
+                const EV = totalBAC * (currentActualPct / 100);
+
+                actualDashboard.innerHTML = `
+                    <div class="eng-card p-4 border border-gray-200 bg-white shadow-sm mb-4">
+                        <div class="flex justify-between items-center flex-wrap gap-2 mb-3 pb-2 border-b border-gray-200">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-1 text-xs font-bold bg-primary-navy text-white rounded">
+                                    <i class="fas fa-calendar-check text-accent-gold"></i> 最新回報基準日: ${dataDate}
+                                </span>
+                                <span class="text-xs font-bold text-gray-600">契約總值 BAC: NT$ ${formatCurrency(totalBAC)}</span>
+                            </div>
+                            <div class="px-3 py-1 rounded text-xs font-black border ${diffPct >= 0 ? 'text-emerald-700 bg-emerald-100 border-emerald-500' : 'text-red-700 bg-red-100 border-red-500'}">
+                                實際管考: ${diffPct >= 0 ? '超前 +' + diffPct.toFixed(2) + '%' : '落後 ' + diffPct.toFixed(2) + '%'}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                            <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-blue-700">實質累積完成率</div>
+                                <div class="text-lg font-black font-mono text-blue-900">${currentActualPct.toFixed(2)}%</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-gray-500">預定目標完成率</div>
+                                <div class="text-lg font-black font-mono text-emerald-800">${plannedAtDataDate.toFixed(2)}%</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-gray-500">實質完成金額 (EV)</div>
+                                <div class="text-base font-black font-mono text-primary-navy">NT$ ${formatCurrency(EV)}</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <div class="text-[11px] font-bold text-gray-500">進度差異 (SV%)</div>
+                                <div class="text-base font-black font-mono ${diffPct >= 0 ? 'text-emerald-600' : 'text-red-600'}">
+                                    ${diffPct >= 0 ? '+' : ''}${diffPct.toFixed(2)}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 繪製實際累積進度 S 曲線
+            createOrUpdateChart('actualSCurveCanvas', {
+                type: 'line',
+                data: {
+                    labels: dateLabels,
+                    datasets: [
+                        {
+                            label: '實際累積完成進度 (Actual S-Curve)',
+                            data: actualData,
+                            borderColor: '#2563EB',
+                            backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 3.5,
+                            pointRadius: 2.5,
+                            pointBackgroundColor: '#1E3A8A',
+                            spanGaps: false,
+                            datalabels: { display: false }
+                        },
+                        {
+                            label: '預定排程對照參考線 (Planned Reference)',
+                            data: plannedRefData,
+                            borderColor: '#94A3B8',
+                            borderDash: [5, 5],
+                            borderWidth: 1.5,
+                            fill: false,
+                            tension: 0.35,
+                            pointRadius: 0,
+                            datalabels: { display: false }
+                        }
+                    ]
+                },
+                options: {
+                    ...chartDefaultOptions('分項工程實際累積進度 S 曲線 (Actual S-Curve)', project.startDate, project.plannedCompletionDate),
                     layout: { padding: { right: 60 } },
                     scales: {
                         ...chartDefaultOptions().scales,
                         y: {
                             min: 0,
                             max: 100,
-                            title: { display: true, text: '累積進度 (%)', color: '#1E293B' },
+                            title: { display: true, text: '累積完成進度 (%)', color: '#0E1B2E', font: { weight: 'bold' } },
                             ticks: { callback: v => v + '%' }
                         }
                     },
                     plugins: {
                         ...chartDefaultOptions().plugins,
-                        datalabels: {
-                            align: 'top',
-                            anchor: 'end',
-                            backgroundColor: (ctx) => ctx.datasetIndex === 0 ? 'rgba(254,243,199,0.85)' : 'rgba(219,234,254,0.85)',
-                            borderRadius: 4,
-                            font: { weight: 'bold', size: 11 },
-                            formatter: (v, ctx) => (ctx.dataIndex === ctx.dataset.data.length - 1 || Math.floor(v / 15) > Math.floor((ctx.dataset.data[ctx.dataIndex - 1] || 0) / 15)) ? v.toFixed(1) + '%' : null
-                        }
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null && context.parsed.y !== undefined) {
+                                        label += context.parsed.y.toFixed(2) + '%';
+                                    } else {
+                                        label += '未回報 (未來工期)';
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        datalabels: { display: false }
                     }
                 }
             });
         }
+
         function downloadChartsAsPNG(button) {
             const projectId = (button && button.dataset && button.dataset.projectId) || currentModalProjectId;
             const tabName = (button && button.dataset && button.dataset.tab) || 'comparison';
@@ -1717,7 +2511,7 @@
             document.body.appendChild(a);
             a.click();
             a.remove();
-            showMessage('✅ 進度圖表已成功下載為高解析 PNG 圖檔。', 'success');
+            showMessage('進度圖表已成功下載為高解析 PNG 圖檔。', 'success');
         }
         
         function downloadSingleChartAsPNG(canvasId, projectId) {
@@ -1766,7 +2560,7 @@
             document.body.appendChild(a);
             a.click();
             a.remove();
-            showMessage(`✅ 圖表「${title}」已成功下載為 1080P 高解析圖檔。`, 'success');
+            showMessage(`圖表「${title}」已成功下載為 1080P 高解析圖檔。`, 'success');
         }
         
         function exportProjectToExcel(button) {
@@ -1777,146 +2571,216 @@
                 return;
             }
 
-            showMessage('⏳ 正在生成會計審計級 Excel 進度報告...', 'info');
+            showMessage('正在依行政院工程會標準產製專業進度管制 Excel 報告書...', 'info');
 
             try {
                 const today = formatDate(new Date());
-                const totalCost = project.tasks.reduce((sum, t) => sum + (t.taskCost || 0), 0);
-                const plannedOverallToday = getOverallPlannedProgressByTasks(project, today);
+                const totalCost = project.tasks.reduce((sum, t) => sum + (parseFloat(t.taskCost) || 0), 0);
+                
+                // 執行 CPM 演算以確保最新狀態
+                calculateProjectCPM(project);
+
+                const plannedEarlyToday = getProjectEarlyProgressAtDate(project, today);
+                const plannedLateToday = getProjectLateProgressAtDate(project, today);
+                
                 let actualOverallToday = 0;
                 if (project.tasks.length > 0 && totalCost > 0) {
-                    actualOverallToday = project.tasks.reduce((sum, t) => sum + (getTaskProgressAsOf(t, today) / 100) * ((t.taskCost || 0) / totalCost), 0) * 100;
+                    actualOverallToday = project.tasks.reduce((sum, t) => sum + (getTaskProgressAsOf(t, today) / 100) * ((parseFloat(t.taskCost) || 0) / totalCost), 0) * 100;
                 }
-                const diff = actualOverallToday - plannedOverallToday;
+                const diffSV = actualOverallToday - plannedEarlyToday;
+                const spi = (plannedEarlyToday > 0) ? (actualOverallToday / plannedEarlyToday) : 1.0;
+                const bananaMargin = actualOverallToday - plannedLateToday;
 
                 // ==========================================
-                // 工作表 1：工程進度管考總表
+                // 工作表 1：工程進度與 EVM 管考總表 (PCC Standard Overview)
                 // ==========================================
                 const wsOverviewData = [
-                    ['【NOVERA 諾維拉工程顧問】工程專案 S 曲線進度分析與管考總體報告'],
-                    [`標案名稱：${project.name} ｜ 製表日期：${today} ｜ 幣別：新台幣 (TWD)`],
+                    ['【行政院公共工程委員會監造規範標準】工程專案進度核算、S 曲線與 EVM 管考總表'],
+                    [`標案名稱：${project.name} ｜ 製表日期：${today} ｜ 幣別：新台幣 (NTD)`],
                     [''],
-                    ['管考項目', '數值 / 內容', '說明與計算基準'],
-                    ['工程標案名稱', project.name, '主辦機關核定工程名稱'],
-                    ['契約總金額 (NT$)', project.contractSum || 0, '工程發包契約含稅總金額'],
-                    ['分項工程總成本 (NT$)', totalCost, '所有工項金額累計總額'],
-                    ['主辦機關 (甲方/業主)', project.client || '未指定', '-'],
-                    ['設計單位', project.designer || '未指定', '-'],
-                    ['監造單位', project.supervisor || '未指定', '-'],
-                    ['開工日期', project.startDate || '-', '依監造開工通知書'],
-                    ['預定完工日期', project.plannedCompletionDate || '-', '契約工期截止日'],
-                    ['工期總天數', getDurationDays(project.startDate, project.plannedCompletionDate) + ' 天', '日曆天 / 工作天'],
-                    ['本日管考基準日', today, '進度計算截算日'],
-                    ['本日預定累積進度', plannedOverallToday.toFixed(2) + '%', '依工項金額權重公式加權計算'],
-                    ['本日實際累積進度', actualOverallToday.toFixed(2) + '%', '依工地現場日誌回報加權計算'],
-                    ['進度超前 / 落後差值', (diff >= 0 ? '+' : '') + diff.toFixed(2) + '%', diff >= 0 ? '正常超前' : (diff > -5 ? '些微落後' : '嚴重落後 (需提送趕工計畫)')],
-                    ['管考綜合評語', diff >= 0 ? '進度順利，無工期違約風險' : '請加派工班或調整關鍵要徑，避免工期罰款', '']
+                    ['管考維度', '管考指標項目', '數值 / 內容', '工程規範說明與判定基準'],
+                    ['專案基本資訊', '工程標案名稱', project.name, '主辦機關核定工程名稱'],
+                    ['專案基本資訊', '主辦機關 (甲方/業主)', project.client || '未指定', '發包公務機關'],
+                    ['專案基本資訊', '設計單位', project.designer || '未指定', '委託規劃設計技術服務顧問'],
+                    ['專案基本資訊', '監造單位', project.supervisor || '未指定', '委託監造專案管理單位'],
+                    ['專案基本資訊', '承攬廠商 (施工單位)', project.constructionUnit || '未指定', '得標營造團隊'],
+                    ['契約工期資訊', '開工日期', project.startDate || '-', '依監造開工備查通知函'],
+                    ['契約工期資訊', '契約預定完工日期', project.plannedCompletionDate || '-', '契約規定期限截止日'],
+                    ['契約工期資訊', '核定總工期', `${project.contractDuration || 0} 天`, '日曆天 / 工作天'],
+                    ['財務成本數據', '契約發包總金額 (NT$)', project.contractSum || 0, '含稅總金額 (BAC)'],
+                    ['財務成本數據', '分項工程成本總額 (NT$)', totalCost, '所有工項金額加總'],
+                    ['EVM實獲值進度', '本日管考基準日 (Data Date)', today, '進度截算與查核基準日'],
+                    ['EVM實獲值進度', '早期排程計畫值 PV (Early)', `NT$ ${formatCurrency(totalCost * (plannedEarlyToday / 100))}`, `早期排程累積進度上限：${plannedEarlyToday.toFixed(2)}%`],
+                    ['EVM實獲值進度', '晚期排程極限值 PV_late (Late)', `NT$ ${formatCurrency(totalCost * (plannedLateToday / 100))}`, `晚期容許進度警戒下限：${plannedLateToday.toFixed(2)}%`],
+                    ['EVM實獲值進度', '實際實獲價值 EV (Actual)', `NT$ ${formatCurrency(totalCost * (actualOverallToday / 100))}`, `現場實際完成累積進度：${actualOverallToday.toFixed(2)}%`],
+                    ['EVM實獲值進度', '進度差異金額 SV (Cost)', `NT$ ${formatCurrency(totalCost * (actualOverallToday / 100) - totalCost * (plannedEarlyToday / 100))}`, 'SV = EV - PV (金額差異)'],
+                    ['EVM實獲值進度', '進度差異百分比 SV (%)', `${diffSV >= 0 ? '+' : ''}${diffSV.toFixed(2)}%`, diffSV >= 0 ? '超前' : (diffSV >= -5 ? '落後 5% 以內 (警戒)' : '落後逾 5% (需提趕工計畫)')],
+                    ['EVM實獲值進度', '進度績效指標 SPI', spi.toFixed(3), spi >= 1.0 ? '進度良好 (SPI >= 1.0)' : (spi >= 0.9 ? '微幅落後 (0.9 <= SPI < 1.0)' : '嚴重延誤 (SPI < 0.90，一級列管)')],
+                    ['香蕉曲線狀態', '香蕉浮時安全邊際 Δ', `${bananaMargin >= 0 ? '+' : ''}${bananaMargin.toFixed(2)}%`, bananaMargin >= 0 ? '在香蕉容許緩衝帶內 (安全受控)' : '⚠️ 跌破晚期線！浮時耗盡，要徑實質落後！'],
+                    ['綜合管考結論', '工程會管考判定結論', 
+                        actualOverallToday >= plannedEarlyToday ? '工程進度積極超前，現場動員與要徑推展極佳。' :
+                        (bananaMargin >= 0 ? '進度落於香蕉容許緩衝帶內，非要徑工項浮時正常調節中，要徑未受損。' :
+                        '工程進度已跌破晚期臨界線！浮時已消耗殆盡，要徑作業實質延誤，依品管作業要點應即召開趕工協調會並送審趕工計畫。'),
+                        ''
+                    ]
                 ];
 
                 const wsOverview = XLSX.utils.aoa_to_sheet(wsOverviewData);
                 wsOverview['!cols'] = [
-                    { wch: 25 },
-                    { wch: 30 },
-                    { wch: 45 }
+                    { wch: 18 },
+                    { wch: 28 },
+                    { wch: 32 },
+                    { wch: 55 }
                 ];
 
                 // ==========================================
-                // 工作表 2：分項工程進度與權重明細表
+                // 工作表 2：分項工程 CPM 要徑網絡與浮時分析明細表 (CPM Network & Floats)
                 // ==========================================
+                const taskMap = {};
+                project.tasks.forEach(t => taskMap[t.id] = t);
+
                 const wsTasksData = [
-                    ['【NOVERA 諾維拉工程顧問】各分項工程金額權重與進度達成明細表'],
-                    [`工程標案：${project.name} ｜ 管考基準日：${today}`],
+                    ['【行政院公共工程委員會標準】各分項工程 CPM 要徑網絡演算、工項權重與浮時分析表'],
+                    [`工程標案：${project.name} ｜ 管考基準日：${today} ｜ 總工期：${project.contractDuration} 天`],
                     [''],
-                    ['序號', '分項工程名稱', '工項金額 (NT$)', '金額權重 (%)', '預計開始日期', '預計完成日期', '工期(天)', '今日預定進度(%)', '今日實際進度(%)', '加權預定貢獻(%)', '加權實際貢獻(%)']
+                    [
+                        'WBS編碼', 
+                        '分項工程名稱', 
+                        '契約金額 (NT$)', 
+                        '金額權重 (%)', 
+                        '工期 (天)', 
+                        '緊前作業 (Predecessors)', 
+                        '關係類型與Lag', 
+                        '最早開始 (ES)', 
+                        '最早完成 (EF)', 
+                        '最晚開始 (LS)', 
+                        '最晚完成 (LF)', 
+                        '總浮時 TF (天)', 
+                        '自由浮時 FF (天)', 
+                        '要徑作業判定', 
+                        '累計實際進度 (%)'
+                    ]
                 ];
 
                 let sumWeight = 0;
-                let sumPlannedContrib = 0;
-                let sumActualContrib = 0;
 
-                project.tasks.forEach((task, i) => {
-                    const weight = totalCost > 0 ? ((task.taskCost || 0) / totalCost) * 100 : 0;
-                    const pProg = getTaskPlannedProgress(task, today);
-                    const aProg = getTaskProgressAsOf(task, today);
-                    const pContrib = (pProg * weight) / 100;
-                    const aContrib = (aProg * weight) / 100;
-
+                project.tasks.forEach((task) => {
+                    const weight = totalCost > 0 ? ((parseFloat(task.taskCost) || 0) / totalCost) * 100 : 0;
                     sumWeight += weight;
-                    sumPlannedContrib += pContrib;
-                    sumActualContrib += aContrib;
+
+                    let predCodes = '首工項 (無)';
+                    let predTypes = '-';
+                    if (task.predecessors && task.predecessors.length > 0) {
+                        predCodes = task.predecessors.map(p => {
+                            const pt = taskMap[p.taskId];
+                            return pt ? (pt.wbsCode || pt.taskName) : '未知';
+                        }).join('; ');
+                        predTypes = task.predecessors.map(p => `${p.type || 'FS'}${p.lag ? '+' + p.lag + 'd' : ''}`).join('; ');
+                    }
+
+                    const actualProg = getTaskProgressAsOf(task, today);
 
                     wsTasksData.push([
-                        i + 1,
+                        task.wbsCode || '',
                         task.taskName,
-                        task.taskCost || 0,
+                        parseFloat(task.taskCost) || 0,
                         parseFloat(weight.toFixed(2)),
-                        task.plannedStartDate,
-                        task.plannedEndDate,
-                        task.duration || getDurationDays(task.plannedStartDate, task.plannedEndDate),
-                        parseFloat(pProg.toFixed(2)),
-                        parseFloat(aProg.toFixed(2)),
-                        parseFloat(pContrib.toFixed(2)),
-                        parseFloat(aContrib.toFixed(2))
+                        task.duration || 1,
+                        predCodes,
+                        predTypes,
+                        task.plannedStartDate || '',
+                        task.plannedEndDate || '',
+                        task.lateStartDate || '',
+                        task.lateEndDate || '',
+                        task.totalFloat ?? 0,
+                        task.freeFloat ?? 0,
+                        task.isCritical ? '★ 要徑作業 (Critical)' : '非要徑',
+                        parseFloat(actualProg.toFixed(2))
                     ]);
                 });
 
                 // 合計列
                 wsTasksData.push([
                     '【總計】',
-                    `共 ${project.tasks.length} 個分項工程`,
+                    `共 ${project.tasks.length} 個分項工程作業`,
                     totalCost,
                     parseFloat(sumWeight.toFixed(2)),
+                    project.contractDuration || 0,
+                    '-',
+                    '-',
                     project.startDate,
                     project.plannedCompletionDate,
-                    getDurationDays(project.startDate, project.plannedCompletionDate),
-                    parseFloat(plannedOverallToday.toFixed(2)),
-                    parseFloat(actualOverallToday.toFixed(2)),
-                    parseFloat(sumPlannedContrib.toFixed(2)),
-                    parseFloat(sumActualContrib.toFixed(2))
+                    '-',
+                    project.plannedCompletionDate,
+                    0,
+                    0,
+                    `要徑數：${project.tasks.filter(t => t.isCritical).length} 項`,
+                    parseFloat(actualOverallToday.toFixed(2))
                 ]);
 
                 const wsTasks = XLSX.utils.aoa_to_sheet(wsTasksData);
                 wsTasks['!cols'] = [
-                    { wch: 8 },  // 序號
-                    { wch: 35 }, // 分項工程名稱
-                    { wch: 18 }, // 金額
-                    { wch: 15 }, // 權重%
-                    { wch: 15 }, // 開始
-                    { wch: 15 }, // 完成
-                    { wch: 12 }, // 工期
-                    { wch: 18 }, // 預定%
-                    { wch: 18 }, // 實際%
-                    { wch: 18 }, // 加權預定%
-                    { wch: 18 }  // 加權實際%
+                    { wch: 10 }, // WBS
+                    { wch: 30 }, // 名稱
+                    { wch: 16 }, // 金額
+                    { wch: 12 }, // 權重
+                    { wch: 10 }, // 工期
+                    { wch: 22 }, // 緊前
+                    { wch: 16 }, // 關係
+                    { wch: 14 }, // ES
+                    { wch: 14 }, // EF
+                    { wch: 14 }, // LS
+                    { wch: 14 }, // LF
+                    { wch: 12 }, // TF
+                    { wch: 14 }, // FF
+                    { wch: 20 }, // 要徑判定
+                    { wch: 16 }  // 實際進度
                 ];
 
                 // ==========================================
-                // 工作表 3：每日累積 S 曲線推算數據庫
+                // 工作表 3：雙包絡香蕉 S 曲線累積推算數據庫 (Banana S-Curve Database)
                 // ==========================================
                 const wsDailyData = [
-                    ['【NOVERA 諾維拉工程顧問】每日預定 vs. 實際 S 曲線累積進度推算數據庫'],
-                    [`工程標案：${project.name} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`],
+                    ['【行政院公共工程委員會標準】雙包絡香蕉 S 曲線 (早期 vs. 晚期 vs. 實際) 每日管考推算數據庫'],
+                    [`工程標案：${project.name} ｜ 全程期程：${project.startDate} ~ ${project.plannedCompletionDate} ｜ 管考基準日：${today}`],
                     [''],
-                    ['序號', '工程日期 (Date)', '預定累積進度 (%)', '實際累積進度 (%)', '超前 / 落後差值 (%)', '管考判定']
+                    ['序號', '工程日期 (Date)', '早期排程上限 ES (%)', '晚期容許下限 LS (%)', '香蕉浮時寬度 Δ (%)', '實際累積進度 (%)', '進度差異 SV (%)', '香蕉包絡管考判定']
                 ];
 
                 let dayIndex = 1;
                 for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
                     const dateStr = formatDate(d);
-                    const pVal = getOverallPlannedProgressByTasks(project, dateStr);
-                    let aVal = 0;
-                    if (project.tasks.length > 0 && totalCost > 0) {
-                        aVal = project.tasks.reduce((sum, task) => sum + (getTaskProgressAsOf(task, dateStr) / 100) * ((task.taskCost || 0) / totalCost), 0) * 100;
+                    const earlyVal = getProjectEarlyProgressAtDate(project, dateStr);
+                    const lateVal = getProjectLateProgressAtDate(project, dateStr);
+                    const envelopeWidth = earlyVal - lateVal;
+
+                    let actualValStr = '-';
+                    let svStr = '-';
+                    let statusNote = '未達回報日';
+
+                    if (dateStr <= today) {
+                        let aVal = 0;
+                        if (project.tasks.length > 0 && totalCost > 0) {
+                            aVal = project.tasks.reduce((sum, task) => sum + (getTaskProgressAsOf(task, dateStr) / 100) * ((parseFloat(task.taskCost) || 0) / totalCost), 0) * 100;
+                        }
+                        actualValStr = aVal.toFixed(2);
+                        const sv = aVal - earlyVal;
+                        svStr = (sv >= 0 ? '+' : '') + sv.toFixed(2);
+                        
+                        if (aVal >= earlyVal) statusNote = '超前 (高於早期上限)';
+                        else if (aVal >= lateVal) statusNote = '正常 (在香蕉容許帶內)';
+                        else statusNote = '落後 (跌破晚期警戒線)';
                     }
-                    const dDiff = aVal - pVal;
 
                     wsDailyData.push([
                         dayIndex++,
                         dateStr,
-                        parseFloat(pVal.toFixed(2)),
-                        parseFloat(aVal.toFixed(2)),
-                        parseFloat(dDiff.toFixed(2)),
-                        dDiff >= 0 ? '超前' : '落後'
+                        parseFloat(earlyVal.toFixed(2)),
+                        parseFloat(lateVal.toFixed(2)),
+                        parseFloat(envelopeWidth.toFixed(2)),
+                        actualValStr,
+                        svStr,
+                        statusNote
                     ]);
                 }
 
@@ -1925,23 +2789,25 @@
                     { wch: 8 },
                     { wch: 16 },
                     { wch: 20 },
-                    { wch: 20 },
                     { wch: 22 },
-                    { wch: 14 }
+                    { wch: 18 },
+                    { wch: 18 },
+                    { wch: 18 },
+                    { wch: 24 }
                 ];
 
                 // 組裝活頁簿並匯出
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, wsOverview, "1.工程進度管考總表");
-                XLSX.utils.book_append_sheet(wb, wsTasks, "2.分項工程權重明細");
-                XLSX.utils.book_append_sheet(wb, wsDaily, "3.每日S曲線數據庫");
+                XLSX.utils.book_append_sheet(wb, wsOverview, "1.工程進度與EVM總表");
+                XLSX.utils.book_append_sheet(wb, wsTasks, "2.CPM要徑與浮時明細");
+                XLSX.utils.book_append_sheet(wb, wsDaily, "3.雙包絡香蕉S曲線數據庫");
 
-                XLSX.writeFile(wb, `NOVERA_${project.name}_S曲線進度分析報告_${today}.xlsx`);
-                showMessage('✅ 專業多活頁簿 Excel 進度報告已成功匯出！', 'success');
+                XLSX.writeFile(wb, `公共工程標準_${project.name}_CPM要徑與香蕉S曲線分析報告_${today}.xlsx`);
+                showMessage('公共工程委員會標準多活頁簿 Excel 進度與要徑分析報告已成功匯出！', 'success');
 
             } catch (err) {
                 console.error("Excel export failed: ", err);
-                showMessage('❌ 匯出 Excel 報告失敗：' + err.message, 'danger');
+                showMessage('匯出 Excel 報告失敗：' + err.message, 'danger');
             }
         }
 
