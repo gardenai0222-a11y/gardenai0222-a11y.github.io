@@ -11,6 +11,7 @@
       gtag('config', 'G-P4RBPFKE32');
     </script>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230E1B2E'/%3E%3Cpath d='M6 24C10 24 12 16 16 16C20 16 22 8 26 8' stroke='%23C27803' stroke-width='3' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='26' cy='8' r='3.5' fill='%23F59E0B'/%3E%3Ccircle cx='6' cy='24' r='3' fill='%2310B981'/%3E%3C/svg%3E">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -212,7 +213,7 @@
     <header class="navbar">
         <div class="nav-container">
             <a href="index.html" class="logo">
-                <img src="assets/novera_logo.png" alt="NOVERA 諾維拉工程顧問 Logo" class="logo-img" style="height: 40px; max-height: 40px; width: auto; object-fit: contain; display: block;">
+                <img src="assets/novera_logo.png" alt="NOVERA 諾維拉工程顧問 Logo" class="logo-img" style="height: 40px; max-height: 40px; width: auto; object-fit: contain; display: block;" onerror="this.style.display='none';">
                 <span class="logo-text">NOVERA</span>
                 <span class="logo-sub">諾維拉工程顧問</span>
             </a>
@@ -1595,7 +1596,7 @@
                 const isCrit = task.isCritical;
                 const rowBorder = isCrit ? 'border-l-4 border-l-red-600 bg-red-50/20' : '';
                 const critBadge = isCrit
-                    ? '<span class="inline-flex items-center px-2 py-0.5 text-xs font-black bg-red-600 text-white rounded shadow-sm">★ 要徑 (TF=0)</span>'
+                    ? '<span class="inline-flex items-center px-2 py-0.5 text-xs font-black bg-red-600 text-white rounded shadow-sm">[要徑] TF=0</span>'
                     : `<span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200 rounded">浮時 ${task.totalFloat || 0}天</span>`;
 
                 return `
@@ -2050,7 +2051,7 @@
                                 generateLabels: function(chart) {
                                     return [
                                         {
-                                            text: '★ 要徑作業工期 (TF=0)',
+                                            text: '[要徑] 作業工期 (TF=0)',
                                             fillStyle: '#DC2626',
                                             strokeStyle: '#991B1B',
                                             lineWidth: 1,
@@ -2095,7 +2096,7 @@
                                 const task = project.tasks[ctx.dataIndex];
                                 if (!task) return null;
                                 if (ctx.datasetIndex === 0) {
-                                    return task.isCritical ? '★ 要徑 (TF=0)' : `${task.duration}天`;
+                                    return task.isCritical ? '[要徑] TF=0' : `${task.duration}天`;
                                 } else {
                                     return (task.totalFloat > 0 && task.plannedEndDate !== task.lateEndDate) ? `浮時+${task.totalFloat}天` : null;
                                 }
@@ -2758,7 +2759,7 @@
                     ['EVM實獲值進度', '進度差異金額 SV (Cost)', `NT$ ${formatCurrency(totalCost * (actualOverallToday / 100) - totalCost * (plannedEarlyToday / 100))}`, 'SV = EV - PV (金額差異)'],
                     ['EVM實獲值進度', '進度差異百分比 SV (%)', `${diffSV >= 0 ? '+' : ''}${diffSV.toFixed(2)}%`, diffSV >= 0 ? '超前' : (diffSV >= -5 ? '落後 5% 以內 (警戒)' : '落後逾 5% (需提趕工計畫)')],
                     ['EVM實獲值進度', '進度績效指標 SPI', spi.toFixed(3), spi >= 1.0 ? '進度良好 (SPI >= 1.0)' : (spi >= 0.9 ? '微幅落後 (0.9 <= SPI < 1.0)' : '嚴重延誤 (SPI < 0.90，一級列管)')],
-                    ['香蕉曲線狀態', '香蕉浮時安全邊際 Δ', `${bananaMargin >= 0 ? '+' : ''}${bananaMargin.toFixed(2)}%`, bananaMargin >= 0 ? '在香蕉容許緩衝帶內 (安全受控)' : '⚠️ 跌破晚期線！浮時耗盡，要徑實質落後！'],
+                    ['香蕉曲線狀態', '香蕉浮時安全邊際 Δ', `${bananaMargin >= 0 ? '+' : ''}${bananaMargin.toFixed(2)}%`, bananaMargin >= 0 ? '在香蕉容許緩衝帶內 (安全受控)' : '[警訊] 跌破晚期線！浮時耗盡，要徑實質落後！'],
                     ['綜合管考結論', '工程會管考判定結論', 
                         actualOverallToday >= plannedEarlyToday ? '工程進度積極超前，現場動員與要徑推展極佳。' :
                         (bananaMargin >= 0 ? '進度落於香蕉容許緩衝帶內，非要徑工項浮時正常調節中，要徑未受損。' :
@@ -2836,7 +2837,7 @@
                         task.lateEndDate || '',
                         task.totalFloat ?? 0,
                         task.freeFloat ?? 0,
-                        task.isCritical ? '★ 要徑作業 (Critical)' : '非要徑',
+                        task.isCritical ? '[要徑] 要徑作業 (Critical)' : '非要徑',
                         parseFloat(actualProg.toFixed(2))
                     ]);
                 });
