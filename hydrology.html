@@ -28,8 +28,8 @@
 
     <title>NOVERA 全國水文水理工程分析 ＆ 水工設計計算檢核系統 ｜ 諾維拉工程顧問</title>
 
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F172A'/%3E%3Cpath d='M6 20C10 20 12 14 16 14C20 14 22 20 26 20' stroke='%230284C7' stroke-width='2.5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M6 24C10 24 12 18 16 18C20 18 22 24 26 24' stroke='%2338BDF8' stroke-width='2' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='16' cy='9' r='3' fill='%2338BDF8'/%3E%3C/svg%3E">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-
     <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 
     <meta name="description" content="全台最完整水文水理工程計算平台。收錄全台22縣市80+標準氣象測站IDF參數、合理化公式逕流、U型溝/截水溝水理、滯洪池出流管制、沉砂池水理、雨水管涵與箱涵水力檢核，符合水利工程技師與水土保持技師法定簽證審查標準。">
@@ -69,7 +69,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="assets/exceljs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script>if (typeof ExcelJS === "undefined") { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
 
 
 
@@ -4044,7 +4044,7 @@
 
         <a href="index.html" class="logo-box" style="text-decoration:none; display:flex; align-items:center; gap:10px; flex-shrink:0; white-space:nowrap;">
 
-            <img src="assets/novera_logo.png" alt="NOVERA Logo" class="logo-img" style="height:34px; width:auto; border-radius:4px; display:block; flex-shrink:0;">
+            <img src="assets/novera_logo.png" alt="NOVERA Logo" class="logo-img" style="height:34px; width:auto; border-radius:4px; display:block; flex-shrink:0;" onerror="this.style.display='none';">
 
             <span class="logo-badge" style="flex-shrink:0; white-space:nowrap;">HYDRO STUDIO</span>
 
@@ -4319,8 +4319,8 @@
                                 <button type="button" class="badge-city-btn" onclick="selectHubLocationBadge('TXG', '台中', '台中市', 5)">台中市</button>
                                 <button type="button" class="badge-city-btn" onclick="selectHubLocationBadge('TNN', '台南', '台南市', 5)">台南市</button>
                                 <button type="button" class="badge-city-btn" onclick="selectHubLocationBadge('KHH', '高雄', '高雄市', 5)">高雄市</button>
-                                <button type="button" class="badge-city-btn" onclick="selectHubLocationBadge('PIN', '屏東', '屏東縣', 5)">屏東縣</button>
-                                <button type="button" class="badge-city-btn" onclick="selectHubLocationBadge('ILA', '宜蘭', '宜蘭縣', 5)">宜蘭縣</button>
+                                <button type="button" class="badge-city-btn" onclick="selectHubLocationBadge('PTS', '屏東', '屏東縣', 5)">屏東縣</button>
+                                <button type="button" class="badge-city-btn" onclick="selectHubLocationBadge('ILN', '宜蘭', '宜蘭縣', 5)">宜蘭縣</button>
                             </div>
 
                             <!-- 座標輔助提示 -->
@@ -4458,8 +4458,8 @@
         <!-- 後台 DOM 相容性隱藏輸入框 (由管理中樞自動廣播填入) -->
         <input type="hidden" id="metaProjectName" value="高雄市典寶溪D區滯洪池及週邊排水改善工程">
         <input type="hidden" id="metaClient" value="科技產業園區股份有限公司">
-        <input type="hidden" id="metaAuthor" value="諾維拉水利設計組">
-        <input type="hidden" id="metaDesignUnit" value="諾維拉水利設計組">
+        <input type="hidden" id="metaAuthor" value="諾維拉工程顧問">
+        <input type="hidden" id="metaDesignUnit" value="諾維拉工程顧問">
         <input type="hidden" id="metaEngineer" value="水利工程技師 簽證">
         <input type="hidden" id="metaLicense" value="技工字第 012345 號">
         <input type="hidden" id="metaProjectCode" value="NOV-2026-HYD-01">
@@ -4826,7 +4826,7 @@
 
                         </label>
 
-                        <input type="number" id="catchmentArea" class="form-control" value="1.2" min="0.001" step="0.1" oninput="updateHydrology()">
+                        <input type="number" id="catchmentArea" class="form-control" value="1.2" min="0.001" step="0.1" oninput="updateHydrology(); if(typeof syncHubAreaFrom==='function') syncHubAreaFrom('ha', this.value);">
 
                     </div>
 
@@ -5268,7 +5268,13 @@
             </div>
             <!-- 後台 DOM 相容性隱藏輸入框 (由管理中樞自動廣播填入) -->
             <input type="hidden" id="outflowMetaProjectName" value="高雄市典寶溪D區滯洪池及週邊排水改善工程">
-            <input type="hidden" id="outflowMetaLandNo" value="高雄市楠梓區德民路 / 楠梓段123地號">
+            <input type="hidden" id="outflowMetaApplicant" value="產業園區開發股份有限公司">
+    <input type="hidden" id="outflowMetaApplicantRep" value="陳董事長">
+    <input type="hidden" id="outflowMetaAuthority" value="經濟部水利署第五河川分署">
+    <input type="hidden" id="outflowMetaFirm" value="諾維拉工程顧問">
+    <input type="hidden" id="outflowMetaPhone" value="(02) 2345-6789">
+    <input type="hidden" id="outflowMetaCounty" value="嘉義縣">
+    <input type="hidden" id="outflowMetaLandNo" value="高雄市楠梓區德民路 / 楠梓段123地號">
             <input type="hidden" id="outflowMetaClient" value="科技產業園區股份有限公司">
             <input type="hidden" id="outflowMetaAuthor" value="水利規劃設計組">
             <input type="hidden" id="outflowMetaEngineer" value="水利工程技師 簽證">
@@ -5436,7 +5442,7 @@
 
                                 <label class="form-label">總開發基地面積 (ha)</label>
 
-                                <input type="number" id="outflowAreaHa" class="form-control" value="3.5" min="0.01" step="0.1" oninput="calculateOutflow()">
+                                <input type="number" id="outflowAreaHa" class="form-control" value="3.5" min="0.01" step="0.1" oninput="calculateOutflow(); if(typeof syncHubAreaFrom==='function') syncHubAreaFrom('ha', this.value);">
 
                             </div>
 
@@ -6197,31 +6203,27 @@
                     <div class="form-row-2">
                         <div class="form-group">
                             <label class="form-label">工程 / 開發案名稱</label>
-                            <input type="text" id="wizProjectName" class="form-control" value="科技產業園區新建廠房出流管制計畫" oninput="document.getElementById('outflowMetaProjectName').value = this.value; if(typeof saveOutflowProjectMeta==='function') saveOutflowProjectMeta();">
+                            <input type="text" id="wizProjectName" class="form-control" value="科技產業園區新建廠房出流管制計畫" oninput="document.getElementById('outflowMetaProjectName').value = this.value; const hubEl = document.getElementById('hubProjectName'); if(hubEl) hubEl.value = this.value; if(typeof broadcastProjectHubData==='function') broadcastProjectHubData();">
                         </div>
                         <div class="form-group">
                             <label class="form-label">送審/審查主管機關</label>
-                            <input type="text" id="wizClient" class="form-control" value="經濟部水利署第五河川分署 / 嘉義縣水利處" oninput="document.getElementById('outflowMetaClient').value = this.value; if(typeof saveOutflowProjectMeta==='function') saveOutflowProjectMeta();">
+                            <input type="text" id="wizClient" class="form-control" value="經濟部水利署第五河川分署 / 嘉義縣水利處" oninput="document.getElementById('outflowMetaClient').value = this.value; const hubEl = document.getElementById('hubClientName'); if(hubEl) hubEl.value = this.value; if(typeof broadcastProjectHubData==='function') broadcastProjectHubData();">
                         </div>
                     </div>
                     <div class="form-row-2" style="margin-top:10px;">
                         <div class="form-group">
                             <label class="form-label">行政區縣市與水文測站</label>
                             <div style="display:flex; gap:8px;">
-                                <select id="wizCountySelect" class="form-control" style="flex:1;" onchange="document.getElementById('outflowCountySelect').value = this.value; if(typeof updateOutflowCounty==='function') updateOutflowCounty(); syncStationsToWizard(); if(typeof calculateOutflow==='function') calculateOutflow();
-            if (typeof drawPondSimFrame === 'function') {
-                drawPondSimFrame(0);
-            }
-">
+                                <select id="wizCountySelect" class="form-control" style="flex:1;" onchange="document.getElementById('outflowCountySelect').value = this.value; if(typeof updateOutflowCounty==='function') updateOutflowCounty(); syncStationsToWizard(); if(typeof calculateOutflow==='function') calculateOutflow(); if (typeof drawPondSimFrame === 'function') drawPondSimFrame(0); if (typeof syncMode2LocationToHub === 'function') syncMode2LocationToHub();">
                                 </select>
-                                <select id="wizStationSelect" class="form-control" style="flex:1.5;" onchange="document.getElementById('outflowStationSelect').value = this.value; if(typeof calculateOutflow==='function') calculateOutflow();">
+                                <select id="wizStationSelect" class="form-control" style="flex:1.5;" onchange="document.getElementById('outflowStationSelect').value = this.value; if(typeof calculateOutflow==='function') calculateOutflow(); if (typeof syncMode2LocationToHub === 'function') syncMode2LocationToHub();">
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">總開發基地面積 (ha) 與設計重現期</label>
                             <div style="display:flex; gap:8px;">
-                                <input type="number" id="wizAreaHa" class="form-control" value="3.5" min="0.01" step="0.1" style="flex:1;" oninput="document.getElementById('outflowAreaHa').value = this.value; if(typeof calculateOutflow==='function') calculateOutflow(); syncExpertToWizard();">
+                                <input type="number" id="wizAreaHa" class="form-control" value="3.5" min="0.01" step="0.1" style="flex:1;" oninput="document.getElementById('outflowAreaHa').value = this.value; if(typeof calculateOutflow==='function') calculateOutflow(); syncExpertToWizard(); if(typeof syncHubAreaFrom==='function') syncHubAreaFrom('ha', this.value);">
                                 <select id="wizReturnPeriod" class="form-control" style="flex:1;" onchange="document.getElementById('outflowReturnPeriod').value = this.value; if(typeof calculateOutflow==='function') calculateOutflow(); syncExpertToWizard();">
                                     <option value="10">10 年重現期</option>
                                     <option value="25">25 年重現期</option>
@@ -6249,19 +6251,19 @@
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:10px; margin-bottom:16px;">
                         <button type="button" class="wiz-template-btn" onclick="applyWizardTemplate('tech_factory')">
                             <div style="font-weight:800; color:#0369A1;"><i class="fas fa-industry"></i> 綠地轉高科技廠房</div>
-                            <div style="font-size:0.72rem; color:#64748B; margin-top:2px;">建蔽率 60% (C: 0.28 ➔ 0.85, Tc: 12m)</div>
+                            <div style="font-size:0.72rem; color:#64748B; margin-top:2px;">建蔽率 60% (C: 0.28 -> 0.85, Tc: 12m)</div>
                         </button>
                         <button type="button" class="wiz-template-btn" onclick="applyWizardTemplate('residence')">
                             <div style="font-weight:800; color:#0369A1;"><i class="fas fa-city"></i> 農地轉都計集合住宅</div>
-                            <div style="font-size:0.72rem; color:#64748B; margin-top:2px;">建蔽率 50% (C: 0.30 ➔ 0.75, Tc: 15m)</div>
+                            <div style="font-size:0.72rem; color:#64748B; margin-top:2px;">建蔽率 50% (C: 0.30 -> 0.75, Tc: 15m)</div>
                         </button>
                         <button type="button" class="wiz-template-btn" onclick="applyWizardTemplate('logistics')">
                             <div style="font-weight:800; color:#0369A1;"><i class="fas fa-warehouse"></i> 廠區擴建物流倉儲</div>
-                            <div style="font-size:0.72rem; color:#64748B; margin-top:2px;">超大屋面 (C: 0.45 ➔ 0.90, Tc: 10m)</div>
+                            <div style="font-size:0.72rem; color:#64748B; margin-top:2px;">超大屋面 (C: 0.45 -> 0.90, Tc: 10m)</div>
                         </button>
                         <button type="button" class="wiz-template-btn" onclick="applyWizardTemplate('hillside')">
                             <div style="font-weight:800; color:#0369A1;"><i class="fas fa-mountain"></i> 山坡地特定目的事業</div>
-                            <div style="font-size:0.72rem; color:#64748B; margin-top:2px;">低密度遊憩 (C: 0.25 ➔ 0.65, Tc: 18m)</div>
+                            <div style="font-size:0.72rem; color:#64748B; margin-top:2px;">低密度遊憩 (C: 0.25 -> 0.65, Tc: 18m)</div>
                         </button>
                     </div>
 
@@ -6437,464 +6439,459 @@
         <!-- 審查答詢與防護特區 (Mode 3: Defense Hub) -->
         <!-- ============================================================ -->
         <div id="sectionDefenseHub" style="display:none;">
-            <!-- Hero Banner -->
-            <div class="defense-hub-banner">
+
+            <!-- 現代高階顧問級情境導覽橫幅 (Executive Hero Banner) -->
+            <div class="defense-hub-banner" style="background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%); border-radius:12px; padding:20px 24px; margin-bottom:20px; color:#F8FAFC; border:1px solid rgba(255, 255, 255, 0.15); box-shadow:0 4px 20px rgba(0,0,0,0.15); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
                 <div>
-                    <h1><i class="fas fa-shield-halved"></i> 審查答詢與決策支援系統 (Defense & Assurance Hub)</h1>
-                    <p>董座/業主白話決策 ｜ 歷史超級颱風穿越實戰 ｜ 前後版本變更表(附件十二) ｜ 22 縣市歷史過件黃金基準線 ｜ 外水頂托防護 ｜ 手算代數透視 ｜ 10 大必問直球小抄</p>
+                    <h1 style="font-size:1.35rem; font-weight:900; margin:0 0 6px 0; display:flex; align-items:center; gap:10px; color:#38BDF8;">
+                        <i class="fas fa-shield-halved"></i> 審查答詢與決策支援系統 (Defense & Assurance Hub)
+                    </h1>
+                    <!-- 3 枚乾淨專業的即時戰情指標膠囊 -->
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                        <span style="background:rgba(255,255,255,0.12); color:#E2E8F0; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; border:1px solid rgba(255,255,255,0.2);">
+                            基地規模：<strong id="defenseBannerArea" style="color:#38BDF8;">3.50 ha</strong>
+                        </span>
+                        <span style="background:rgba(16,185,129,0.2); color:#6EE7B7; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; border:1px solid rgba(16,185,129,0.4);">
+                            削峰防洪率：<strong id="defenseBannerAttenuation" style="color:#FFF;">95.9%</strong> [合規]
+                        </span>
+                        <span style="background:rgba(245,158,11,0.2); color:#FDE68A; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; border:1px solid rgba(245,158,11,0.4);">
+                            審查經驗信心：<strong style="color:#FFF;">99% 穩過帶</strong>
+                        </span>
+                    </div>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button type="button" class="btn" onclick="syncDefenseHubData()" style="background:#0284C7; color:#FFF; font-weight:700; border-radius:6px; padding:8px 16px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;">
+                    <button type="button" class="btn" onclick="syncDefenseHubData()" style="background:#0284C7; color:#FFF; font-weight:700; border-radius:6px; padding:8px 16px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; box-shadow:0 2px 6px rgba(2,132,199,0.3);">
                         <i class="fas fa-rotate"></i> 即時同步最新水理參數
                     </button>
-                    <button type="button" class="btn" onclick="copyAllReviewQnA()" style="background:#10B981; color:#FFF; font-weight:700; border-radius:6px; padding:8px 16px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;">
+                    <button type="button" class="btn" onclick="copyAllReviewQnA()" style="background:#10B981; color:#FFF; font-weight:700; border-radius:6px; padding:8px 16px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:0.85rem; box-shadow:0 2px 6px rgba(16,185,129,0.3);">
                         <i class="fas fa-file-lines"></i> 一鍵複製 10 大答辯大全
                     </button>
                 </div>
             </div>
 
-            <!-- 7 大卡片自適應現代網格 -->
-            <div class="defense-grid-7" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(520px, 1fr)); gap:20px; margin-bottom:30px;">
-                
-                <!-- ========================================== -->
-                <!-- 卡片 1：【董座/業主 30 秒白話決策卡】 -->
-                <!-- ========================================== -->
+            <!-- 情境視角切換器 (Perspective Segmented Control) -->
+            <div class="defense-perspective-nav" style="display:flex; gap:8px; margin-bottom:22px; background:#F1F5F9; padding:6px; border-radius:10px; border:1.5px solid #CBD5E1; overflow-x:auto;">
+                <button type="button" class="defense-perspective-btn active" id="btnDefenseTabExecutive" onclick="switchDefensePerspective('executive')" style="flex:1; min-width:180px; padding:10px 16px; border-radius:8px; border:none; background:#0284C7; color:#FFFFFF; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; box-shadow:0 2px 6px rgba(2,132,199,0.3); transition:all 0.2s;">
+                    <i class="fas fa-briefcase"></i> 董座與起造人決策導讀
+                </button>
+                <button type="button" class="defense-perspective-btn" id="btnDefenseTabHydraulics" onclick="switchDefensePerspective('hydraulics')" style="flex:1; min-width:200px; padding:10px 16px; border-radius:8px; border:1px solid #CBD5E1; background:#FFFFFF; color:#475569; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                    <i class="fas fa-calculator"></i> 審查委員技術抗辯與水理背書
+                </button>
+                <button type="button" class="defense-perspective-btn" id="btnDefenseTabStatutory" onclick="switchDefensePerspective('statutory')" style="flex:1; min-width:200px; padding:10px 16px; border-radius:8px; border:1px solid #CBD5E1; background:#FFFFFF; color:#475569; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                    <i class="fas fa-file-contract"></i> 法定變更比對與答辯題庫
+                </button>
+                <button type="button" class="defense-perspective-btn" id="btnDefenseTabAll" onclick="switchDefensePerspective('all')" style="flex:0 0 auto; padding:10px 16px; border-radius:8px; border:1px solid #CBD5E1; background:#FFFFFF; color:#64748B; font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:6px; transition:all 0.2s;">
+                    <i class="fas fa-layer-group"></i> 全覽模式 (完整展開)
+                </button>
+            </div>
+
+
+            <!-- ======================================================== -->
+            <!-- 視角 1：董座與起造人決策導讀 (Executive Briefing) -->
+            <!-- ======================================================== -->
+            <div id="defenseViewExecutive" class="defense-view-section" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(520px, 1fr)); gap:20px; margin-bottom:30px;">
                 <div class="defense-card" id="cardExecutiveDecision">
-                    <div class="defense-card-header">
-                        <div>
-                            <div class="defense-card-title">
-                                <i class="fas fa-file-invoice" style="color:#F59E0B;"></i>
-                                <span>卡片 1：【董座/業主 30 秒白話決策卡】</span>
-                            </div>
-                            <div class="defense-card-subtitle">
+<div class="defense-card-header">
+<div>
+<div class="defense-card-title">
+<i class="fas fa-file-invoice" style="color:#F59E0B;"></i>
+<span>【董座與起造人 30 秒白話決策導讀】</span>
+</div>
+<div class="defense-card-subtitle">
                                 將艱澀水理工程數據全數轉化為非技術主管一眼看懂的直觀實體化指標。
                             </div>
-                        </div>
-                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                            <button type="button" class="btn-copy-sm" style="background:#D97706;" onclick="printExecutive1Page()">
-                                <i class="fas fa-print"></i> 列印 A4 決策單
+</div>
+<div style="display:flex; gap:6px; flex-wrap:wrap;">
+<button class="btn-copy-sm" onclick="printExecutive1Page()" style="background:#D97706;" type="button">
+<i class="fas fa-print"></i> 列印 A4 決策單
                             </button>
-                            <button type="button" class="btn-copy-sm" style="background:#059669;" onclick="copyExecutiveLineText()">
-                                <i class="fas fa-copy"></i> 複製 LINE 速報
+<button class="btn-copy-sm" onclick="copyExecutiveLineText()" style="background:#059669;" type="button">
+<i class="fas fa-copy"></i> 複製 LINE 速報
                             </button>
-                        </div>
-                    </div>
-
-                    <!-- 1. 基地規模 & 2. 體積實體化換算看板 -->
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:14px;">
-                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px;">
-                            <div style="font-size:0.75rem; color:#64748B; font-weight:700;">基地實體規模</div>
-                            <div style="font-size:1.15rem; font-weight:800; color:#0F172A; margin-top:2px;">
-                                <span id="execBaseAreaHa">3.50</span> ha
+</div>
+</div>
+<!-- 1. 基地規模 & 2. 體積實體化換算看板 -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:14px;">
+<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px;">
+<div style="font-size:0.75rem; color:#64748B; font-weight:700;">基地實體規模</div>
+<div style="font-size:1.15rem; font-weight:800; color:#0F172A; margin-top:2px;">
+<span id="execBaseAreaHa">3.50</span> ha
                             </div>
-                            <div style="font-size:0.78rem; color:#475569; margin-top:3px;">
+<div style="font-size:0.78rem; color:#475569; margin-top:3px;">
                                 約 <strong id="execBaseAreaSqm">35,000</strong> m² ｜ <strong id="execBaseAreaPing" style="color:#0284C7;">10,587.5</strong> 坪
                             </div>
-                        </div>
-
-                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px;">
-                            <div style="font-size:0.75rem; color:#64748B; font-weight:700;">滯洪容量實體化換算</div>
-                            <div style="font-size:1.15rem; font-weight:800; color:#0284C7; margin-top:2px;">
-                                <span id="execPondVol">1,915.2</span> m³
+</div>
+<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px;">
+<div style="font-size:0.75rem; color:#64748B; font-weight:700;">滯洪容量實體化換算</div>
+<div style="font-size:1.15rem; font-weight:800; color:#0284C7; margin-top:2px;">
+<span id="execPondVol">1,915.2</span> m³
                             </div>
-                            <div style="font-size:0.78rem; color:#475569; margin-top:3px;">
+<div style="font-size:0.78rem; color:#475569; margin-top:3px;">
                                 約等同 <strong id="execContainers" style="color:#D97706;">57.7</strong> 個 20 呎貨櫃 ｜ <strong id="execPools" style="color:#10B981;">0.77</strong> 座標準泳池
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- 3. 防洪減災成效 -->
-                    <div style="background:rgba(16,185,129,0.08); border:1px solid #10B981; border-radius:8px; padding:12px 14px; margin-bottom:12px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-                            <div style="font-weight:800; color:#065F46; font-size:0.92rem;">
+</div>
+</div>
+<!-- 3. 防洪減災成效 -->
+<div style="background:rgba(16,185,129,0.08); border:1px solid #10B981; border-radius:8px; padding:12px 14px; margin-bottom:12px;">
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+<div style="font-weight:800; color:#065F46; font-size:0.92rem;">
                                 暴雨洪峰削減率：<span id="execAttenuation" style="font-size:1.15rem; color:#059669;">76.8%</span>
-                            </div>
-                            <span class="defense-status-badge badge-green" style="padding:3px 8px; font-size:0.76rem;">洪峰安全抑制</span>
-                        </div>
-                        <div style="font-size:0.84rem; color:#047857; margin-top:6px; line-height:1.5;">
+</div>
+<span class="defense-status-badge badge-green" style="padding:3px 8px; font-size:0.76rem;">洪峰安全抑制</span>
+</div>
+<div style="font-size:0.84rem; color:#047857; margin-top:6px; line-height:1.5;">
                             每秒替下游排水溝攔截約 <strong id="execInterceptLiters" style="font-size:1.05rem; color:#0F172A;">1,344 桶公升</strong> 的暴雨洪水，有效防止周邊道路淹水！
                         </div>
-                    </div>
-
-                    <!-- 4. 法規綠燈保證 -->
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:6px;">
-                        <div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:6px 8px; text-align:center; font-size:0.75rem; color:#166534; font-weight:700;">
-                            ✔ 削峰率合規
+</div>
+<!-- 4. 法規綠燈保證 -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:6px;">
+<div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:6px 8px; text-align:center; font-size:0.75rem; color:#166534; font-weight:700;">
+                            [合規] 削峰率合規
                         </div>
-                        <div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:6px 8px; text-align:center; font-size:0.75rem; color:#166534; font-weight:700;">
-                            ✔ 管制量 Qa 達標
+<div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:6px 8px; text-align:center; font-size:0.75rem; color:#166534; font-weight:700;">
+                            [合規] 管制量 Qa 達標
                         </div>
-                        <div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:6px 8px; text-align:center; font-size:0.75rem; color:#166534; font-weight:700;">
-                            ✔ 安全出水高 ≥30cm
+<div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:6px 8px; text-align:center; font-size:0.75rem; color:#166534; font-weight:700;">
+                            [合規] 安全出水高 ≥30cm
                         </div>
-                        <div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:6px 8px; text-align:center; font-size:0.75rem; color:#166534; font-weight:700;">
-                            ✔ 24~48hr 排空合規
+<div style="background:#F0FDF4; border:1px solid #86EFAC; border-radius:6px; padding:6px 8px; text-align:center; font-size:0.75rem; color:#166534; font-weight:700;">
+                            [合規] 24~48hr 排空合規
                         </div>
-                    </div>
-                </div>
-
-                <!-- ========================================== -->
-                <!-- 卡片 2：【歷史超級颱風穿越實戰比較】 -->
-                <!-- ========================================== -->
-                <div class="defense-card" id="cardTyphoonStress" style="background:linear-gradient(145deg, #0F172A 0%, #1E1B4B 100%); color:#F8FAFC; border:1.5px solid #6366F1;">
-                    <div class="defense-card-header" style="border-bottom-color:rgba(255,255,255,0.12);">
-                        <div>
-                            <div class="defense-card-title" style="color:#C7D2FE;">
-                                <i class="fas fa-hurricane" style="color:#818CF8;"></i>
-                                <span>卡片 2：【歷史超級颱風穿越實戰比較】</span>
-                            </div>
-                            <div class="defense-card-subtitle" style="color:#94A3B8;">
+</div>
+</div>
+                <div class="defense-card" id="cardTyphoonStress" style="background:#FFFFFF; color:#0F172A; border:1.5px solid #E2E8F0; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.04); padding:22px 24px; display:flex; flex-direction:column;">
+<div class="defense-card-header" style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1.5px solid #E2E8F0; padding-bottom:14px; margin-bottom:16px; gap:12px;">
+<div>
+<div class="defense-card-title" style="font-size:1.05rem; font-weight:800; color:#0F172A; display:flex; align-items:center; gap:8px;">
+<i class="fas fa-hurricane" style="color:#818CF8;"></i>
+<span>【歷史極端暴雨應力動態模擬 (Stress Testing)】</span>
+</div>
+<div class="defense-card-subtitle" style="font-size:0.8rem; color:#64748B; margin-top:4px; line-height:1.4;">
                                 套用台灣氣象史極端降雨紀錄，即時檢驗本案滯洪池耐受餘裕與防汛韌性。
                             </div>
-                        </div>
-                        <div id="typhoonRiskBadge" class="defense-status-badge badge-green" style="background:rgba(16,185,129,0.25); color:#6EE7B7; border:1px solid #10B981;">
-                            <i class="fas fa-shield-halved"></i> <span>卓越安全 (餘裕充沛)</span>
-                        </div>
-                    </div>
-
-                    <!-- 4 大歷史颱風切換鈕 -->
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(115px, 1fr)); gap:6px; margin-bottom:12px;">
-                        <button type="button" class="btn-typhoon" id="btnTyphoonMorakot" onclick="runTyphoonStressTest('morakot')" style="background:#1E1B4B; border:1.5px solid #6366F1; color:#F8FAFC; padding:6px 8px; border-radius:6px; text-align:left; cursor:pointer;">
-                            <div style="font-weight:800; font-size:0.78rem; color:#A5B4FC;"><i class="fas fa-wind"></i> 莫拉克 (2009)</div>
-                            <div style="font-size:0.68rem; color:#94A3B8;">尖峰 122.5 mm/hr</div>
+</div>
+<div class="defense-status-badge badge-green" id="typhoonRiskBadge" style="background:rgba(16,185,129,0.25); color:#6EE7B7; border:1px solid #10B981;">
+<i class="fas fa-shield-halved"></i> <span>卓越安全 (餘裕充沛)</span>
+</div>
+</div>
+<!-- 4 大歷史颱風切換鈕 -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(115px, 1fr)); gap:6px; margin-bottom:12px;">
+<button class="btn-typhoon" id="btnTyphoonMorakot" onclick="runTyphoonStressTest('morakot')" style="background:#F8FAFC; border:1.5px solid #CBD5E1; color:#0F172A; padding:8px 10px; border-radius:6px; text-align:left; cursor:pointer; transition:all 0.2s;" type="button">
+<div style="font-weight:800; font-size:0.82rem; color:#0369A1;"><i class="fas fa-wind"></i> 莫拉克 (2009)</div>
+<div style="font-size:0.72rem; color:#64748B; margin-top:2px;">尖峰 122.5 mm/hr</div>
+</button>
+<button class="btn-typhoon" id="btnTyphoonNari" onclick="runTyphoonStressTest('nari')" style="background:#F8FAFC; border:1.5px solid #CBD5E1; color:#0F172A; padding:8px 10px; border-radius:6px; text-align:left; cursor:pointer; transition:all 0.2s;" type="button">
+<div style="font-weight:800; font-size:0.82rem; color:#0369A1;"><i class="fas fa-cloud-showers-heavy"></i> 納莉 (2001)</div>
+<div style="font-size:0.72rem; color:#64748B; margin-top:2px;">尖峰 108.0 mm/hr</div>
+</button>
+<button class="btn-typhoon" id="btnTyphoonGaemi" onclick="runTyphoonStressTest('gaemi')" style="background:#F8FAFC; border:1.5px solid #CBD5E1; color:#0F172A; padding:8px 10px; border-radius:6px; text-align:left; cursor:pointer; transition:all 0.2s;" type="button">
+<div style="font-weight:800; font-size:0.82rem; color:#0369A1;"><i class="fas fa-water"></i> 凱米 (2024)</div>
+<div style="font-size:0.72rem; color:#64748B; margin-top:2px;">尖峰 115.0 mm/hr</div>
+</button>
+<button class="btn-typhoon" id="btnTyphoonHerb" onclick="runTyphoonStressTest('herb')" style="background:#F8FAFC; border:1.5px solid #CBD5E1; color:#0F172A; padding:8px 10px; border-radius:6px; text-align:left; cursor:pointer; transition:all 0.2s;" type="button">
+<div style="font-weight:800; font-size:0.82rem; color:#0369A1;"><i class="fas fa-bolt"></i> 賀伯 (1996)</div>
+<div style="font-size:0.72rem; color:#64748B; margin-top:2px;">尖峰 105.0 mm/hr</div>
+</button>
+</div>
+<!-- 測試成果儀表看板 -->
+<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+<div style="font-size:0.82rem; color:#475569; margin-bottom:8px; font-weight:700;">
+                            當前測試：<strong id="typhoonCurrentLabel" style="color:#0284C7;">2009 莫拉克颱風 (世紀超大豪雨，尖峰 122.5 mm/hr)</strong><span id="typhoonTestName" style="display:none;">2009 莫拉克颱風 (世紀超大豪雨，尖峰 122.5 mm/hr)</span>
+</div>
+<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; text-align:center;">
+<div>
+<div style="font-size:0.70rem; color:#94A3B8;">尖峰暴雨入流</div>
+<div id="typhoonQinPeak" style="font-size:0.95rem; font-weight:800; color:#F87171;">0.335 cms</div>
+</div>
+<div>
+<div style="font-size:0.70rem; color:#94A3B8;">消峰後最大放流</div>
+<div id="typhoonQoutPeak" style="font-size:0.95rem; font-weight:800; color:#38BDF8;">0.340 cms</div>
+</div>
+<div>
+<div style="font-size:0.70rem; color:#94A3B8;">最高演算水位</div>
+<div id="typhoonPeakStage" style="font-size:0.95rem; font-weight:800; color:#FBBF24;">2.55 m</div>
+</div>
+<div>
+<div style="font-size:0.70rem; color:#94A3B8;">安全出水高</div>
+<div id="typhoonFreeboardCm" style="font-size:0.95rem; font-weight:800; color:#34D399;">25 cm</div>
+</div>
+</div>
+<!-- 進度條 -->
+<div style="margin-top:8px;">
+<div style="display:flex; justify-content:space-between; font-size:0.70rem; color:#94A3B8; margin-bottom:3px;">
+<span>滯洪池容量利用率</span>
+<span id="typhoonVolUtilText" style="font-weight:bold; color:#0F172A;">91.0% (池深 2.8m)</span>
+</div>
+<div style="background:#E2E8F0; border-radius:4px; height:8px; overflow:hidden;">
+<div id="typhoonVolProgressBar" style="width:91.0%; height:100%; background:linear-gradient(90deg, #10B981, #F59E0B); transition:width 0.4s;"></div>
+</div>
+</div>
+</div>
+<!-- 答辯金句 -->
+<div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:auto;">
+<div style="font-size:0.82rem; color:#166534; line-height:1.5; font-weight:500;">
+<i class="fas fa-quote-left" style="color:#818CF8; margin-right:4px;"></i>
+<span id="typhoonDefenseQuoteText">本滯洪池歷經 2009 莫拉克極端暴雨動態壓力測試，演算洪峰削峰率達 85% 以上，安全出水高保留充足，即使遭遇歷史罕見天花板降雨，亦具備高度抗洪韌性！</span>
+</div>
+<button class="btn-copy-sm" onclick="copyTyphoonDefenseQuote()" style="background:#0284C7; color:#FFF; font-weight:700; border-radius:6px; padding:6px 12px; border:none; cursor:pointer; flex-shrink:0; font-size:0.80rem;" type="button">
+<i class="fas fa-quote-right"></i> 複製金句
                         </button>
-                        <button type="button" class="btn-typhoon" id="btnTyphoonNari" onclick="runTyphoonStressTest('nari')" style="background:#1E293B; border:1px solid #334155; color:#F8FAFC; padding:6px 8px; border-radius:6px; text-align:left; cursor:pointer;">
-                            <div style="font-weight:800; font-size:0.78rem; color:#38BDF8;"><i class="fas fa-cloud-showers-heavy"></i> 納莉 (2001)</div>
-                            <div style="font-size:0.68rem; color:#94A3B8;">尖峰 108.0 mm/hr</div>
-                        </button>
-                        <button type="button" class="btn-typhoon" id="btnTyphoonGaemi" onclick="runTyphoonStressTest('gaemi')" style="background:#1E293B; border:1px solid #334155; color:#F8FAFC; padding:6px 8px; border-radius:6px; text-align:left; cursor:pointer;">
-                            <div style="font-weight:800; font-size:0.78rem; color:#34D399;"><i class="fas fa-water"></i> 凱米 (2024)</div>
-                            <div style="font-size:0.68rem; color:#94A3B8;">尖峰 115.0 mm/hr</div>
-                        </button>
-                        <button type="button" class="btn-typhoon" id="btnTyphoonHerb" onclick="runTyphoonStressTest('herb')" style="background:#1E293B; border:1px solid #334155; color:#F8FAFC; padding:6px 8px; border-radius:6px; text-align:left; cursor:pointer;">
-                            <div style="font-weight:800; font-size:0.78rem; color:#FBBF24;"><i class="fas fa-bolt"></i> 賀伯 (1996)</div>
-                            <div style="font-size:0.68rem; color:#94A3B8;">尖峰 105.0 mm/hr</div>
-                        </button>
-                    </div>
+</div>
+</div>
+            </div>
 
-                    <!-- 測試成果儀表看板 -->
-                    <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 12px; margin-bottom:12px;">
-                        <div style="font-size:0.78rem; color:#94A3B8; margin-bottom:6px;">
-                            當前測試：<strong id="typhoonCurrentLabel" style="color:#FFF;">2009 莫拉克颱風 (世紀超大豪雨，尖峰 122.5 mm/hr)</strong><span id="typhoonTestName" style="display:none;">2009 莫拉克颱風 (世紀超大豪雨，尖峰 122.5 mm/hr)</span>
-                        </div>
-                        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; text-align:center;">
-                            <div>
-                                <div style="font-size:0.70rem; color:#94A3B8;">尖峰暴雨入流</div>
-                                <div id="typhoonQinPeak" style="font-size:0.95rem; font-weight:800; color:#F87171;">0.335 cms</div>
-                            </div>
-                            <div>
-                                <div style="font-size:0.70rem; color:#94A3B8;">消峰後最大放流</div>
-                                <div id="typhoonQoutPeak" style="font-size:0.95rem; font-weight:800; color:#38BDF8;">0.340 cms</div>
-                            </div>
-                            <div>
-                                <div style="font-size:0.70rem; color:#94A3B8;">最高演算水位</div>
-                                <div id="typhoonPeakStage" style="font-size:0.95rem; font-weight:800; color:#FBBF24;">2.55 m</div>
-                            </div>
-                            <div>
-                                <div style="font-size:0.70rem; color:#94A3B8;">安全出水高</div>
-                                <div id="typhoonFreeboardCm" style="font-size:0.95rem; font-weight:800; color:#34D399;">25 cm</div>
-                            </div>
-                        </div>
 
-                        <!-- 進度條 -->
-                        <div style="margin-top:8px;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.70rem; color:#94A3B8; margin-bottom:3px;">
-                                <span>滯洪池容量利用率</span>
-                                <span id="typhoonVolUtilText" style="font-weight:bold; color:#F8FAFC;">91.0% (池深 2.8m)</span>
-                            </div>
-                            <div style="background:#334155; border-radius:4px; height:8px; overflow:hidden;">
-                                <div id="typhoonVolProgressBar" style="width:91.0%; height:100%; background:linear-gradient(90deg, #10B981, #F59E0B); transition:width 0.4s;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 答辯金句 -->
-                    <div style="background:rgba(30,41,59,0.7); border:1px solid #475569; border-radius:6px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-                        <div style="font-size:0.78rem; color:#CBD5E1; line-height:1.4;">
-                            <i class="fas fa-quote-left" style="color:#818CF8; margin-right:4px;"></i>
-                            <span id="typhoonDefenseQuoteText">本滯洪池歷經 2009 莫拉克極端暴雨動態壓力測試，演算洪峰削峰率達 85% 以上，安全出水高保留充足，即使遭遇歷史罕見天花板降雨，亦具備高度抗洪韌性！</span>
-                        </div>
-                        <button type="button" class="btn-copy-sm" onclick="copyTyphoonDefenseQuote()" style="background:#6366F1; flex-shrink:0;">
-                            <i class="fas fa-quote-right"></i> 複製金句
-                        </button>
-                    </div>
-                </div>
-
-                <!-- ========================================== -->
-                <!-- 卡片 3：【前後版本變更比對表（附件十二）】 -->
-                <!-- ========================================== -->
-                <div class="defense-card" id="cardAttachment12Diff">
-                    <div class="defense-card-header">
-                        <div>
-                            <div class="defense-card-title">
-                                <i class="fas fa-code-branch" style="color:#6366F1;"></i>
-                                <span>卡片 3：【前後版本變更比對表（附件十二）】</span>
-                            </div>
-                            <div class="defense-card-subtitle">
-                                法定附件十二出流管制計畫變更內容對照表，自動計算增減差異值與法規依據。
-                            </div>
-                        </div>
-                        <span id="snapshotStatusText" style="font-size:0.80rem; color:#64748B; background:#E2E8F0; padding:4px 12px; border-radius:20px;">
-                            <i class="fas fa-info-circle"></i> 尚未建立初審基準快照
-                        </span>
-                    </div>
-
-                    <!-- 操作按鈕列 -->
-                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-                        <button type="button" id="btnSaveBaseline" class="btn" onclick="saveBaselineSnapshot()" style="border:1.5px solid #0284C7; color:#0369A1; background:#F0F9FF; border-radius:6px; padding:6px 12px; font-weight:800; cursor:pointer; font-size:0.82rem;">
-                            <i class="fas fa-camera"></i> 儲存目前為送審基準版 (Rev A)
-                        </button>
-                        <button type="button" id="btnGenChangeTable" class="btn" onclick="generateAttachment12Table()" style="background:linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); color:#FFF; border-radius:6px; padding:6px 12px; font-weight:bold; border:none; cursor:pointer; font-size:0.82rem;">
-                            <i class="fas fa-file-contract"></i> 自動生成附件十二變更對照表
-                        </button>
-                        <button type="button" class="btn" onclick="exportAttachment12Doc()" style="background:#1E3A8A; color:#FFF; font-weight:700; border-radius:6px; padding:6px 12px; border:none; cursor:pointer; font-size:0.82rem;">
-                            <i class="fas fa-file-word"></i> 下載 Word 附件十二
-                        </button>
-                    </div>
-
-                    <!-- 即時差異預覽表格 -->
-                    <div id="attachment12DiffTableContainer" style="max-height:260px; overflow-y:auto; border:1px solid #CBD5E1; border-radius:6px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:0.78rem; text-align:left;">
-                            <thead style="background:#F1F5F9; position:sticky; top:0; z-index:1;">
-                                <tr>
-                                    <th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">項目名稱</th>
-                                    <th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">原核定內容 (基準版)</th>
-                                    <th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">本次變更內容 (現行版)</th>
-                                    <th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">增減差異值</th>
-                                    <th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">變更理由與法規依據</th>
-                                </tr>
-                            </thead>
-                            <tbody id="attachment12DiffTableBody">
-                                <!-- 預設由 JS 渲染 8 大項對照數值 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- ========================================== -->
-                <!-- 卡片 4：【全台各縣市歷史過件案黃金經驗基準線】 -->
-                <!-- ========================================== -->
+            <!-- ======================================================== -->
+            <!-- 視角 2：審查委員技術抗辯與水理背書 (Hydraulic Defense) -->
+            <!-- ======================================================== -->
+            <div id="defenseViewHydraulics" class="defense-view-section" style="display:none; grid-template-columns:repeat(auto-fit, minmax(520px, 1fr)); gap:20px; margin-bottom:30px;">
                 <div class="defense-card" id="cardBenchmarkEmpirical">
-                    <div class="defense-card-header">
-                        <div>
-                            <div class="defense-card-title">
-                                <i class="fas fa-chart-column" style="color:#F59E0B;"></i>
-                                <span>卡片 4：【全台各縣市歷史過件案黃金經驗基準線 (Benchmark)】</span>
-                            </div>
-                            <div class="defense-card-subtitle">
+<div class="defense-card-header">
+<div>
+<div class="defense-card-title">
+<i class="fas fa-chart-column" style="color:#F59E0B;"></i>
+<span>【全台各縣市歷史過件案黃金經驗基準線 (Benchmark)】</span>
+</div>
+<div class="defense-card-subtitle">
                                 全台 22 縣市審查水利委員經驗比對，以大數據指標背書本案設計之適法性與經濟性。
                             </div>
-                        </div>
-                        <button type="button" class="btn-copy-sm" onclick="copyBenchmarkAnalysis()">
-                            <i class="fas fa-copy"></i> 複製基準線分析
+</div>
+<button class="btn-copy-sm" onclick="copyBenchmarkAnalysis()" type="button">
+<i class="fas fa-copy"></i> 複製基準線分析
                         </button>
-                    </div>
-
-                    <!-- 看板 -->
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px; margin-bottom:10px;">
-                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px; text-align:center;">
-                            <div style="font-size:0.72rem; color:#64748B;">基準審查縣市</div>
-                            <div id="dispBenchmarkCity" style="font-size:1.0rem; font-weight:800; color:#0F172A;">高雄市</div>
-                        </div>
-                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px; text-align:center;">
-                            <div style="font-size:0.72rem; color:#64748B;">常態審查過件區間</div>
-                            <div id="dispBenchmarkRange" style="font-size:1.0rem; font-weight:800; color:#0284C7;">450 ~ 620 m³/ha</div>
-                        </div>
-                        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px; text-align:center;">
-                            <div style="font-size:0.72rem; color:#64748B;">本案單位滯洪量</div>
-                            <div id="dispBenchmarkUnitVol" style="font-size:1.0rem; font-weight:800; color:#10B981;">547.2 m³/ha</div>
-                        </div>
-                    </div>
-
-                    <!-- 軌道指針 -->
-                    <div class="benchmark-scale-container" style="padding:10px 12px;">
-                        <div style="display:flex; justify-content:space-between; font-size:0.72rem; font-weight:700; color:#64748B;">
-                            <span>偏低 (&lt; 400)</span>
-                            <span id="scaleMinMarker">常態下限: 450 m³/ha</span>
-                            <span id="scaleMaxMarker">常態上限: 620 m³/ha</span>
-                            <span>偏高 (&gt; 700)</span>
-                        </div>
-                        <div class="benchmark-track">
-                            <div id="benchmarkPointer" class="benchmark-pointer" style="left:55%;">
+</div>
+<!-- 看板 -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px; margin-bottom:10px;">
+<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px; text-align:center;">
+<div style="font-size:0.72rem; color:#64748B;">基準審查縣市</div>
+<div id="dispBenchmarkCity" style="font-size:1.0rem; font-weight:800; color:#0F172A;">高雄市</div>
+</div>
+<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px; text-align:center;">
+<div style="font-size:0.72rem; color:#64748B;">常態審查過件區間</div>
+<div id="dispBenchmarkRange" style="font-size:1.0rem; font-weight:800; color:#0284C7;">450 ~ 620 m³/ha</div>
+</div>
+<div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:8px; text-align:center;">
+<div style="font-size:0.72rem; color:#64748B;">本案單位滯洪量</div>
+<div id="dispBenchmarkUnitVol" style="font-size:1.0rem; font-weight:800; color:#10B981;">547.2 m³/ha</div>
+</div>
+</div>
+<!-- 軌道指針 -->
+<div class="benchmark-scale-container" style="padding:10px 12px;">
+<div style="display:flex; justify-content:space-between; font-size:0.72rem; font-weight:700; color:#64748B;">
+<span>偏低 (&lt; 400)</span>
+<span id="scaleMinMarker">常態下限: 450 m³/ha</span>
+<span id="scaleMaxMarker">常態上限: 620 m³/ha</span>
+<span>偏高 (&gt; 700)</span>
+</div>
+<div class="benchmark-track">
+<div class="benchmark-pointer" id="benchmarkPointer" style="left:55%;">
                                 ▼ 本案: <span id="ptrUnitVol">547.2</span> m³/ha
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- 標章 & 評語 -->
-                    <div id="benchmarkBadgeContainer" style="margin-top:8px;">
-                        <div class="defense-status-badge badge-green" style="width:100%; justify-content:center; padding:8px; font-size:0.88rem;">
-                            <i class="fas fa-certificate"></i> <span id="dispBenchmarkBadgeText">【吻合該縣市審查經驗常態，過件信心指數 99%】</span>
-                        </div>
-                    </div>
-                    <div class="defense-quote-box" id="dispBenchmarkComment" style="margin-top:8px; font-size:0.82rem;">
+</div>
+</div>
+<!-- 標章 & 評語 -->
+<div id="benchmarkBadgeContainer" style="margin-top:8px;">
+<div class="defense-status-badge badge-green" style="width:100%; justify-content:center; padding:8px; font-size:0.88rem;">
+<i class="fas fa-certificate"></i> <span id="dispBenchmarkBadgeText">【吻合該縣市審查經驗常態，過件信心指數 99%】</span>
+</div>
+</div>
+<div class="defense-quote-box" id="dispBenchmarkComment" style="margin-top:8px; font-size:0.82rem;">
                         本案設計單位滯洪量為 <strong>547.2 m³/ha</strong>，精準坐落於高雄市水利審查常態經驗帶（450 ~ 620 m³/ha），兼顧土地開發經濟效益與水利法規防洪韌性，過件通過率高，委員認同度極高！
                     </div>
-                </div>
-
-                <!-- ========================================== -->
-                <!-- 卡片 5：【出流口頂托回水倒灌防護驗算卡】 -->
-                <!-- ========================================== -->
+</div>
                 <div class="defense-card" id="cardBackwaterDefense">
-                    <div class="defense-card-header">
-                        <div>
-                            <div class="defense-card-title">
-                                <i class="fas fa-water" style="color:#0284C7;"></i>
-                                <span>卡片 5：【出流口頂托回水（Backwater）倒灌防護驗算卡】</span>
-                            </div>
-                            <div class="defense-card-subtitle">
+<div class="defense-card-header">
+<div>
+<div class="defense-card-title">
+<i class="fas fa-water" style="color:#0284C7;"></i>
+<span>【出流口外水頂托回水倒灌防護與拍門驗算】</span>
+</div>
+<div class="defense-card-subtitle">
                                 驗算下游外水頂托水頭差，判定重力排放暢通性並自動產生防倒灌標準答辯詞。
                             </div>
-                        </div>
-                        <div id="defenseBackwaterBadge" class="defense-status-badge badge-green">
-                            <i class="fas fa-check-circle"></i> <span>驗算中...</span>
-                        </div>
-                    </div>
-
-                    <!-- 輸入控制項 -->
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-bottom:12px;">
-                        <div>
-                            <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">
+</div>
+<div class="defense-status-badge badge-green" id="defenseBackwaterBadge">
+<i class="fas fa-check-circle"></i> <span>驗算中...</span>
+</div>
+</div>
+<!-- 輸入控制項 -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-bottom:12px;">
+<div>
+<label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">
                                 下游承受水體設計水位 EL.tail (m):
                             </label>
-                            <input type="number" id="inputTailwaterLevel" class="form-control" step="0.05" value="2.10" oninput="calcBackwaterDefense()" style="width:100%; padding:5px 8px; border-radius:6px; border:1px solid #CBD5E1; font-weight:700;">
-                        </div>
-                        <div>
-                            <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">
+<input class="form-control" id="inputTailwaterLevel" oninput="calcBackwaterDefense()" step="0.05" style="width:100%; padding:5px 8px; border-radius:6px; border:1px solid #CBD5E1; font-weight:700;" type="number" value="2.10"/>
+</div>
+<div>
+<label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">
                                 滯洪池底基準高程 ELbottom (m):
                             </label>
-                            <input type="number" id="defenseElBottom" class="form-control" step="0.05" value="0.00" oninput="calcBackwaterDefense()" style="width:100%; padding:5px 8px; border-radius:6px; border:1px solid #CBD5E1; font-weight:700;">
-                        </div>
-                        <div>
-                            <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">
+<input class="form-control" id="defenseElBottom" oninput="calcBackwaterDefense()" step="0.05" style="width:100%; padding:5px 8px; border-radius:6px; border:1px solid #CBD5E1; font-weight:700;" type="number" value="0.00"/>
+</div>
+<div>
+<label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">
                                 低水放流管中心標高 ELinv (m):
                             </label>
-                            <input type="number" id="defenseElOrifice" class="form-control" step="0.05" value="0.10" oninput="calcBackwaterDefense()" style="width:100%; padding:5px 8px; border-radius:6px; border:1px solid #CBD5E1; font-weight:700;">
-                        </div>
-                    </div>
-
-                    <!-- 數值與水頭比對 -->
-                    <div style="background:#0F172A; border-radius:8px; padding:10px 14px; margin-bottom:10px; color:#F8FAFC;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.80rem; margin-bottom:6px;">
-                            <span>池內最高水位 HWL: <strong id="defenseDispPondH" style="color:#38BDF8;">2.37 m</strong></span>
-                            <span>外水頂托 EL.tail: <strong id="defenseDispTailH" style="color:#F59E0B;">2.10 m</strong></span>
-                            <span>有效水頭差 Δh: <strong id="defenseDispDeltaH" style="color:#10B981;">+0.27 m</strong></span>
-                        </div>
-                        <svg viewBox="0 0 500 120" style="width:100%; height:95px; display:block;">
-                            <rect x="20" y="25" width="160" height="90" fill="#1E293B" stroke="#475569" stroke-width="2"/>
-                            <rect id="svgPondWater" x="22" y="45" width="156" height="70" fill="rgba(56, 189, 248, 0.45)"/>
-                            <line id="svgPondLine" x1="20" y1="45" x2="180" y2="45" stroke="#38BDF8" stroke-width="2.5" stroke-dasharray="4,2"/>
-                            <text x="30" y="39" fill="#38BDF8" font-size="10" font-weight="bold">滯洪池 HWL: <tspan id="svgTxtHWL">2.37m</tspan></text>
-
-                            <rect x="180" y="95" width="140" height="18" fill="#334155" stroke="#64748B" stroke-width="1.5"/>
-                            <line id="svgFlapGate" x1="318" y1="91" x2="322" y2="117" stroke="#10B981" stroke-width="4"/>
-                            <text x="205" y="89" fill="#94A3B8" font-size="9">重力自閉式拍門 (Flap Gate)</text>
-
-                            <rect x="320" y="25" width="160" height="90" fill="#1E293B" stroke="#475569" stroke-width="2"/>
-                            <rect id="svgTailWater" x="322" y="60" width="156" height="55" fill="rgba(245, 158, 11, 0.45)"/>
-                            <line id="svgTailLine" x1="320" y1="60" x2="480" y2="60" stroke="#F59E0B" stroke-width="2.5" stroke-dasharray="4,2"/>
-                            <text x="330" y="53" fill="#F59E0B" font-size="10" font-weight="bold">下游外水位 EL.tail: <tspan id="svgTxtTail">2.10m</tspan></text>
-
-                            <line id="svgDeltaLine" x1="250" y1="45" x2="250" y2="60" stroke="#10B981" stroke-width="2"/>
-                            <text id="svgTxtDelta" x="256" y="55" fill="#10B981" font-size="9" font-weight="bold">Δh = +0.27m</text>
-                        </svg>
-                    </div>
-
-                    <!-- 防禦條文 -->
-                    <div class="defense-quote-box" style="margin-top:6px;">
-                        <div style="font-weight:800; color:var(--text-primary); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
-                            <span><i class="fas fa-shield-alt" style="color:#0284C7;"></i> 官方審查防禦建議詞：</span>
-                            <button type="button" class="btn-copy-sm" onclick="copyDefenseBackwaterText()">
-                                <i class="fas fa-copy"></i> 複製答辯詞
+<input class="form-control" id="defenseElOrifice" oninput="calcBackwaterDefense()" step="0.05" style="width:100%; padding:5px 8px; border-radius:6px; border:1px solid #CBD5E1; font-weight:700;" type="number" value="0.10"/>
+</div>
+</div>
+<!-- 數值與水頭比對 -->
+<div style="background:#0F172A; border-radius:8px; padding:10px 14px; margin-bottom:10px; color:#F8FAFC;">
+<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.80rem; margin-bottom:6px;">
+<span>池內最高水位 HWL: <strong id="defenseDispPondH" style="color:#38BDF8;">2.37 m</strong></span>
+<span>外水頂托 EL.tail: <strong id="defenseDispTailH" style="color:#F59E0B;">2.10 m</strong></span>
+<span>有效水頭差 Δh: <strong id="defenseDispDeltaH" style="color:#10B981;">+0.27 m</strong></span>
+</div>
+<svg style="width:100%; height:95px; display:block;" viewbox="0 0 500 120">
+<rect fill="#1E293B" height="90" stroke="#475569" stroke-width="2" width="160" x="20" y="25"></rect>
+<rect fill="rgba(56, 189, 248, 0.45)" height="70" id="svgPondWater" width="156" x="22" y="45"></rect>
+<line id="svgPondLine" stroke="#38BDF8" stroke-dasharray="4,2" stroke-width="2.5" x1="20" x2="180" y1="45" y2="45"></line>
+<text fill="#38BDF8" font-size="10" font-weight="bold" x="30" y="39">滯洪池 HWL: <tspan id="svgTxtHWL">2.37m</tspan></text>
+<rect fill="#334155" height="18" stroke="#64748B" stroke-width="1.5" width="140" x="180" y="95"></rect>
+<line id="svgFlapGate" stroke="#10B981" stroke-width="4" x1="318" x2="322" y1="91" y2="117"></line>
+<text fill="#94A3B8" font-size="9" x="205" y="89">重力自閉式拍門 (Flap Gate)</text>
+<rect fill="#1E293B" height="90" stroke="#475569" stroke-width="2" width="160" x="320" y="25"></rect>
+<rect fill="rgba(245, 158, 11, 0.45)" height="55" id="svgTailWater" width="156" x="322" y="60"></rect>
+<line id="svgTailLine" stroke="#F59E0B" stroke-dasharray="4,2" stroke-width="2.5" x1="320" x2="480" y1="60" y2="60"></line>
+<text fill="#F59E0B" font-size="10" font-weight="bold" x="330" y="53">下游外水位 EL.tail: <tspan id="svgTxtTail">2.10m</tspan></text>
+<line id="svgDeltaLine" stroke="#10B981" stroke-width="2" x1="250" x2="250" y1="45" y2="60"></line>
+<text fill="#10B981" font-size="9" font-weight="bold" id="svgTxtDelta" x="256" y="55">Δh = +0.27m</text>
+</svg>
+</div>
+<!-- 防禦條文 -->
+<div class="defense-quote-box" style="margin-top:6px;">
+<div style="font-weight:800; color:var(--text-primary); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+<span><i class="fas fa-shield-alt" style="color:#0284C7;"></i> 官方審查防禦建議詞：</span>
+<button class="btn-copy-sm" onclick="copyDefenseBackwaterText()" type="button">
+<i class="fas fa-copy"></i> 複製答辯詞
                             </button>
-                        </div>
-                        <div id="defenseBackwaterQuote" style="font-size:0.82rem;">
+</div>
+<div id="defenseBackwaterQuote" style="font-size:0.82rem;">
                             本案滯洪池低水出流管口規劃配置【重力自閉式拍門（Flap Gate / 止回閥）】。當下游承受水體遇暴雨頂托高漲時，拍門藉外水水壓自動緊密貼合、杜絕外水倒灌；待外水消退或池內水頭回升時，自動重力頂開維持單向平穩排空，確保系統水理安全。
                         </div>
-                    </div>
-                </div>
-
-                <!-- ========================================== -->
-                <!-- 卡片 6：【審查委員手算代數透視卡】 -->
-                <!-- ========================================== -->
-                <div class="defense-card" id="cardHandCalcSteps">
-                    <div class="defense-card-header">
-                        <div>
-                            <div class="defense-card-title">
-                                <i class="fas fa-calculator" style="color:#10B981;"></i>
-                                <span>卡片 6：【審查委員手算代數透視卡（Step-by-Step 公式推導）】</span>
-                            </div>
-                            <div class="defense-card-subtitle">
+</div>
+</div>
+                <div class="defense-card" id="cardHandCalcSteps" style="background:var(--card-bg, #FFFFFF); border-radius:12px; border:1.5px solid var(--card-border, #E2E8F0); box-shadow:0 4px 16px rgba(0, 0, 0, 0.04); padding:22px 24px; display:flex; flex-direction:column; grid-column:1 / -1;">
+<div class="defense-card-header">
+<div>
+<div class="defense-card-title">
+<i class="fas fa-calculator" style="color:#10B981;"></i>
+<span>【審查委員手算代數透視歷程 (Step-by-Step 公式推導)】</span>
+</div>
+<div class="defense-card-subtitle">
                                 國立大學教科書級三步驟手算展開，動態連動本案真實水理數值。
                             </div>
-                        </div>
-                        <button type="button" class="btn-copy-sm" onclick="copyStepByStepMath()">
-                            <i class="fas fa-copy"></i> 複製推導歷程
+</div>
+<button class="btn-copy-sm" onclick="copyStepByStepMath()" type="button">
+<i class="fas fa-copy"></i> 複製推導歷程
                         </button>
-                    </div>
-
-                    <!-- 步驟 1: 合理化公式 -->
-                    <div class="math-formula-box" style="padding:10px 12px; margin-bottom:10px;">
-                        <div style="color:#38BDF8; font-weight:bold; margin-bottom:2px; font-size:0.82rem;">
+</div>
+<!-- 步驟 1: 合理化公式 -->
+<div class="math-formula-box" style="padding:10px 12px; margin-bottom:10px;">
+<div style="color:#38BDF8; font-weight:bold; margin-bottom:2px; font-size:0.82rem;">
                             [1] 合理化公式逕流尖峰推導：Qp = (1 / 360) × C × I × A
                         </div>
-                        <div id="mathStep1Calc" style="font-size:0.82rem;">
+<div id="mathStep1Calc" style="font-size:0.82rem;">
                             代入：Qp = (1 / 360) × 0.85 × 95.42 mm/hr × 3.50 ha = <strong>0.789 cms (m³/s)</strong>
-                        </div>
-                    </div>
-
-                    <!-- 步驟 2: 孔口公式 -->
-                    <div class="math-formula-box" style="border-left-color:#10B981; padding:10px 12px; margin-bottom:10px;">
-                        <div style="color:#10B981; font-weight:bold; margin-bottom:2px; font-size:0.82rem;">
+</div>
+</div>
+<!-- 步驟 2: 孔口公式 -->
+<div class="math-formula-box" style="border-left-color:#10B981; padding:10px 12px; margin-bottom:10px;">
+<div style="color:#10B981; font-weight:bold; margin-bottom:2px; font-size:0.82rem;">
                             [2] 低水放流孔口公式推導：Qo = Cd × Ao × √(2g × H)
                         </div>
-                        <div id="mathStep2Calc" style="font-size:0.82rem;">
+<div id="mathStep2Calc" style="font-size:0.82rem;">
                             代入：Qo = 0.62 × 0.0177 m² × 4.429 × √(2.27 m) = <strong>0.0735 cms</strong>
-                        </div>
-                    </div>
-
-                    <!-- 步驟 3: 溢流堰公式 -->
-                    <div class="math-formula-box" style="border-left-color:#F59E0B; padding:10px 12px; margin-bottom:0;">
-                        <div style="color:#F59E0B; font-weight:bold; margin-bottom:2px; font-size:0.82rem;">
+</div>
+</div>
+<!-- 步驟 3: 溢流堰公式 -->
+<div class="math-formula-box" style="border-left-color:#F59E0B; padding:10px 12px; margin-bottom:0;">
+<div style="color:#F59E0B; font-weight:bold; margin-bottom:2px; font-size:0.82rem;">
                             [3] 緊急溢流堰流公式推導：Qw = (2 / 3) × Cb × b × √(2g) × Hw^1.5
                         </div>
-                        <div id="mathStep3Calc" style="font-size:0.82rem;">
+<div id="mathStep3Calc" style="font-size:0.82rem;">
                             代入：Qw = (2 / 3) × 0.60 × 2.50 m × 4.429 × (0.00 m)^1.5 = <strong>0.000 cms</strong> (常態蓄水未達溢流頂)
                         </div>
-                    </div>
-                </div>
+</div>
+</div>
+            </div>
 
-                <!-- ========================================== -->
-                <!-- 卡片 7：【審查會 10 大必問直球小抄】 -->
-                <!-- ========================================== -->
-                <div class="defense-card" id="cardReviewQnA10">
-                    <div class="defense-card-header">
-                        <div>
-                            <div class="defense-card-title">
-                                <i class="fas fa-clipboard-question" style="color:#8B5CF6;"></i>
-                                <span>卡片 7：【審查會 10 大必問直球小抄】</span>
+
+            <!-- ======================================================== -->
+            <!-- 視角 3：法定變更比對與答辯題庫 (Statutory & QnA) -->
+            <!-- ======================================================== -->
+            <div id="defenseViewStatutory" class="defense-view-section" style="display:none; display:flex; flex-direction:column; gap:20px; margin-bottom:30px;">
+                <div class="defense-card" id="cardAttachment12Diff">
+<div class="defense-card-header">
+<div>
+<div class="defense-card-title">
+<i class="fas fa-code-branch" style="color:#6366F1;"></i>
+<span>【出流管制計畫前後版本變更對照表 (法定附件十二)】</span>
+</div>
+<div class="defense-card-subtitle">
+                                法定附件十二出流管制計畫變更內容對照表，自動計算增減差異值與法規依據。
                             </div>
-                            <div class="defense-card-subtitle">
+</div>
+<span id="snapshotStatusText" style="font-size:0.80rem; color:#64748B; background:#E2E8F0; padding:4px 12px; border-radius:20px;">
+<i class="fas fa-info-circle"></i> 尚未建立初審基準快照
+                        </span>
+</div>
+<!-- 操作按鈕列 -->
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+<button class="btn" id="btnSaveBaseline" onclick="saveBaselineSnapshot()" style="border:1.5px solid #0284C7; color:#0369A1; background:#F0F9FF; border-radius:6px; padding:6px 12px; font-weight:800; cursor:pointer; font-size:0.82rem;" type="button">
+<i class="fas fa-camera"></i> 儲存目前為送審基準版 (Rev A)
+                        </button>
+<button class="btn" id="btnGenChangeTable" onclick="generateAttachment12Table()" style="background:linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); color:#FFF; border-radius:6px; padding:6px 12px; font-weight:bold; border:none; cursor:pointer; font-size:0.82rem;" type="button">
+<i class="fas fa-file-contract"></i> 自動生成附件十二變更對照表
+                        </button>
+<button class="btn" onclick="exportAttachment12Doc()" style="background:#1E3A8A; color:#FFF; font-weight:700; border-radius:6px; padding:6px 12px; border:none; cursor:pointer; font-size:0.82rem;" type="button">
+<i class="fas fa-file-word"></i> 下載 Word 附件十二
+                        </button>
+</div>
+<!-- 即時差異預覽表格 -->
+<div id="attachment12DiffTableContainer" style="max-height:480px; overflow-y:auto; border:1.5px solid #CBD5E1; border-radius:8px; background:#FFFFFF; box-shadow:inset 0 1px 3px rgba(0,0,0,0.05);">
+<table style="width:100%; border-collapse:collapse; font-size:0.78rem; text-align:left;">
+<thead style="background:#F1F5F9; position:sticky; top:0; z-index:1;">
+<tr>
+<th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">項目名稱</th>
+<th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">原核定內容 (基準版)</th>
+<th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">本次變更內容 (現行版)</th>
+<th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">增減差異值</th>
+<th style="padding:6px 8px; border-bottom:1.5px solid #CBD5E1;">變更理由與法規依據</th>
+</tr>
+</thead>
+<tbody id="attachment12DiffTableBody">
+<!-- 預設由 JS 渲染 8 大項對照數值 -->
+</tbody>
+</table>
+</div>
+</div>
+                <div class="defense-card" id="cardReviewQnA10" style="background:var(--card-bg, #FFFFFF); border-radius:12px; border:1.5px solid var(--card-border, #E2E8F0); box-shadow:0 4px 16px rgba(0, 0, 0, 0.04); padding:22px 24px; display:flex; flex-direction:column; grid-column:1 / -1;">
+<div class="defense-card-header">
+<div>
+<div class="defense-card-title">
+<i class="fas fa-clipboard-question" style="color:#8B5CF6;"></i>
+<span>【審查會 10 大必問直球小抄 (水利署標準答辯題庫)】</span>
+</div>
+<div class="defense-card-subtitle">
                                 歷年出流管制審查會最常被問的 10 大核心挑戰，水利署官方認可專業應答標準稿。
                             </div>
-                        </div>
-                        <button type="button" class="btn-copy-sm" onclick="copyAllReviewQnA()">
-                            <i class="fas fa-copy"></i> 複製全部 10 題
+</div>
+<button class="btn-copy-sm" onclick="copyAllReviewQnA()" type="button">
+<i class="fas fa-copy"></i> 複製全部 10 題
                         </button>
-                    </div>
-
-                    <!-- 搜尋過濾框 -->
-                    <div style="margin-bottom:10px;">
-                        <input type="text" id="defenseCheatSearch" oninput="filterReviewQnA()" placeholder="搜尋答辯關鍵字（如：出水高、排空時間、C值、抽水機、清淤、技師...）" style="width:100%; padding:6px 12px; border-radius:6px; border:1px solid #CBD5E1; font-size:0.82rem;">
-                    </div>
-
-                    <!-- 手風琴容器 -->
-                    <div id="defenseCheatAccordionContainer" style="max-height:360px; overflow-y:auto; padding-right:4px;">
-                        <!-- JS 動態生成 10 道直球卡 -->
-                    </div>
-                </div>
-
+</div>
+<!-- 搜尋過濾框 -->
+<div style="margin-bottom:10px;">
+<input id="defenseCheatSearch" oninput="filterReviewQnA()" placeholder="搜尋答辯關鍵字（如：出水高、排空時間、C值、抽水機、清淤、技師...）" style="width:100%; padding:6px 12px; border-radius:6px; border:1px solid #CBD5E1; font-size:0.82rem;" type="text"/>
+</div>
+<!-- 手風琴容器 -->
+<div id="defenseCheatAccordionContainer" style="max-height:560px; overflow-y:auto; padding-right:4px;">
+<!-- JS 動態生成 10 道直球卡 -->
+</div>
+</div>
             </div>
+
         </div>
 
     <!-- 審查會 10 分鐘全螢幕評選簡報模式 (Pitch Deck Overlay) -->
@@ -7613,7 +7610,7 @@
 
                 ctx.font = isSelected ? "bold 11px sans-serif" : "10px sans-serif";
 
-                ctx.fillText(`${rObj.name}${isSelected ? ' ★' : ''}`, legX + 20, legY + 5);
+                ctx.fillText(`${rObj.name}${isSelected ? ' [*]' : ''}`, legX + 20, legY + 5);
 
             });
 
@@ -7967,7 +7964,7 @@
 
             ctx.fillText(`削峰率達: ${cutPct.toFixed(1)}%`, legX, padT + 128);
 
-            ctx.fillText(actV >= reqV ? "✅ 容量檢核合格" : "❌ 容量不足", legX, padT + 144);
+            ctx.fillText(actV >= reqV ? "[合格] 容量檢核合格" : "[不合格] 容量不足", legX, padT + 144);
 
         }
 
@@ -10072,6 +10069,12 @@
 
 
         function calculateHydraulics(q_peak, intensity, area, c_val, tc) {
+            if (q_peak === undefined || intensity === undefined) {
+                if (typeof updateHydrology === 'function') {
+                    updateHydrology();
+                    return;
+                }
+            }
 
             let q_cap = 0;
 
@@ -12526,13 +12529,13 @@ ${advice ? `技師設計指引：${advice}` : ''}
 
             ctx.textAlign = 'left';
 
-            ctx.fillText(`進水流向 ➔`, startX + 10, topY + 20);
+            ctx.fillText(`進水流向 ->`, startX + 10, topY + 20);
 
             ctx.fillText(`泥砂沉降區`, startX + 15, bottomY - 12);
 
             ctx.textAlign = 'right';
 
-            ctx.fillText(`出水溢流 ➔`, endX - 10, topY + 20);
+            ctx.fillText(`出水溢流 ->`, endX - 10, topY + 20);
 
         }
 
@@ -13854,7 +13857,7 @@ ${advice ? `技師設計指引：${advice}` : ''}
 
             ctx.textAlign = 'left';
 
-            ctx.fillText(`📍 本案基地：${countyName}`, pinX + 28, pinY - 15);
+            ctx.fillText(`本案基地：${countyName}`, pinX + 28, pinY - 15);
 
             ctx.fillStyle = '#FFFFFF';
 
@@ -14198,7 +14201,7 @@ ${advice ? `技師設計指引：${advice}` : ''}
 
             ctx.font = 'bold 10px Microsoft JhengHei, sans-serif';
 
-            ctx.fillText('計畫放流口 B ➔ 銜接下游水路', cx + 122, cy + 94);
+            ctx.fillText('計畫放流口 B -> 銜接下游水路', cx + 122, cy + 94);
 
 
 
@@ -16630,7 +16633,7 @@ ${advice ? `技師設計指引：${advice}` : ''}
 
             const fr_val = vn / Math.sqrt(9.81 * (isTrap ? (An / (B + 2 * m * yn)) : yn));
 
-            ctx.fillText(`★ 設計工作點 (En=${En.toFixed(2)}m, yn=${yn.toFixed(2)}m)`, px_n + 10, py_n - 6);
+            ctx.fillText(`[*] 設計工作點 (En=${En.toFixed(2)}m, yn=${yn.toFixed(2)}m)`, px_n + 10, py_n - 6);
 
             ctx.font = '9.5px "Noto Sans TC", sans-serif';
 
@@ -16756,7 +16759,7 @@ ${advice ? `技師設計指引：${advice}` : ''}
 
                         <td>${err.toFixed(2)}%</td>
 
-                        <td>${isFinal ? '<span style="color:#059669; font-weight:bold;">✔ 收斂達成 (ε &lt; 0.001)</span>' : '<span style="color:#0284C7;">切線逼近中</span>'}</td>
+                        <td>${isFinal ? '<span style="color:#059669; font-weight:bold;">[收斂達成] (ε &lt; 0.001)</span>' : '<span style="color:#0284C7;">切線逼近中</span>'}</td>
 
                     </tr>`;
 
@@ -17721,7 +17724,7 @@ function generateReportHtml(isForWord = false) {
 
                     <p><b>(2) 單支 φ${downD}" (${(downD * 25.4).toFixed(0)} mm) 立管額定排量 (q_pipe)：</b> <code>q_pipe = ${singleCapLpm} L/min = ${singleCapCms.toFixed(5)} m³/s</code> (符合《建築技術規則》建築設備編第29條規定)</p>
 
-                    <p><b>(3) 法定最少需設立管支數 (N_req)：</b> <code>N_req = ⌈Q_roof / q_pipe⌉ = ⌈${qPeakVal.toFixed(4)} / ${singleCapCms.toFixed(5)}⌉ = </code><b>${reqPipes} 支</b></p>
+                    <p><b>(3) 法定最少需設立管支數 (N_req)：</b> <code>N_req = ceil(Q_roof / q_pipe) = (${qPeakVal.toFixed(4)} / ${singleCapCms.toFixed(5)}) = </code><b>${reqPipes} 支</b></p>
 
                     <p><b>(4) 規劃實設立管總排量 (Q_pipe_total)：</b> <code>Q_pipe_total = ${numPipes} × ${singleCapCms.toFixed(5)} = </code><b style="color:#059669;">${totalCapCms.toFixed(4)} m³/s</b> (排量裕度比達 ${passRatio}%)</p>
 
@@ -17757,7 +17760,7 @@ function generateReportHtml(isForWord = false) {
 
                     <tr><td>實設立管總排能量</td><td><b>${totalCapCms.toFixed(4)} m³/s</b></td><td>總排量 ≥ 屋面暴雨洪峰流量</td><td style="color:#059669; font-weight:bold;">立管容量充裕 (合格)</td></tr>
 
-                    <tr><td>建築技術規則需設立管數</td><td><b>實設 ${numPipes} 支 (需設 ${reqPipes} 支)</b></td><td>N_act ≥ ⌈Q_roof / q_pipe⌉</td><td style="color:#059669; font-weight:bold;">配置支數合格</td></tr>
+                    <tr><td>建築技術規則需設立管數</td><td><b>實設 ${numPipes} 支 (需設 ${reqPipes} 支)</b></td><td>N_act ≥ ceil(Q_roof / q_pipe)</td><td style="color:#059669; font-weight:bold;">配置支數合格</td></tr>
 
                     <tr><td>立管口徑與額定排量標準</td><td><b>φ ${downD}" (${singleCapLpm} L/min)</b></td><td>符合建築設備編第29條</td><td style="color:#059669; font-weight:bold;">管徑規格合格</td></tr>
 
@@ -18043,7 +18046,7 @@ function generateReportHtml(isForWord = false) {
 
                     <tr><td>深槽清淤開挖加深 (ΔH) ＆ 底寬 (B₁)</td><td><b>ΔH = ${deltaH.toFixed(1)} m ｜ B₁ = ${B1.toFixed(1)} m</b></td><td>主槽向下清淤深度</td></tr>
 
-                    <tr><td>疏濬前 vs 疏濬後通水能量</td><td><b>${Q_pre.toFixed(1)} m³/s ➔ <span style="color:#0284C7;">${Q_post.toFixed(1)} m³/s</span></b></td><td>淨增通水能量 +${deltaQ.toFixed(1)} m³/s (+${boostPct.toFixed(0)}%)</td></tr>
+                    <tr><td>疏濬前 vs 疏濬後通水能量</td><td><b>${Q_pre.toFixed(1)} m³/s -> <span style="color:#0284C7;">${Q_post.toFixed(1)} m³/s</span></b></td><td>淨增通水能量 +${deltaQ.toFixed(1)} m³/s (+${boostPct.toFixed(0)}%)</td></tr>
 
                     <tr><td>計畫防洪洪峰需求 (Q_peak)</td><td><b>${qPeak}</b></td><td>Q_post ≥ Q_peak (排洪充裕)</td></tr>
 
@@ -18113,7 +18116,7 @@ function generateReportHtml(isForWord = false) {
 
                     <p><b>(1) 單孔水頭重力放流量 (q_hole)：</b> <code>q = C_d × A_h × √(2·g·h_avg) = 0.62 × [π·(${d_m.toFixed(3)}/2)²] × √(2 × 9.81 × ${h_avg.toFixed(2)}) = </code><b style="color:#0284C7;">${(q_single*1000).toFixed(2)} L/s</b></p>
 
-                    <p><b>(2) 洩水孔配置總數與密度檢核：</b> <code>總牆面 A = ${wallH.toFixed(1)}m × ${wallL.toFixed(1)}m = ${(wallH*wallL).toFixed(1)} m²</code> ｜ <code>橫向孔距 Sx=${Sx.toFixed(1)}m ｜ 縱向孔距 Sy=${Sy.toFixed(1)}m ➔ 總實設孔數 N = ${nx}×${ny} = ${totalHoles} 孔</code></p>
+                    <p><b>(2) 洩水孔配置總數與密度檢核：</b> <code>總牆面 A = ${wallH.toFixed(1)}m × ${wallL.toFixed(1)}m = ${(wallH*wallL).toFixed(1)} m²</code> ｜ <code>橫向孔距 Sx=${Sx.toFixed(1)}m ｜ 縱向孔距 Sy=${Sy.toFixed(1)}m -> 總實設孔數 N = ${nx}×${ny} = ${totalHoles} 孔</code></p>
 
                     <p><b>(3) 每孔平均服務面積 (A_service)：</b> <code>A_h = A_wall / N = ${(wallH*wallL).toFixed(1)} / ${totalHoles} = </code><b style="color:#059669;">${serviceArea.toFixed(2)} m²/孔 ≤ 3.0 m²</b> (符合公路與水保規範標準)</p>
 
@@ -18187,7 +18190,7 @@ function generateReportHtml(isForWord = false) {
 
                 const rowBg = isCur ? 'background-color:#F0FDF4; font-weight:bold;' : '';
 
-                const star = isCur ? ' <span style="color:#16A34A;">(★ 本案設計標的)</span>' : '';
+                const star = isCur ? ' <span style="color:#16A34A;">([*] 本案設計標的)</span>' : '';
 
                 return `<tr style="${rowBg}">
 
@@ -19115,7 +19118,7 @@ function generateReportHtml(isForWord = false) {
 
                     <div><b>專案管制編號：</b>${projCode}</div>
 
-                    <div><b>簽證執業機構：</b>諾維拉水利工程顧問有限公司 / 聯合技師事務所</div>
+                    <div><b>簽證執業機構：</b>諾維拉工程顧問</div>
 
                     <div><b>簽證技師科別：</b>${peEngineer}</div>
 
@@ -20656,27 +20659,44 @@ bareArea: {
                 if (!window.outflowInitialized) {
                     initOutflowModule();
                     window.outflowInitialized = true;
-                    if (typeof broadcastProjectHubData === 'function') {
-                        broadcastProjectHubData();
-                    }
                 }
-                saveProjectMeta();
-                calculateOutflow();
+                // 切換至出流管制時，無條件以專案管理中樞最新數據進行全域廣播同步
+                if (typeof broadcastProjectHubData === 'function') {
+                    broadcastProjectHubData();
+                }
+                if (typeof syncExpertToWizard === 'function') {
+                    syncExpertToWizard();
+                }
+                if (typeof calculateOutflow === 'function') {
+                    calculateOutflow();
+                }
             } else if (mode === 'defense') {
                 if (btnDefense) btnDefense.classList.add('active');
-                if (secDefense) secDefense.style.display = 'block';
+                if (secDefense) {
+                    secDefense.style.display = 'block';
+                    if (typeof switchDefensePerspective === 'function') switchDefensePerspective(window.currentDefensePerspective || 'executive');
+                }
                 
                 if (!window.outflowInitialized) {
                     initOutflowModule();
                     window.outflowInitialized = true;
                 }
-                updateDefenseHub();
+                if (typeof broadcastProjectHubData === 'function') {
+                    broadcastProjectHubData();
+                }
+                if (typeof updateDefenseHub === 'function') {
+                    updateDefenseHub();
+                }
             } else {
                 if (btnHydro) btnHydro.classList.add('active');
                 if (secHydro) secHydro.style.display = 'block';
 
-                saveOutflowProjectMeta();
+                // 切換至水文水理計算時，無條件以專案管理中樞最新數據進行全域廣播同步，絕不讀取陳舊出流欄位覆寫
+                if (typeof broadcastProjectHubData === 'function') {
+                    broadcastProjectHubData();
+                }
                 if (typeof updateHydrology === 'function') updateHydrology();
+                if (typeof calculateHydraulics === 'function') calculateHydraulics();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -21123,144 +21143,99 @@ const outflowPresets = {
             loadOutflowPreset('ind_park');
             if (typeof initDrawingSlots === 'function') initDrawingSlots();
             if (typeof runTyphoonStressTest === 'function') runTyphoonStressTest('morakot');
+            // 初始化完成後，無條件以專案管理中樞最新數據刷新，防止預設案例覆寫使用者自訂專案資料
+            if (typeof broadcastProjectHubData === 'function') {
+                broadcastProjectHubData();
+            }
+            if (typeof syncExpertToWizard === 'function') {
+                syncExpertToWizard();
+            }
         }
-
-
 
         function updateOutflowCounty() {
-
             const cSelect = document.getElementById('outflowCountySelect');
-
             const sSelect = document.getElementById('outflowStationSelect');
-
             if (!cSelect || !sSelect) return;
-
             const county = cSelect.value;
-
             const stList = (typeof stationDatabase !== 'undefined' && stationDatabase[county]) ? stationDatabase[county] : (typeof stationDatabase !== 'undefined' ? stationDatabase.KHH : []);
-
             
-
             sSelect.innerHTML = '';
-
             stList.forEach((st, idx) => {
-
                 const opt = document.createElement('option');
-
                 opt.value = st.id;
-
                 opt.textContent = st.name;
-
                 sSelect.appendChild(opt);
-
             });
-
             calculateOutflow();
-
         }
 
-
-
         function loadOutflowPreset(presetKey) {
-
             const p = outflowPresets[presetKey];
-
             if (!p) return;
 
-
-
             const cSelect = document.getElementById('outflowCountySelect');
-
             if (cSelect) cSelect.value = p.county;
-
             
-
             // update stations for that county
-
             const sSelect = document.getElementById('outflowStationSelect');
-
             const stList = (typeof stationDatabase !== 'undefined' && stationDatabase[p.county]) ? stationDatabase[p.county] : [];
-
             if (sSelect) {
-
                 sSelect.innerHTML = '';
-
                 let matchedId = '';
-
                 stList.forEach(st => {
-
                     const opt = document.createElement('option');
-
                     opt.value = st.id;
-
                     opt.textContent = st.name;
-
                     if (st.name.includes(p.station)) matchedId = st.id;
-
                     sSelect.appendChild(opt);
-
                 });
-
                 if (matchedId) sSelect.value = matchedId;
-
             }
 
-
-
             const setVal = (id, val) => {
-
                 const el = document.getElementById(id);
-
                 if (el) el.value = val;
-
             };
 
-
-
             setVal('outflowReturnPeriod', p.rp);
-
-            setVal('outflowAreaHa', p.area);
-
             setVal('outflowCPre', p.cPre);
-
             setVal('outflowTcPre', p.tcPre);
-
             setVal('outflowCPost', p.cPost);
-
             setVal('outflowTcPost', p.tcPost);
-
             setVal('outflowPondType', p.pondType);
-
             setVal('outflowPondDepth', p.pondDepth);
-
             setVal('outflowPondLength', p.pondLength);
-
             setVal('outflowPondWidth', p.pondWidth);
-
             setVal('outflowOrificeDia', p.orificeDia);
-
             setVal('outflowWeirWidth', p.weirWidth);
-
             setVal('outflowWeirCrest', p.weirCrest);
-
             setVal('outflowFreeboardReq', p.freeboardReq);
-
             setVal('outflowLidArea', p.lidArea);
-
             setVal('outflowLidDepth', p.lidDepth);
 
+            // 檢查是否為使用者自訂專案身分
+            const hubName = document.getElementById('hubProjectName')?.value;
+            const isUserCustom = hubName && hubName !== '高雄市典寶溪D區滯洪池及週邊排水改善工程';
 
+            if (!isUserCustom) {
+                setVal('outflowAreaHa', p.area);
+                setVal('outflowMetaProjectName', p.projectName);
+                setVal('outflowMetaLandNo', p.landNo);
+                setVal('outflowMetaClient', p.client);
 
-            setVal('outflowMetaProjectName', p.projectName);
+                const hName = document.getElementById('hubProjectName');
+                if (hName) hName.value = p.projectName;
+                const hCli = document.getElementById('hubClientName');
+                if (hCli) hCli.value = p.client;
+                const hAddr = document.getElementById('hubLandAddress');
+                if (hAddr) hAddr.value = p.landNo;
+                if (typeof syncHubAreaFrom === 'function') syncHubAreaFrom('ha', p.area);
+            } else {
+                if (typeof broadcastProjectHubData === 'function') broadcastProjectHubData();
+            }
 
-            setVal('outflowMetaLandNo', p.landNo);
-
-            setVal('outflowMetaClient', p.client);
-
-
-
+            if (typeof syncExpertToWizard === 'function') syncExpertToWizard();
             calculateOutflow();
-
         }
 
 
@@ -21743,7 +21718,7 @@ const outflowPresets = {
                 if (typeof calculateOutflow === 'function') calculateOutflow();
                 if (typeof syncExpertToWizard === 'function') syncExpertToWizard();
 
-                const msg = `🎉 AI 尋優成功！最佳尺寸：長 ${best.L.toFixed(1)}m × 寬 ${best.W.toFixed(1)}m × 深 ${best.D.toFixed(1)}m，設計容積 ${Math.round(best.vol).toLocaleString()} m³，出水高 +${best.fb.toFixed(2)}m，排空時間 ${best.drawdown.toFixed(1)}hr，全數合格 PASS！`;
+                const msg = `AI 尋優成功！最佳尺寸：長 ${best.L.toFixed(1)}m × 寬 ${best.W.toFixed(1)}m × 深 ${best.D.toFixed(1)}m，設計容積 ${Math.round(best.vol).toLocaleString()} m³，出水高 +${best.fb.toFixed(2)}m，排空時間 ${best.drawdown.toFixed(1)}hr，全數合格 PASS！`;
                 if (typeof showToast === 'function') {
                     showToast(msg);
                 } else {
@@ -22660,7 +22635,7 @@ const outflowPresets = {
 
             if (changes.length === 0) {
                 if (typeof showToast === 'function') {
-                    showToast('ℹ️ 當前設計數據與初審基準版本完全一致，無任何變更項目！');
+                    showToast('[提示] 當前設計數據與初審基準版本完全一致，無任何變更項目！');
                 } else {
                     alert('當前設計數據與初審基準版本完全一致，無變更項目！');
                 }
@@ -23187,6 +23162,74 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
             }
             document.body.removeChild(ta);
         }
+
+        // -------------------------------------------------------------------------
+        // 審查防禦卡片專用複製函式
+        // -------------------------------------------------------------------------
+        function copyBenchmarkAnalysis() {
+            const city = document.getElementById('dispBenchmarkCity')?.innerText?.trim() || '高雄市';
+            const range = document.getElementById('dispBenchmarkRange')?.innerText?.trim() || '450 ~ 620 m³/ha';
+            const unitVol = document.getElementById('dispBenchmarkUnitVol')?.innerText?.trim() || '547.2 m³/ha';
+            const badge = document.getElementById('dispBenchmarkBadgeText')?.innerText?.trim() || '吻合該縣市審查經驗常態';
+            const comment = document.getElementById('dispBenchmarkComment')?.innerText?.trim() || '';
+            
+            const text = `【全台各縣市歷史過件案黃金經驗基準線 (Benchmark) 分析】\n` +
+                         `基準審查縣市：${city}\n` +
+                         `常態審查過件區間：${range}\n` +
+                         `本案單位滯洪量：${unitVol}\n` +
+                         `判定狀態：${badge}\n` +
+                         `綜合結論：${comment}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    if (typeof showToast === 'function') showToast('已複製基準線分析至剪貼簿！');
+                }).catch(() => fallbackCopyText(text));
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+        window.copyBenchmarkAnalysis = copyBenchmarkAnalysis;
+
+        function copyDefenseBackwaterText() {
+            const hwl = document.getElementById('defenseDispPondH')?.innerText?.trim() || '2.37 m';
+            const tail = document.getElementById('defenseDispTailH')?.innerText?.trim() || '2.10 m';
+            const deltaH = document.getElementById('defenseDispDeltaH')?.innerText?.trim() || '+0.27 m';
+            const quote = document.getElementById('defenseBackwaterQuote')?.innerText?.trim() || '';
+            
+            const text = `【出流口頂托回水倒灌防護驗算與答辯詞】\n` +
+                         `滯洪池最高水位 HWL：${hwl}\n` +
+                         `外水頂托水位 EL.tail：${tail}\n` +
+                         `有效水頭差 Δh：${deltaH}\n` +
+                         `審查防禦建議詞：\n${quote}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    if (typeof showToast === 'function') showToast('已複製防禦迴水答辯論述至剪貼簿！');
+                }).catch(() => fallbackCopyText(text));
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+        window.copyDefenseBackwaterText = copyDefenseBackwaterText;
+
+        function copyStepByStepMath() {
+            const step1 = document.getElementById('mathStep1Calc')?.innerText?.trim() || '';
+            const step2 = document.getElementById('mathStep2Calc')?.innerText?.trim() || '';
+            const step3 = document.getElementById('mathStep3Calc')?.innerText?.trim() || '';
+            
+            const text = `【審查委員手算代數透視推導歷程】\n` +
+                         `[1] 合理化公式逕流尖峰推導：\n${step1}\n\n` +
+                         `[2] 低水放流孔口公式推導：\n${step2}\n\n` +
+                         `[3] 緊急溢流堰流公式推導：\n${step3}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    if (typeof showToast === 'function') showToast('已複製手算推導歷程至剪貼簿！');
+                }).catch(() => fallbackCopyText(text));
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+        window.copyStepByStepMath = copyStepByStepMath;
+
+
 
         function calculateOutflow() {
 
@@ -24260,43 +24303,91 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
         }
 
         function applyQuickCity(cityCode, stationName, cityName, returnPeriod = 5) {
+            let normalizedCity = cityCode;
+            if (cityCode === 'PIN') normalizedCity = 'PTS';
+            if (cityCode === 'ILA') normalizedCity = 'ILN';
+
             const outflowCounty = document.getElementById('outflowCountySelect');
             if (outflowCounty) {
-                outflowCounty.value = cityCode;
+                outflowCounty.value = normalizedCity;
                 if (typeof updateOutflowCounty === 'function') updateOutflowCounty();
             }
 
+            let stationId = '';
             const outflowStation = document.getElementById('outflowStationSelect');
             if (outflowStation) {
                 let found = false;
                 for (let i = 0; i < outflowStation.options.length; i++) {
                     if (outflowStation.options[i].text.includes(stationName) || outflowStation.options[i].value.includes(stationName)) {
                         outflowStation.selectedIndex = i;
+                        stationId = outflowStation.value;
                         found = true;
                         break;
                     }
                 }
-                if (!found && outflowStation.options.length > 0) outflowStation.selectedIndex = 0;
+                if (!found && outflowStation.options.length > 0) {
+                    outflowStation.selectedIndex = 0;
+                    stationId = outflowStation.value;
+                }
             }
 
-            // 同步傳統水理計算面板
+            // 同步傳統水理計算面板 (Mode 1: 水工構造物水理計算)
             const cSelect = document.getElementById('countySelect');
             if (cSelect) {
                 for (let i = 0; i < cSelect.options.length; i++) {
-                    if (cSelect.options[i].text.includes(cityName) || cSelect.options[i].value.includes(cityCode)) {
+                    if (cSelect.options[i].text.includes(cityName) || cSelect.options[i].value === normalizedCity) {
                         cSelect.selectedIndex = i;
-                        if (typeof updateStations === 'function') updateStations();
+                        if (typeof onCountyChange === 'function') onCountyChange();
                         break;
                     }
                 }
+                const sSelect = document.getElementById('stationSelect');
+                if (sSelect) {
+                    for (let i = 0; i < sSelect.options.length; i++) {
+                        if (sSelect.options[i].text.includes(stationName) || (stationId && sSelect.options[i].value === stationId)) {
+                            sSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    if (typeof updateHydrology === 'function') updateHydrology();
+                }
             }
+
+            // 同步出流精靈 Step 1 測站與重現期選單
+            const wizCounty = document.getElementById('wizCountySelect');
+            if (wizCounty) wizCounty.value = normalizedCity;
+            if (typeof syncStationsToWizard === 'function') syncStationsToWizard();
+            const wizStation = document.getElementById('wizStationSelect');
+            if (wizStation && stationId) wizStation.value = stationId;
 
             // 設定法定起算重現期 (台北 10年，其他通常 5年)
             const rpSelect = document.getElementById('outflowDesignReturnPeriod') || document.getElementById('outflowReturnPeriod');
             if (rpSelect) {
                 rpSelect.value = returnPeriod.toString();
             }
+            const wizRp = document.getElementById('wizReturnPeriod');
+            if (wizRp) wizRp.value = returnPeriod.toString();
 
+            const m1Rp = document.getElementById('returnPeriod');
+            if (m1Rp) {
+                for (let i = 0; i < m1Rp.options.length; i++) {
+                    if (m1Rp.options[i].value === returnPeriod.toString()) {
+                        m1Rp.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            // 更新中央數據源物件
+            if (typeof currentProjectData !== 'undefined' && currentProjectData) {
+                currentProjectData.county = normalizedCity;
+                currentProjectData.station = stationName;
+                if (stationId) currentProjectData.stationId = stationId;
+                currentProjectData.returnPeriod = returnPeriod;
+            }
+
+            if (typeof updateHubWeatherCard === 'function') updateHubWeatherCard();
+            if (typeof broadcastProjectHubData === 'function') broadcastProjectHubData();
             if (typeof calculateOutflow === 'function') calculateOutflow();
             if (typeof runTyphoonStressTest === 'function') runTyphoonStressTest(window.currentTyphoonKey || 'morakot');
 
@@ -24304,6 +24395,34 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                 showToast(`已自動定位【${cityName} / ${stationName}】，連動更新降雨強度參數與法定起算重現期！`);
             }
         }
+
+        // 雙向位置與測站反向同步至管理中樞輔助函式
+        function syncMode1LocationToHub() {
+            const cSel = document.getElementById('countySelect');
+            const sSel = document.getElementById('stationSelect');
+            if (!cSel || !sSel) return;
+            const county = cSel.value;
+            const stName = sSel.options[sSel.selectedIndex]?.text?.replace(/\[.*?\]/g, '')?.trim() || '';
+            const cityName = cSel.options[cSel.selectedIndex]?.text?.split(' ')[0] || county;
+            if (typeof applyQuickCity === 'function') {
+                applyQuickCity(county, stName, cityName, 5);
+            }
+        }
+
+        function syncMode2LocationToHub() {
+            const cSel = document.getElementById('outflowCountySelect');
+            const sSel = document.getElementById('outflowStationSelect');
+            if (!cSel || !sSel) return;
+            const county = cSel.value;
+            const stName = sSel.options[sSel.selectedIndex]?.text?.replace(/\[.*?\]/g, '')?.trim() || '';
+            const cityName = cSel.options[cSel.selectedIndex]?.text?.split(' ')[0] || county;
+            if (typeof applyQuickCity === 'function') {
+                applyQuickCity(county, stName, cityName, 5);
+            }
+        }
+
+        window.updateStations = onCountyChange;
+        window.updateOutflowStations = updateOutflowCounty;
 
         // =========================================================================
         // 【模組二：歷史超級颱風「穿越實戰」極端壓力測試機】
@@ -24351,24 +24470,26 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                 const btn = document.getElementById(`btnTyphoon${k.charAt(0).toUpperCase() + k.slice(1)}`);
                 if (btn) {
                     if (k === typhoonKey) {
-                        btn.style.borderColor = '#6366F1';
-                        btn.style.background = '#1E1B4B';
-                        btn.style.boxShadow = '0 0 10px rgba(99,102,241,0.5)';
+                        btn.style.borderColor = '#0284C7';
+                        btn.style.background = '#F0F9FF';
+                        btn.style.color = '#0369A1';
+                        btn.style.boxShadow = '0 0 0 2px rgba(2,132,199,0.2)';
                     } else {
-                        btn.style.borderColor = '#334155';
-                        btn.style.background = '#1E293B';
+                        btn.style.borderColor = '#CBD5E1';
+                        btn.style.background = '#FFFFFF';
+                        btn.style.color = '#334155';
                         btn.style.boxShadow = 'none';
                     }
                 }
             });
 
             // 水理參數提取
-            const A_ha = parseFloat(document.getElementById('outflowBaseArea')?.value || 1.2);
-            const C_post = parseFloat(document.getElementById('outflowPostC')?.value || 0.82);
+            const A_ha = parseFloat(document.getElementById('outflowAreaHa')?.value || document.getElementById('outflowBaseArea')?.value || 1.2);
+            const C_post = parseFloat(document.getElementById('outflowCPost')?.value || document.getElementById('outflowPostC')?.value || 0.82);
             const L = parseFloat(document.getElementById('outflowPondLength')?.value || 38.0);
             const W = parseFloat(document.getElementById('outflowPondWidth')?.value || 18.0);
             const D = parseFloat(document.getElementById('outflowPondDepth')?.value || 2.8);
-            const orificeDiaMm = parseFloat(document.getElementById('outflowOrificeDiameter')?.value || 150);
+            const orificeDiaMm = parseFloat(document.getElementById('outflowOrificeDia')?.value || document.getElementById('outflowOrificeDiameter')?.value || 150);
             const orificeDiaM = orificeDiaMm / 1000.0;
             const orificeArea = Math.PI * Math.pow(orificeDiaM / 2.0, 2);
             const Cd = 0.62;
@@ -24444,7 +24565,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                 barEl.style.background = volUtilPercent > 95 ? '#EF4444' : (volUtilPercent > 80 ? 'linear-gradient(90deg, #10B981 0%, #F59E0B 100%)' : 'linear-gradient(90deg, #10B981 0%, #38BDF8 100%)');
             }
 
-            const badgeEl = document.getElementById('typhoonResilienceBadge');
+            const badgeEl = document.getElementById('typhoonRiskBadge') || document.getElementById('typhoonResilienceBadge');
             if (badgeEl) {
                 if (freeboardCm >= 30) {
                     badgeEl.innerHTML = '卓越安全 PASS';
@@ -24534,7 +24655,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
             const developer = document.getElementById('outflowMetaApplicant')?.value || '經濟部水利署第五河川分署 / 起造人';
             const engineer = document.getElementById('outflowMetaEngineer')?.value || '水利工程技師（技工字第 012345 號）';
 
-            const A_ha = parseFloat(document.getElementById('outflowBaseArea')?.value || document.getElementById('outflowAreaHa')?.value || 1.2);
+            const A_ha = parseFloat(document.getElementById('outflowAreaHa')?.value || document.getElementById('outflowBaseArea')?.value || 1.2);
             const baseAreaM2 = Math.round(A_ha * 10000);
             const baseAreaPing = (baseAreaM2 * 0.3025).toFixed(1);
 
@@ -24552,8 +24673,8 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
             const estCostWan = Math.round((totalVol * 4200) / 10000); // 粗估造價 (土方+RC+水工)
 
             // 削峰防洪成效
-            const qPre = parseFloat(document.getElementById('outflowQpre')?.value || 0.483);
-            const qPost = parseFloat(document.getElementById('outflowQpost')?.value || 1.762);
+            const qPre = parseFloat(document.getElementById('wizResQPre')?.innerText || document.getElementById('resQPre')?.innerText || document.getElementById('outflowQpre')?.value || 0.483);
+            const qPost = parseFloat(document.getElementById('wizResQPost')?.innerText || document.getElementById('resQPost')?.innerText || document.getElementById('outflowQpost')?.value || 1.762);
             const hudAttenuation = document.getElementById('hudAttenuation')?.innerText || '95.9';
             const hudMaxOutflow = parseFloat(document.getElementById('hudMaxOutflow')?.innerText || '0.072') || 0.072;
             const hudDrawdown = document.getElementById('hudDrawdown')?.innerText || '9.7';
@@ -24646,22 +24767,22 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                         <div style="background: #F8FAFC; padding: 8px 10px; border-radius: 6px; border-left: 3px solid #10B981;">
                             <div style="color: #64748B;">① 洪峰削減率管制</div>
                             <div style="font-weight: 800; color: #0F172A; margin: 2px 0;">${hudAttenuation}% (≤ Qa)</div>
-                            <div style="color: #059669; font-weight: 700;">✔ 符合水利署規範</div>
+                            <div style="color: #059669; font-weight: 700;">[合規] 符合水利署規範</div>
                         </div>
                         <div style="background: #F8FAFC; padding: 8px 10px; border-radius: 6px; border-left: 3px solid #10B981;">
                             <div style="color: #64748B;">② 安全出水高</div>
                             <div style="font-weight: 800; color: #0F172A; margin: 2px 0;">≥ 0.30 m (合規)</div>
-                            <div style="color: #059669; font-weight: 700;">✔ 預防溢堤溢洪</div>
+                            <div style="color: #059669; font-weight: 700;">[合規] 預防溢堤溢洪</div>
                         </div>
                         <div style="background: #F8FAFC; padding: 8px 10px; border-radius: 6px; border-left: 3px solid #10B981;">
                             <div style="color: #64748B;">③ 池體重力排空</div>
                             <div style="font-weight: 800; color: #0F172A; margin: 2px 0;">${hudDrawdown} 小時</div>
-                            <div style="color: #059669; font-weight: 700;">✔ 法定 24~48hr</div>
+                            <div style="color: #059669; font-weight: 700;">[合規] 法定 24~48hr</div>
                         </div>
                         <div style="background: #F8FAFC; padding: 8px 10px; border-radius: 6px; border-left: 3px solid #10B981;">
                             <div style="color: #64748B;">④ 承受水體安全</div>
                             <div style="font-weight: 800; color: #0F172A; margin: 2px 0;">無回壅溢淹</div>
-                            <div style="color: #059669; font-weight: 700;">✔ 水利技師具結簽證</div>
+                            <div style="color: #059669; font-weight: 700;">[合規] 水利技師具結簽證</div>
                         </div>
                     </div>
                 </div>
@@ -24733,14 +24854,14 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
 
         function copyExecutiveSummaryText() {
             const projName = document.getElementById('outflowMetaProjectName')?.value || '出流管制專案';
-            const A_ha = parseFloat(document.getElementById('outflowBaseArea')?.value || document.getElementById('outflowAreaHa')?.value || 1.2);
+            const A_ha = parseFloat(document.getElementById('outflowAreaHa')?.value || document.getElementById('outflowBaseArea')?.value || 1.2);
             const baseAreaM2 = Math.round(A_ha * 10000);
             const baseAreaPing = (baseAreaM2 * 0.3025).toFixed(1);
             const totalVol = Math.round(parseFloat(document.getElementById('outflowPondLength')?.value || 38) * parseFloat(document.getElementById('outflowPondWidth')?.value || 18) * parseFloat(document.getElementById('outflowPondDepth')?.value || 2.8));
             const containerCount = Math.round(totalVol / 33.2);
             const poolCount = (totalVol / 2500.0).toFixed(2);
             const hudAttenuation = document.getElementById('hudAttenuation')?.innerText || '95.9';
-            const qPost = parseFloat(document.getElementById('outflowQpost')?.value || 1.762);
+            const qPost = parseFloat(document.getElementById('wizResQPost')?.innerText || document.getElementById('resQPost')?.innerText || document.getElementById('outflowQpost')?.value || 1.762);
             const hudMaxOutflow = parseFloat(document.getElementById('hudMaxOutflow')?.innerText || '0.072') || 0.072;
             const litersPerSec = Math.round(Math.max(0, qPost - hudMaxOutflow) * 1000);
 
@@ -25016,7 +25137,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                         ? 'background: rgba(16,185,129,0.18); color: #6EE7B7; border: 1px solid rgba(16,185,129,0.35); font-weight: 600;'
                         : 'background: rgba(15,23,42,0.6); color: #64748B; border: 1px solid rgba(255,255,255,0.06); font-weight: normal;');
                 return `<span style="padding: 2px 9px; border-radius: 12px; font-size: 0.70rem; transition: all 0.3s; ${style}">${ch.name}</span>`;
-            }).join('<span style="color: rgba(255,255,255,0.2); font-size: 0.65rem;">➔</span>');
+            }).join('<span style="color: rgba(255,255,255,0.2); font-size: 0.65rem;">-></span>');
 
             return `<div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;">${chHtml}</div>`;
         }
@@ -25722,7 +25843,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                                         削峰成效：削減達 <b style="color:#10B981;">${d.attenuation.toFixed(1)}%</b>
                                     </div>
                                     <div style="margin-top:6px; font-size:0.72rem; color:#10B981; font-weight:bold; border-top:1px dashed #334155; padding-top:4px;">
-                                        ✔ 符合水利署法定標準
+                                        [合規] 符合水利署法定標準
                                     </div>
                                 </div>
 
@@ -25740,7 +25861,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                                         最高蓄水位：${d.maxStage.toFixed(2)} m (池深 ${d.pondDepth.toFixed(1)} m)
                                     </div>
                                     <div style="margin-top:6px; font-size:0.72rem; color:#10B981; font-weight:bold; border-top:1px dashed #334155; padding-top:4px;">
-                                        ✔ 符合水利署法定標準
+                                        [合規] 符合水利署法定標準
                                     </div>
                                 </div>
 
@@ -25758,7 +25879,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                                         孔口重力自流：無須機械抽水動力
                                     </div>
                                     <div style="margin-top:6px; font-size:0.72rem; color:#10B981; font-weight:bold; border-top:1px dashed #334155; padding-top:4px;">
-                                        ✔ 符合水利署法定標準
+                                        [合規] 符合水利署法定標準
                                     </div>
                                 </div>
                             </div>
@@ -25778,7 +25899,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                                             下游排水箱涵斷面通水能力充足，銜接平順無回壅，零溢淹風險。
                                         </div>
                                         <div style="margin-top:4px; font-size:0.70rem; color:#10B981; font-weight:bold;">
-                                            ✔ 符合水利署法定標準
+                                            [合規] 符合水利署法定標準
                                         </div>
                                     </div>
                                 </div>
@@ -25797,7 +25918,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                                             水利工程技師親自查核演算、簽證具結，報告書與動態水理試算表完備。
                                         </div>
                                         <div style="margin-top:4px; font-size:0.70rem; color:#10B981; font-weight:bold;">
-                                            ✔ 符合水利署法定標準
+                                            [合規] 符合水利署法定標準
                                         </div>
                                     </div>
                                 </div>
@@ -26277,7 +26398,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
         }
 
         // -------------------------------------------------------------
-        // 2.4 新增「🖨️ 匯出 16:9 簡報 PDF 講義」函式
+        // 2.4 新增「匯出 16:9 簡報 PDF 講義」函式
         // -------------------------------------------------------------
         function printPresentationPdf() {
             let styleEl = document.getElementById('presPrintLandscapeStyle');
@@ -27164,7 +27285,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                 ctx.fillStyle = '#854D0E';
                 ctx.font = 'bold 11px "Microsoft JhengHei", "標楷體", sans-serif';
                 ctx.textAlign = 'left';
-                ctx.fillText('★ 50年最高水深 H=2.34m | V=1,123.2 m³ | Q=0.676 cms', pL + 68, y50 - 3);
+                ctx.fillText('[*] 50年最高水深 H=2.34m | V=1,123.2 m³ | Q=0.676 cms', pL + 68, y50 - 3);
 
                 // 圖例
                 const legX = pL + w - 210, legY = pT + h - 75;
@@ -36103,7 +36224,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
             t = t.replaceAll('__AREA_HA__', vars.areaHa || '1.2500');
             t = t.replaceAll('__PHONE__', vars.pPhone || '(05) 362-1234');
             t = t.replaceAll('__AUTHORITY__', vars.pAuthority || '嘉義縣政府水利處');
-            t = t.replaceAll('__FIRM__', vars.pFirm || '諾維拉水利工程顧問技師事務所');
+            t = t.replaceAll('__FIRM__', vars.pFirm || '諾維拉工程顧問');
             t = t.replaceAll('__ENGINEER__', vars.pEng || '水利工程技師 (技工字第 012345 號)');
             t = t.replaceAll('__PEAK_IN__', (vars.peakIn !== undefined ? vars.peakIn.toFixed(3) : '1.828'));
             t = t.replaceAll('__PEAK_OUT__', (vars.peakOut !== undefined ? vars.peakOut.toFixed(3) : '0.676'));
@@ -36161,9 +36282,9 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
             const pApplicant = sanitizeHtml(document.getElementById('outflowMetaApplicant')?.value || "科技產業園區開發股份有限公司");
             const pApplicantRep = sanitizeHtml(document.getElementById('outflowMetaApplicantRep')?.value || "陳建國");
             const pAuthority = sanitizeHtml(document.getElementById('outflowMetaAuthority')?.value || document.getElementById('outflowMetaClient')?.value || "嘉義縣政府水利處 / 經濟部水利署第五河川分署");
-            const pAuthor = sanitizeHtml(document.getElementById('outflowMetaAuthor')?.value || "諾維拉水利設計室");
+            const pAuthor = sanitizeHtml(document.getElementById('outflowMetaAuthor')?.value || "諾維拉工程顧問");
             const pEng = sanitizeHtml(document.getElementById('outflowMetaEngineer')?.value || "水利工程技師 (技工字第 012345 號)");
-            const pFirm = sanitizeHtml(document.getElementById('outflowMetaFirm')?.value || "諾維拉水利工程顧問技師事務所");
+            const pFirm = sanitizeHtml(document.getElementById('outflowMetaFirm')?.value || "諾維拉工程顧問");
             const pPhone = sanitizeHtml(document.getElementById('outflowMetaPhone')?.value || "(05) 362-1234");
             const pCode = sanitizeHtml(document.getElementById('outflowMetaCode')?.value || "NOV-2026-OUTFLOW-01");
 
@@ -36440,7 +36561,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                         </tr>
                         <tr>
                             <td style="border:1pt solid #000; padding:1.8pt 4pt; font-weight:bold;">開發前後逕流係數</td>
-                            <td style="border:1pt solid #000; padding:1.8pt 4pt;">C1 = 0.28 ➔ C2 = 0.85</td>
+                            <td style="border:1pt solid #000; padding:1.8pt 4pt;">C1 = 0.28 -> C2 = 0.85</td>
                             <td style="border:1pt solid #000; padding:1.8pt 4pt;">合理化公式加權計算</td>
                             <td style="border:1pt solid #000; padding:1.8pt 4pt; text-align:center;">符合規範 ■</td>
                         </tr>
@@ -36508,7 +36629,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                         基地原本大部分為非透水率極低之平坦農牧旱地或荒地，原始地表吸納雨水逕流能力較佳（開發前綜合逕流係數 C1 = 0.28）。基地經整地開發並興建結構廠房、鋪設瀝青進出道路及物流裝卸裝載平台後，地表不透水面積大幅擴張至 85% 以上（開發後綜合逕流係數 C2 = 0.85）。若未設置出流管制設施，50年重現期暴雨下之基地暴雨洪峰逕流量將由開發前之 <b>${(d.qPre || 0.483).toFixed(3)} m³/s</b> 驟增至 <b>${peakInVal.toFixed(3)} m³/s</b>，額外增加暴雨排水負擔達 <b>${(peakInVal - (d.qPre || 0.483)).toFixed(3)} m³/s</b>。
                     </p>
                     <p style="font-family:'DFKai-SB','標楷體','Times New Roman',serif; font-size:14pt; line-height:24pt; text-indent:28pt; margin:0 0 8pt 0;">
-                        為落實企業社會責任，確保土地開發行為不增加區外公共排水系統之排洪負擔，並恪遵水利法規，爰依《水利法》第八十三條之七至之十四規定，委託專業技師事務所辦理本案出流管制水理演算，規劃設置足額有效容量之地下滯洪設施，將開發後各重現期距洪峰流量削減至不超過開發前洪峰流量，達成「基地保水、防洪減災、環境共生」之目標。
+                        為落實企業社會責任，確保土地開發行為不增加區外公共排水系統之排洪負擔，並恪遵水利法規，爰依《水利法》第八十三條之七至之十四規定，委託諾維拉工程顧問辦理本案出流管制水理演算，規劃設置足額有效容量之地下滯洪設施，將開發後各重現期距洪峰流量削減至不超過開發前洪峰流量，達成「基地保水、防洪減災、環境共生」之目標。
                     </p>
 
                     ${tableBreakTag}
@@ -36894,7 +37015,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                             <td style="border:1pt solid #000; font-weight:bold; padding:4pt;">滯洪池安全出水高</td>
                             <td style="border:1pt solid #000; padding:4pt; font-weight:bold;">+${freeboardVal.toFixed(2)} m</td>
                             <td style="border:1pt solid #000; padding:4pt;">≥ 0.30 m</td>
-                            <td style="border:1pt solid #000; padding:4pt; font-weight:bold;">${freeboardVal >= 0.30 ? '安全餘裕充足 (合規 ■)' : '安全出水高不足 0.30m ✘'}</td>
+                            <td style="border:1pt solid #000; padding:4pt; font-weight:bold;">${freeboardVal >= 0.30 ? '安全餘裕充足 (合規 ■)' : '安全出水高不足 0.30m [不合規]'}</td>
                         </tr>
                         <tr>
                             <td style="border:1pt solid #000; font-weight:bold; padding:4pt;">滯洪排空歷時 (孔口排空)</td>
@@ -37058,7 +37179,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                         7.2 施工步驟及施工進度期程
                     </h2>
                     <p style="font-family:'DFKai-SB','標楷體','Times New Roman',serif; font-size:14pt; line-height:24pt; text-indent:28pt; margin:0 0 8pt 0;">
-                        施工步驟嚴格遵循水利工程標準施工工序：工區周界隔離與臨時防汛沉砂池設置 ➔ 土方開挖與鋼軌樁擋土支撐 ➔ 滯洪池 PC 墊層與底板鋼筋綁紮澆置 ➔ 池體側牆及內部導流隔牆澆置 ➔ 出水孔口、消能堰與放流閘門安裝 ➔ 箱涵頂板封頂澆置 ➔ 外層防滲防水毯鋪貼與土方回填 ➔ 聯外重力放流管線銜接。
+                        施工步驟嚴格遵循水利工程標準施工工序：工區周界隔離與臨時防汛沉砂池設置 -> 土方開挖與鋼軌樁擋土支撐 -> 滯洪池 PC 墊層與底板鋼筋綁紮澆置 -> 池體側牆及內部導流隔牆澆置 -> 出水孔口、消能堰與放流閘門安裝 -> 箱涵頂板封頂澆置 -> 外層防滲防水毯鋪貼與土方回填 -> 聯外重力放流管線銜接。
                     </p>
                     <p style="font-family:'DFKai-SB','標楷體','Times New Roman',serif; font-size:14pt; line-height:24pt; text-indent:28pt; margin:0 0 8pt 0;">
                         本工程預定總工期為 18 個月。為杜絕工期雨季衍生水土災害，出流管制滯洪設施列為優先施工項目，於開工後第 6 個月內先行完工並具備粗蓄洪調解能力，隨後方可展開地面廠房主體結構工程。
@@ -37723,6 +37844,57 @@ ${optimizedBody}
             if (typeof showToast === 'function') showToast('已同步最新水理演算數據至第三模式！');
         }
 
+        // =========================================================================
+        // 【審查防禦中樞】情境視角切換器 (switchDefensePerspective)
+        // =========================================================================
+        function switchDefensePerspective(perspective) {
+            window.currentDefensePerspective = perspective || 'executive';
+            const tabs = ['executive', 'hydraulics', 'statutory', 'all'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`btnDefenseTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (btn) {
+                    if (t === window.currentDefensePerspective) {
+                        btn.classList.add('active');
+                        btn.style.background = '#0284C7';
+                        btn.style.color = '#FFFFFF';
+                        btn.style.borderColor = '#0284C7';
+                        btn.style.boxShadow = '0 2px 6px rgba(2,132,199,0.3)';
+                    } else {
+                        btn.classList.remove('active');
+                        btn.style.background = '#FFFFFF';
+                        btn.style.color = '#475569';
+                        btn.style.borderColor = '#CBD5E1';
+                        btn.style.boxShadow = 'none';
+                    }
+                }
+            });
+
+            const secExec = document.getElementById('defenseViewExecutive');
+            const secHydro = document.getElementById('defenseViewHydraulics');
+            const secStat = document.getElementById('defenseViewStatutory');
+
+            if (perspective === 'executive') {
+                if (secExec) secExec.style.display = 'grid';
+                if (secHydro) secHydro.style.display = 'none';
+                if (secStat) secStat.style.display = 'none';
+            } else if (perspective === 'hydraulics') {
+                if (secExec) secExec.style.display = 'none';
+                if (secHydro) secHydro.style.display = 'grid';
+                if (secStat) secStat.style.display = 'none';
+            } else if (perspective === 'statutory') {
+                if (secExec) secExec.style.display = 'none';
+                if (secHydro) secHydro.style.display = 'none';
+                if (secStat) secStat.style.display = 'flex';
+            } else if (perspective === 'all') {
+                if (secExec) secExec.style.display = 'grid';
+                if (secHydro) secHydro.style.display = 'grid';
+                if (secStat) secStat.style.display = 'flex';
+            }
+        }
+        window.switchDefensePerspective = switchDefensePerspective;
+
+
+
         // 保持向後相容的 updateDefenseHub
         function updateDefenseHub() {
             syncDefenseHubData();
@@ -38028,7 +38200,7 @@ ${optimizedBody}
         // ==========================================
         function updateHandCalcCard(areaHa, cPost, maxStage, pondDepth) {
             let intensity = 95.42;
-            const tcPost = parseFloat(document.getElementById('outflowPostTc')?.value) || 12;
+            const tcPost = parseFloat(document.getElementById('outflowTcPost')?.value || document.getElementById('outflowPostTc')?.value) || 12;
             if (typeof window.calcIdfIntensity === 'function') {
                 const rp = parseFloat(document.getElementById('outflowReturnPeriod')?.value) || 50;
                 intensity = window.calcIdfIntensity(rp, tcPost);
@@ -38050,7 +38222,7 @@ ${optimizedBody}
 
             const step2 = document.getElementById('mathStep2Calc');
             if (step2) {
-                step2.innerHTML = `代入：孔口截面積 Ao = (π/4)×(${diaM}m)² = ${ao.toFixed(4)}m²，水頭 H = ${maxStage.toFixed(2)}m - ${elInv.toFixed(2)}m = ${h.toFixed(2)}m，流速 v = √(2gH) = ${v.toFixed(2)} m/s ➔ <strong>Qo = 0.62 × ${ao.toFixed(4)} × ${v.toFixed(2)} = ${qo.toFixed(4)} cms</strong>`;
+                step2.innerHTML = `代入：孔口截面積 Ao = (π/4)×(${diaM}m)² = ${ao.toFixed(4)}m²，水頭 H = ${maxStage.toFixed(2)}m - ${elInv.toFixed(2)}m = ${h.toFixed(2)}m，流速 v = √(2gH) = ${v.toFixed(2)} m/s -> <strong>Qo = 0.62 × ${ao.toFixed(4)} × ${v.toFixed(2)} = ${qo.toFixed(4)} cms</strong>`;
             }
 
             const weirB = parseFloat(document.getElementById('outflowWeirWidth')?.value) || 2.5;
@@ -38062,9 +38234,9 @@ ${optimizedBody}
             const step3 = document.getElementById('mathStep3Calc');
             if (step3) {
                 if (hw > 0) {
-                    step3.innerHTML = `代入：溢流深度 Hw = ${maxStage.toFixed(2)}m - ${weirCrest.toFixed(2)}m = ${hw.toFixed(2)}m ➔ <strong>Qw = (2/3) × 0.60 × ${weirB.toFixed(1)}m × 4.429 × (${hw.toFixed(2)})^1.5 = ${qw.toFixed(3)} cms</strong>`;
+                    step3.innerHTML = `代入：溢流深度 Hw = ${maxStage.toFixed(2)}m - ${weirCrest.toFixed(2)}m = ${hw.toFixed(2)}m -> <strong>Qw = (2/3) × 0.60 × ${weirB.toFixed(1)}m × 4.429 × (${hw.toFixed(2)})^1.5 = ${qw.toFixed(3)} cms</strong>`;
                 } else {
-                    step3.innerHTML = `代入：最高水位 (${maxStage.toFixed(2)}m) 未達溢流堰頂 (${weirCrest.toFixed(2)}m)，溢流深度 Hw = 0.00m ➔ <strong>Qw = 0.000 cms</strong> (安全餘裕未溢流)`;
+                    step3.innerHTML = `代入：最高水位 (${maxStage.toFixed(2)}m) 未達溢流堰頂 (${weirCrest.toFixed(2)}m)，溢流深度 Hw = 0.00m -> <strong>Qw = 0.000 cms</strong> (安全餘裕未溢流)`;
                 }
             }
         }
@@ -38261,142 +38433,260 @@ ${optimizedBody}
         // =========================================================================
         // 【專案中樞數據中樞】全域數據源雙向廣播綁定 (broadcastProjectHubData)
         // =========================================================================
+        let _isBroadcastingHub = false;
         function broadcastProjectHubData() {
-            // 1. 讀取專案管理中樞最新數值
-            const pName = document.getElementById('hubProjectName')?.value || '高雄市典寶溪D區滯洪池及週邊排水改善工程';
-            const cName = document.getElementById('hubClientName')?.value || '科技產業園區股份有限公司';
-            const landAddr = document.getElementById('hubLandAddress')?.value || '高雄市楠梓區德民路 / 楠梓段123地號';
-            const eng = document.getElementById('hubEngineer')?.value || '水利工程技師 簽證';
-            const pCode = document.getElementById('hubProjectCode')?.value || 'NOV-2026-HYD-01';
-            const lic = document.getElementById('hubLicense')?.value || '技工字第 012345 號';
-            const areaM2 = parseFloat(document.getElementById('hubAreaM2')?.value || document.getElementById('hubAreaSquareMeters')?.value) || 35000;
-            const areaHa = areaM2 / 10000;
+            if (_isBroadcastingHub) return;
+            _isBroadcastingHub = true;
+            try {
+                // 1. 讀取專案管理中樞最新數值 (以中樞為絕對唯一數據源)
+                const pName = document.getElementById('hubProjectName')?.value || '高雄市典寶溪D區滯洪池及週邊排水改善工程';
+                const cName = document.getElementById('hubClientName')?.value || '科技產業園區股份有限公司';
+                const landAddr = document.getElementById('hubLandAddress')?.value || '高雄市楠梓區德民路 / 楠梓段123地號';
+                const eng = document.getElementById('hubEngineer')?.value || '水利工程技師 簽證';
+                const pCode = document.getElementById('hubProjectCode')?.value || document.getElementById('metaProjectCode')?.value || document.getElementById('outflowMetaCode')?.value || 'NOV-2026-HYD-01';
+                const lic = document.getElementById('hubLicense')?.value || document.getElementById('metaLicense')?.value || document.getElementById('outflowMetaLicense')?.value || '技工字第 012345 號';
+                
+                let areaHa = 0;
+                const elHa = document.getElementById('hubAreaHa');
+                const elM2 = document.getElementById('hubAreaM2');
+                if (document.activeElement === elHa && elHa && elHa.value) {
+                    areaHa = parseFloat(elHa.value) || 0;
+                } else if (document.activeElement === elM2 && elM2 && elM2.value) {
+                    areaHa = (parseFloat(elM2.value) || 0) / 10000;
+                } else if (elHa && elHa.value) {
+                    areaHa = parseFloat(elHa.value) || 0;
+                } else if (elM2 && elM2.value) {
+                    areaHa = (parseFloat(elM2.value) || 0) / 10000;
+                } else {
+                    areaHa = 3.5;
+                }
+                const areaM2 = areaHa * 10000;
+                const areaPing = areaM2 * 0.3025;
 
-            const rawStation = document.getElementById('hubDispStationName')?.textContent?.replace(/[【】]/g, '').trim() || '高雄測站';
+                // 測站與縣市解析
+                let countyCode = (typeof currentProjectData !== 'undefined' && currentProjectData?.county) || 
+                                 document.getElementById('outflowCountySelect')?.value || 
+                                 document.getElementById('countySelect')?.value || 'KHH';
+                if (countyCode === 'PIN') countyCode = 'PTS';
+                if (countyCode === 'ILA') countyCode = 'ILN';
 
-            // 2. 自動同步更新水工水理計算 (Mode 1)
-            const generalPName = document.getElementById('metaProjectName') || document.getElementById('projectNameInput');
-            if (generalPName) generalPName.value = pName;
-            const generalClient = document.getElementById('metaClient');
-            if (generalClient) generalClient.value = cName;
-            const generalEng = document.getElementById('metaEngineer');
-            if (generalEng) generalEng.value = eng;
-            const generalLic = document.getElementById('metaLicense');
-            if (generalLic) generalLic.value = lic;
-            const generalCode = document.getElementById('metaProjectCode');
-            if (generalCode) generalCode.value = pCode;
-            const generalArea = document.getElementById('catchmentArea') || document.getElementById('paramArea');
-            if (generalArea) generalArea.value = areaHa.toFixed(4);
+                let rawStation = document.getElementById('hubDispStationName')?.textContent?.replace(/[【】]/g, '').trim() || '高雄測站';
+                let stationId = (typeof currentProjectData !== 'undefined' && currentProjectData?.stationId) || '';
 
-            // 更新水理模式連動狀態膠囊 (Mode 1 Status Pill)
-            const elSyncPName = document.getElementById('dispSyncProjName');
-            if (elSyncPName) elSyncPName.textContent = pName;
-            const elSyncClient = document.getElementById('dispSyncClient');
-            if (elSyncClient) elSyncClient.textContent = cName;
-            const elSyncEng = document.getElementById('dispSyncEngineer');
-            if (elSyncEng) elSyncEng.textContent = eng;
-            const elSyncStation = document.getElementById('dispSyncStation');
-            if (elSyncStation) elSyncStation.textContent = rawStation;
+                // 2. 自動同步水工水理計算 (Mode 1: 水工構造物水理計算)
+                const generalPName = document.getElementById('metaProjectName') || document.getElementById('projectNameInput');
+                if (generalPName) generalPName.value = pName;
+                const generalClient = document.getElementById('metaClient');
+                if (generalClient) generalClient.value = cName;
+                const generalEng = document.getElementById('metaEngineer');
+                if (generalEng) generalEng.value = eng;
+                const generalLic = document.getElementById('metaLicense');
+                if (generalLic) generalLic.value = lic;
+                const generalCode = document.getElementById('metaProjectCode');
+                if (generalCode) generalCode.value = pCode;
+                
+                const generalArea = document.getElementById('catchmentArea') || document.getElementById('paramArea');
+                if (generalArea) generalArea.value = areaHa.toFixed(4);
 
-            // 3. 自動同步更新出流管制計畫 (Mode 2)
-            const outflowPName = document.getElementById('outflowMetaProjectName');
-            if (outflowPName) outflowPName.value = pName;
-            const outflowClient = document.getElementById('outflowMetaClient');
-            if (outflowClient) outflowClient.value = cName;
-            const outflowLand = document.getElementById('outflowMetaLandNo');
-            if (outflowLand) outflowLand.value = landAddr;
-            const outflowEng = document.getElementById('outflowMetaEngineer');
-            if (outflowEng) outflowEng.value = eng;
-            const outflowLic = document.getElementById('outflowMetaLicense');
-            if (outflowLic) outflowLic.value = lic;
-            const outflowCode = document.getElementById('outflowMetaCode');
-            if (outflowCode) outflowCode.value = pCode;
-            const outflowArea = document.getElementById('outflowAreaHa');
-            if (outflowArea) outflowArea.value = areaHa.toFixed(4);
+                // 同步 Mode 1 縣市與測站選單
+                const cSelect = document.getElementById('countySelect');
+                if (cSelect && cSelect.value !== countyCode) {
+                    cSelect.value = countyCode;
+                    if (typeof onCountyChange === 'function') {
+                        onCountyChange();
+                    }
+                }
+                const sSelect = document.getElementById('stationSelect');
+                if (sSelect) {
+                    if (stationId) {
+                        sSelect.value = stationId;
+                    } else if (rawStation) {
+                        for (let i = 0; i < sSelect.options.length; i++) {
+                            if (sSelect.options[i].text.includes(rawStation) || sSelect.options[i].value.includes(rawStation)) {
+                                sSelect.selectedIndex = i;
+                                stationId = sSelect.value;
+                                break;
+                            }
+                        }
+                    }
+                }
 
-            const wizPName = document.getElementById('wizProjectName');
-            if (wizPName) wizPName.value = pName;
-            const wizCli = document.getElementById('wizClient');
-            if (wizCli) wizCli.value = cName;
+                // 更新 Mode 1 頂部連動狀態膠囊 (Mode 1 Status Pill)
+                const elSyncPName = document.getElementById('dispSyncProjName');
+                if (elSyncPName) elSyncPName.textContent = pName;
+                const elSyncClient = document.getElementById('dispSyncClient');
+                if (elSyncClient) elSyncClient.textContent = cName;
+                const elSyncEng = document.getElementById('dispSyncEngineer');
+                if (elSyncEng) elSyncEng.textContent = eng;
+                const elSyncStation = document.getElementById('dispSyncStation');
+                if (elSyncStation) elSyncStation.textContent = rawStation;
 
-            // 更新出流模式連動狀態膠囊 (Mode 2 Status Pill)
-            const elOutSyncPName = document.getElementById('dispSyncProjNameOutflow');
-            if (elOutSyncPName) elOutSyncPName.textContent = pName;
-            const elOutSyncClient = document.getElementById('dispSyncClientOutflow');
-            if (elOutSyncClient) elOutSyncClient.textContent = cName;
-            const elOutSyncEng = document.getElementById('dispSyncEngineerOutflow');
-            if (elOutSyncEng) elOutSyncEng.textContent = eng;
-            const elOutSyncStation = document.getElementById('dispSyncStationOutflow');
-            if (elOutSyncStation) elOutSyncStation.textContent = rawStation;
+                // 3. 自動同步水利法出流管制計畫 (Mode 2: 專家模式 + 出流精靈)
+                const outflowPName = document.getElementById('outflowMetaProjectName');
+                if (outflowPName) outflowPName.value = pName;
+                const outflowClient = document.getElementById('outflowMetaClient');
+                if (outflowClient) outflowClient.value = cName;
+                const outflowLand = document.getElementById('outflowMetaLandNo');
+                if (outflowLand) outflowLand.value = landAddr;
+                const outflowEng = document.getElementById('outflowMetaEngineer');
+                if (outflowEng) outflowEng.value = eng;
+                const outflowLic = document.getElementById('outflowMetaLicense');
+                if (outflowLic) outflowLic.value = lic;
+                const outflowCode = document.getElementById('outflowMetaCode');
+                if (outflowCode) outflowCode.value = pCode;
+                
+                const outflowArea = document.getElementById('outflowAreaHa');
+                if (outflowArea) outflowArea.value = areaHa.toFixed(4);
 
-            // 4. 同步更新 16:9 簡報模式連動
-            const presTitle = document.getElementById('presSlide1Title');
-            if (presTitle) presTitle.textContent = pName;
-            const presEng = document.getElementById('presSlide1Engineer');
-            if (presEng) presEng.textContent = '簽證技師：' + eng;
-            const presDate = document.getElementById('presSlide1Date');
-            if (presDate) presDate.textContent = '報告日期：' + new Date().toLocaleDateString('zh-TW');
+                // 出流管制縣市與測站
+                const outCSel = document.getElementById('outflowCountySelect');
+                if (outCSel && outCSel.value !== countyCode) {
+                    outCSel.value = countyCode;
+                    if (typeof updateOutflowCounty === 'function') {
+                        updateOutflowCounty();
+                    }
+                }
+                const outSSel = document.getElementById('outflowStationSelect');
+                if (outSSel) {
+                    if (stationId) {
+                        outSSel.value = stationId;
+                    } else if (rawStation) {
+                        for (let i = 0; i < outSSel.options.length; i++) {
+                            if (outSSel.options[i].text.includes(rawStation) || outSSel.options[i].value.includes(rawStation)) {
+                                outSSel.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
 
-            // 5. 更新 currentProjectData
-            if (typeof currentProjectData !== 'undefined' && currentProjectData) {
-                currentProjectData.name = pName;
-                currentProjectData.client = cName;
-                currentProjectData.landAddress = landAddr;
-                currentProjectData.engineer = eng;
-                currentProjectData.areaM2 = areaM2;
-                currentProjectData.areaHa = areaHa;
-                currentProjectData.areaPing = areaM2 * 0.3025;
+                // 同步出流精靈 Step 1 欄位 (Wizard Inputs)
+                const wizPName = document.getElementById('wizProjectName');
+                if (wizPName) wizPName.value = pName;
+                const wizCli = document.getElementById('wizClient');
+                if (wizCli) wizCli.value = cName;
+                const wizArea = document.getElementById('wizAreaHa');
+                if (wizArea) wizArea.value = areaHa.toFixed(4);
+                
+                const wizCSel = document.getElementById('wizCountySelect');
+                if (wizCSel && wizCSel.value !== countyCode) {
+                    wizCSel.value = countyCode;
+                }
+                if (typeof syncStationsToWizard === 'function') {
+                    syncStationsToWizard();
+                }
+
+                const elOutDispProj = document.getElementById('outflowDisplayProjName');
+                if (elOutDispProj) {
+                    if ('value' in elOutDispProj) elOutDispProj.value = pName;
+                    else elOutDispProj.textContent = pName;
+                }
+                const elOutDispCli = document.getElementById('outflowDisplayClient');
+                if (elOutDispCli) {
+                    if ('value' in elOutDispCli) elOutDispCli.value = cName;
+                    else elOutDispCli.textContent = cName;
+                }
+                const elOutProjTitle = document.getElementById('outflowProjectTitle');
+                if (elOutProjTitle) elOutProjTitle.textContent = pName;
+
+                // 更新 Mode 2 頂部連動狀態膠囊 (Mode 2 Status Pill)
+                const elOutSyncPName = document.getElementById('dispSyncProjNameOutflow');
+                if (elOutSyncPName) elOutSyncPName.textContent = pName;
+                const elOutSyncClient = document.getElementById('dispSyncClientOutflow');
+                if (elOutSyncClient) elOutSyncClient.textContent = cName;
+                const elOutSyncEng = document.getElementById('dispSyncEngineerOutflow');
+                if (elOutSyncEng) elOutSyncEng.textContent = eng;
+                const elOutSyncStation = document.getElementById('dispSyncStationOutflow');
+                if (elOutSyncStation) elOutSyncStation.textContent = rawStation;
+
+                // 4. 同步更新 16:9 簡報模式連動
+                const presTitle = document.getElementById('presProjTitle') || document.getElementById('presSlide1Title');
+                if (presTitle) presTitle.textContent = pName;
+                const presEng = document.getElementById('presSlide1Engineer');
+                if (presEng) presEng.textContent = '簽證技師：' + eng;
+                const presDate = document.getElementById('presSlide1Date');
+                if (presDate) presDate.textContent = '報告日期：' + new Date().toLocaleDateString('zh-TW');
+
+                // 5. 更新中央數據模型 currentProjectData
+                if (typeof currentProjectData !== 'undefined' && currentProjectData) {
+                    currentProjectData.name = pName;
+                    currentProjectData.client = cName;
+                    currentProjectData.landAddress = landAddr;
+                    currentProjectData.engineer = eng;
+                    currentProjectData.areaM2 = areaM2;
+                    currentProjectData.areaHa = areaHa;
+                    currentProjectData.areaPing = areaPing;
+                    currentProjectData.county = countyCode;
+                    currentProjectData.station = rawStation;
+                    if (stationId) currentProjectData.stationId = stationId;
+                    try {
+                        localStorage.setItem('novera_proj_' + currentProjectData.id, JSON.stringify(currentProjectData));
+                    } catch(e) {}
+                }
+
+                // 6. 確保 LocalStorage 紀錄專案中樞值
+                if (typeof saveProjectMeta === 'function') saveProjectMeta();
+
+                // 7. 觸發水理與出流演算即時連動更新
+                if (typeof calculateOutflow === 'function') calculateOutflow();
+                if (typeof updateHydrology === 'function') updateHydrology();
+                if (typeof calculateHydraulics === 'function') calculateHydraulics();
+                if (typeof syncExpertToWizard === 'function') syncExpertToWizard();
+            } finally {
+                _isBroadcastingHub = false;
             }
-
-            // 6. 確保 LocalStorage 紀錄專案中樞值
-            if (typeof saveProjectMeta === 'function') saveProjectMeta();
-
-            // 7. 觸發水理與出流演算更新
-            if (typeof calculateOutflow === 'function') calculateOutflow();
-            if (typeof calculateAll === 'function') calculateAll();
         }
 
+        let _isSyncingArea = false;
         function syncHubAreaFrom(sourceUnit, rawVal) {
-            const val = parseFloat(rawVal) || 0;
-            let m2 = 0, ha = 0, ping = 0;
-            if (sourceUnit === 'm2') {
-                m2 = val;
-                ha = val / 10000;
-                ping = val * 0.3025;
-            } else if (sourceUnit === 'ha') {
-                ha = val;
-                m2 = val * 10000;
-                ping = m2 * 0.3025;
-            } else if (sourceUnit === 'ping') {
-                ping = val;
-                m2 = val / 0.3025;
-                ha = m2 / 10000;
+            if (_isSyncingArea) return;
+            _isSyncingArea = true;
+            try {
+                const val = parseFloat(rawVal) || 0;
+                let m2 = 0, ha = 0, ping = 0;
+                if (sourceUnit === 'm2') {
+                    m2 = val;
+                    ha = val / 10000;
+                    ping = val * 0.3025;
+                } else if (sourceUnit === 'ha') {
+                    ha = val;
+                    m2 = val * 10000;
+                    ping = m2 * 0.3025;
+                } else if (sourceUnit === 'ping') {
+                    ping = val;
+                    m2 = val / 0.3025;
+                    ha = m2 / 10000;
+                }
+
+                const elM2 = document.getElementById('hubAreaM2');
+                const elHa = document.getElementById('hubAreaHa');
+                const elPing = document.getElementById('hubAreaPing');
+                if (elM2 && document.activeElement !== elM2) elM2.value = m2 ? m2.toFixed(2) : '';
+                if (elHa && document.activeElement !== elHa) elHa.value = ha ? ha.toFixed(4) : '';
+                if (elPing && document.activeElement !== elPing) elPing.value = ping ? ping.toFixed(2) : '';
+
+                const elOldM2 = document.getElementById('hubAreaSquareMeters');
+                if (elOldM2) elOldM2.value = m2 ? Math.round(m2) : '';
+                const elHaDisp = document.getElementById('hubAreaHaDisplay');
+                if (elHaDisp) elHaDisp.textContent = (ha || 0).toFixed(4) + ' ha';
+                const elPingDisp = document.getElementById('hubAreaPingDisplay');
+                if (elPingDisp) elPingDisp.textContent = (ping || 0).toFixed(1) + ' 坪';
+
+                if (typeof currentProjectData !== 'undefined' && currentProjectData) {
+                    currentProjectData.areaM2 = m2;
+                    currentProjectData.areaHa = ha;
+                    currentProjectData.areaPing = ping;
+                }
+
+                const outflowArea = document.getElementById('outflowAreaHa');
+                if (outflowArea && sourceUnit !== 'ha') outflowArea.value = ha.toFixed(4);
+                const wizArea = document.getElementById('wizAreaHa');
+                if (wizArea) wizArea.value = ha.toFixed(4);
+                const hydArea = document.getElementById('catchmentArea') || document.getElementById('paramArea');
+                if (hydArea && sourceUnit !== 'ha') hydArea.value = ha.toFixed(4);
+            } finally {
+                _isSyncingArea = false;
             }
-
-            const elM2 = document.getElementById('hubAreaM2');
-            const elHa = document.getElementById('hubAreaHa');
-            const elPing = document.getElementById('hubAreaPing');
-            if (sourceUnit !== 'm2' && elM2) elM2.value = m2 ? m2.toFixed(2) : '';
-            if (sourceUnit !== 'ha' && elHa) elHa.value = ha ? ha.toFixed(4) : '';
-            if (sourceUnit !== 'ping' && elPing) elPing.value = ping ? ping.toFixed(2) : '';
-
-            const elOldM2 = document.getElementById('hubAreaSquareMeters');
-            if (elOldM2) elOldM2.value = m2 ? Math.round(m2) : '';
-            const elHaDisp = document.getElementById('hubAreaHaDisplay');
-            if (elHaDisp) elHaDisp.textContent = (ha || 0).toFixed(4) + ' ha';
-            const elPingDisp = document.getElementById('hubAreaPingDisplay');
-            if (elPingDisp) elPingDisp.textContent = (ping || 0).toFixed(1) + ' 坪';
-
-            if (typeof currentProjectData !== 'undefined' && currentProjectData) {
-                currentProjectData.areaM2 = m2;
-                currentProjectData.areaHa = ha;
-                currentProjectData.areaPing = ping;
-            }
-
-            const outflowArea = document.getElementById('outflowAreaHa');
-            if (outflowArea) outflowArea.value = ha.toFixed(4);
-            const hydArea = document.getElementById('catchmentArea') || document.getElementById('paramArea');
-            if (hydArea) hydArea.value = ha.toFixed(4);
 
             broadcastProjectHubData();
             if (typeof calculateOutflow === 'function') calculateOutflow();
@@ -38477,21 +38767,10 @@ ${optimizedBody}
                     renderHubImageSlot('hubSlotTopo', '', '3. 現況地形測量等高線圖');
                 }
 
-                // 3. 恢復該專案的氣象測站設定
+                // 3. 恢復該專案的氣象測站設定 (連動 Mode 1 與 Mode 2)
                 if (project.county && project.station) {
-                    const cSel = document.getElementById('outflowCountySelect');
-                    if (cSel) {
-                        cSel.value = project.county;
-                        if (typeof updateOutflowStations === 'function') updateOutflowStations();
-                        const sSel = document.getElementById('outflowStationSelect');
-                        if (sSel) {
-                            for (let i = 0; i < sSel.options.length; i++) {
-                                if (sSel.options[i].text.includes(project.station) || sSel.options[i].value === project.stationId) {
-                                    sSel.selectedIndex = i;
-                                    break;
-                                }
-                            }
-                        }
+                    if (typeof applyQuickCity === 'function') {
+                        applyQuickCity(project.county, project.station, project.county, project.returnPeriod || 5);
                     }
                 } else if (project.station && typeof handleSmartLocationSearch === 'function') {
                     handleSmartLocationSearch(project.station);
@@ -38828,13 +39107,16 @@ ${optimizedBody}
         }
 
         // 頁面加載初始化 Project Hub 並嚴格鎖定預設顯示中樞
-        window.addEventListener('DOMContentLoaded', () => {
+        let _hasInitializedHub = false;
+        function ensureProjectHubInitialized() {
+            if (_hasInitializedHub) return;
+            _hasInitializedHub = true;
             initProjectHub();
             switchMainSystemMode('project_hub');
-        });
+        }
+        addEventListener('DOMContentLoaded', ensureProjectHubInitialized);
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            initProjectHub();
-            switchMainSystemMode('project_hub');
+            ensureProjectHubInitialized();
         }
 
 </script>
