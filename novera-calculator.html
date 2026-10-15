@@ -910,7 +910,7 @@
                                 構件交會扣除
                             </label>
                             <select id="deduction-mode-select" onchange="handleWastageModeChange()" class="border border-[var(--border-plasma)]">
-                                <option value="net_qs" selected>依公共工程標準 (柱貫通，樑扣兩端柱交會1.0m，板折減5%)</option>
+                                <option value="net_qs" selected>依公共工程標準 (柱貫通，樑依柱寬扣除交會，板折減5%)</option>
                                 <option value="gross">粗估毛量模式 (幾何中心線全算，未扣交會重複)</option>
                             </select>
                         </div>
@@ -1028,7 +1028,7 @@
                             <div class="relative flex-1">
                                 <input type="text" id="quick-command-input" 
                                     class="w-full bg-black/60 border border-[var(--border-plasma)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--text-glow)] font-mono focus:border-[var(--accent-cyan)] focus:shadow-[0_0_15px_rgba(0,255,255,0.4)] outline-none transition-all placeholder:text-gray-500" 
-                                    placeholder="極速填單（例如輸入：C1 60*60 12-#8 #4@15 3.6m 或 B1 40*70 T4-#8 B3-#8 6m 邊跨，按 Enter 立即新增）"
+                                    placeholder="極速輸入指令 (例: C1 60*60 3.2m 12-#8 #4@15 | 2G1 50*70 7.4m 5-#10 2-#10 #4@15 | S1 7.2*6.8 t=15 #4@15 #4@20 | W1 L=16.8 H=3.6 t=20 #4@15 #4@15)... 按 Enter 即刻生成！"
                                     onkeydown="if(event.key === 'Enter'){ executeQuickCommand(); }">
                             </div>
                             <button type="button" class="btn btn-action whitespace-nowrap text-sm px-4 py-2 flex items-center gap-1.5" onclick="executeQuickCommand()">
@@ -1258,7 +1258,7 @@
 
         const rebarGrades = ['SD280', 'SD280W', 'SD420', 'SD420W', 'SD490', 'SD490W', 'SD690'];
 
-        const stirrupSpacing = ['耐震標準: 端部@10cm / 中央@15cm', '耐震加強: 端部@10cm / 中央@20cm', '10 cm', '15 cm', '20 cm', '25 cm'];
+        const stirrupSpacing = ['耐震標準: 端部@10cm / 中央@15cm', '耐震加強: 端部@10cm / 中央@20cm', '#4@10/15', '端部@10/中央@15', '10 cm', '15 cm', '20 cm', '25 cm'];
 
         function toggleColumnShape(select) {
             const form = select.closest('.rebar-input-container');
@@ -1580,7 +1580,7 @@
                     specificFields = `<div class="input-group"><label>柱編號</label><input type="text" class="form-component-id" placeholder="例如: C1" value="C1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>柱斷面形狀</label><select class="form-column-shape" onchange="toggleColumnShape(this)"><option value="rect" selected>矩形柱 (長x寬)</option><option value="circle">圓形柱 (直徑 D)</option></select></div> <div class="input-group"><label class="label-section-a">柱長 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group group-section-b"><label class="label-section-b">柱寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group"><label>構件高 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.2" inputmode="decimal" value="3.2"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 12" inputmode="numeric" value="12"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing">${createSpacingOptions('15 cm')}</select></div> <div class="input-group"><label>續接器</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
 
                 case 'beam':
-                    specificFields = `<div class="input-group"><label>樑編號</label><input type="text" class="form-component-id" placeholder="例如: B1" value="B1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>跨別型式</label><select class="form-beam-span-type"><option value="exterior" selected>邊跨 (外端錨定 90° 彎鉤 + 內端直通搭接)</option><option value="interior">內跨 / 連續跨 (兩端直通搭接，無端部彎鉤)</option><option value="simple">單跨 / 獨立樑 (兩端 90° 耐震錨定彎鉤)</option><option value="cantilever">懸臂跨 / 挑樑 (柱端充分錨定 + 挑出端向下彎折)</option></select></div> <div class="input-group"><label>頂筋配筋形式</label><select class="form-top-rebar-mode"><option value="continuous" selected>全跨貫通/搭接 (標準)</option><option value="cutoff">耐震截斷 (2支通長+餘支端部截斷Ln/3)</option></select></div> <div class="input-group"><label>構件長 (m)</label><input type="text" class="form-component-length" placeholder="例如: 6.0" inputmode="decimal" value="6.0"></div> <div class="input-group"><label>斷面高 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 70" inputmode="numeric" value="70"></div> <div class="input-group"><label>斷面寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 40" inputmode="numeric" value="40"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>頂筋號數</label><select class="form-top-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>頂筋數量</label><input type="text" class="form-top-rebar-count" placeholder="例如: 4" inputmode="numeric" value="4"></div> <div class="input-group"><label>底筋號數</label><select class="form-bottom-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>底筋數量</label><input type="text" class="form-bottom-rebar-count" placeholder="例如: 3" inputmode="numeric" value="3"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing">${createSpacingOptions('10 cm')}</select></div> <div class="input-group"><label>腰筋號數</label><select class="form-waist-rebar-size"><option value="無">無</option>${createRebarOptions('#4 (13mm)')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
+                    specificFields = `<div class="input-group"><label>樑編號</label><input type="text" class="form-component-id" placeholder="例如: B1" value="B1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>跨別型式</label><select class="form-beam-span-type"><option value="exterior" selected>邊跨 (外端錨定 90° 彎鉤 + 內端直通搭接)</option><option value="interior">內跨 / 連續跨 (兩端直通搭接，無端部彎鉤)</option><option value="simple">單跨 / 獨立樑 (兩端 90° 耐震錨定彎鉤)</option><option value="cantilever">懸臂跨 / 挑樑 (柱端充分錨定 + 挑出端向下彎折)</option></select></div> <div class="input-group"><label>頂筋配筋形式</label><select class="form-top-rebar-mode"><option value="continuous" selected>全跨貫通/搭接 (標準)</option><option value="cutoff">耐震截斷 (2支通長+餘支端部截斷Ln/3)</option></select></div> <div class="input-group"><label>構件長 (m)</label><input type="text" class="form-component-length" placeholder="例如: 6.0" inputmode="decimal" value="6.0"></div> <div class="input-group"><label>斷面高 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 70" inputmode="numeric" value="70"></div> <div class="input-group"><label>斷面寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 40" inputmode="numeric" value="40"></div> <div class="input-group"><label>支承柱寬 (cm)</label><input type="text" class="form-support-width" placeholder="例如: 60" inputmode="numeric" value="60"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>頂筋號數</label><select class="form-top-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>頂筋數量</label><input type="text" class="form-top-rebar-count" placeholder="例如: 4" inputmode="numeric" value="4"></div> <div class="input-group"><label>底筋號數</label><select class="form-bottom-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>底筋數量</label><input type="text" class="form-bottom-rebar-count" placeholder="例如: 3" inputmode="numeric" value="3"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing">${createSpacingOptions('耐震標準: 端部@10cm / 中央@15cm')}</select></div> <div class="input-group"><label>腰筋號數</label><select class="form-waist-rebar-size"><option value="無">無</option>${createRebarOptions('#4 (13mm)')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
 
                 case 'slab':
                     specificFields = `<div class="input-group"><label>版編號</label><input type="text" class="form-component-id" placeholder="例如: S1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 8.0" inputmode="decimal"></div> <div class="input-group"><label>寬度 (m)</label><input type="text" class="form-component-width" placeholder="例如: 6.0" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="例如: 15" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group"><label>X向主筋尺寸</label><select class="form-main-rebar-size-x">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>X向間距 (cm)</label><select class="form-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group"><label>Y向主筋尺寸</label><select class="form-main-rebar-size-y">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>Y向間距 (cm)</label><select class="form-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group md:col-span-2"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
@@ -2746,65 +2746,86 @@
             const firstToken = tokens[0] || '';
             const firstUpper = firstToken.toUpperCase();
 
+            // 1. 識別構件類型 (柱 column, 樑 beam, 版 slab, 牆 wall)
             let type = 'column';
             let id = firstToken;
 
-            if (/^(C\d*|[1-9]C\d*|COL|柱)/i.test(firstUpper)) {
-                type = 'column';
-            } else if (/^(B\d*|[1-9]B\d*|G\d*|FG\d*|BEAM|樑|梁)/i.test(firstUpper)) {
+            if (/^(CS\d*|[1-9]CS\d*|S\d*|[1-9]S\d*|FS\d*|SLAB\d*|板\d*|版\d*)$/i.test(firstUpper)) {
+                type = 'slab';
+            } else if (/^(CW\d*|W\d*|[1-9]W\d*|WALL\d*|PARAPET\d*|牆\d*|女兒牆\d*|RC牆\d*|剪力牆\d*)$/i.test(firstUpper)) {
+                type = 'wall';
+            } else if (/^(CG\d*|B\d*|[1-9][BG]\d*|G\d*|FG\d*|BEAM\d*|樑\d*|梁\d*)$/i.test(firstUpper)) {
                 type = 'beam';
+            } else if (/^(C\d*|[1-9]C\d*|COL\d*|柱\d*)$/i.test(firstUpper)) {
+                type = 'column';
             } else {
+                // 關鍵字退耦判定
                 if (/[TB頂底]\d+/i.test(cmd)) {
                     type = 'beam';
+                } else if (/(?:雙向|雙層|單層|厚度|t=\d+|T\d+|版|板)/i.test(cmd)) {
+                    type = 'slab';
+                } else if (/(?:剪力牆|女兒牆|牆|WALL|PARAPET)/i.test(cmd)) {
+                    type = 'wall';
                 } else {
                     type = 'column';
                 }
-                id = firstToken || (type === 'column' ? 'C1' : 'B1');
+                id = firstToken || (type === 'column' ? 'C1' : type === 'beam' ? 'B1' : type === 'slab' ? 'S1' : 'W1');
             }
 
             const workStr = cmd.substring(firstToken.length);
 
-            // 尺寸解析 (圓柱或矩形)
+            // 尺寸解析 (圓柱或矩形) - 柱與樑專用
             let shape = 'rect';
             let sectionA = null;
             let sectionB = null;
 
-            const mCircle = workStr.match(/(?:直徑|圓|DIA|D\s*[=:]?\s*)(\d+)/i);
-            if (mCircle && type === 'column') {
-                shape = 'circle';
-                sectionA = parseFloat(mCircle[1]);
-                sectionB = sectionA;
-            } else {
+            if (type === 'column') {
+                const mCircle = workStr.match(/(?:直徑|圓|DIA|D\s*[=:]?\s*)(\d+)/i);
+                if (mCircle) {
+                    shape = 'circle';
+                    sectionA = parseFloat(mCircle[1]);
+                    sectionB = sectionA;
+                } else {
+                    const mRect = workStr.match(/(\d+)\s*[*xX×]\s*(\d+)/);
+                    if (mRect) {
+                        sectionA = parseFloat(mRect[1]);
+                        sectionB = parseFloat(mRect[2]);
+                    }
+                }
+            } else if (type === 'beam') {
                 const mRect = workStr.match(/(\d+)\s*[*xX×]\s*(\d+)/);
                 if (mRect) {
                     const d1 = parseFloat(mRect[1]);
                     const d2 = parseFloat(mRect[2]);
-                    if (type === 'beam') {
-                        sectionB = Math.min(d1, d2); // 寬度 b
-                        sectionA = Math.max(d1, d2); // 深度/高 h
-                    } else {
-                        sectionA = d1;
-                        sectionB = d2;
-                    }
+                    sectionB = Math.min(d1, d2); // 寬度 b
+                    sectionA = Math.max(d1, d2); // 深度/高 h
                 }
             }
 
-            // 長度 / 柱高
+            // 長度 / 柱高 (柱與樑專用)
             let length = null;
             const mLen = workStr.match(/(?:[HL=:]\s*)?(\d+(?:\.\d+)?)\s*(m|M|cm|CM)\b/);
-            if (mLen) {
+            if (mLen && (type === 'column' || type === 'beam')) {
                 let val = parseFloat(mLen[1]);
                 if (mLen[2].toLowerCase() === 'cm') val /= 100.0;
                 length = val;
             }
 
-            // 箍筋: #4@15, #3@10, @15
+            // 箍筋 (柱與樑專用): #4@10/15, #4@15, #3@10, @15, 端部@10/中央@15
             let stirrupSize = null;
             let stirrupSpacing = null;
-            const mStirrup = workStr.match(/(?:(#\d+|D\d+))?\s*@\s*(\d+)/i);
-            if (mStirrup) {
-                if (mStirrup[1]) stirrupSize = mStirrup[1].toUpperCase();
-                stirrupSpacing = `${mStirrup[2]} cm`;
+            if (type === 'column' || type === 'beam') {
+                const mStirrupDual = workStr.match(/(?:(#\d+|D\d+))?\s*@?\s*(?:端部@?)?(\d+)\s*[\/|,]\s*(?:中央@?)?(\d+)/i);
+                if (mStirrupDual) {
+                    if (mStirrupDual[1]) stirrupSize = mStirrupDual[1].toUpperCase();
+                    stirrupSpacing = `#4@${mStirrupDual[2]}/${mStirrupDual[3]}`;
+                } else {
+                    const mStirrup = workStr.match(/(?:(#\d+|D\d+))?\s*@\s*(\d+)/i);
+                    if (mStirrup) {
+                        if (mStirrup[1]) stirrupSize = mStirrup[1].toUpperCase();
+                        stirrupSpacing = `${mStirrup[2]} cm`;
+                    }
+                }
             }
 
             // 鋼筋號數正則
@@ -2852,6 +2873,97 @@
                 else if (workStr.includes('通長') || workStr.toLowerCase().includes('continuous')) topRebarMode = 'continuous';
             }
 
+            // ==========================================
+            // 【版與牆專屬參數解析】
+            // ==========================================
+            // 1. 厚度解析 (cm): t=15, T15, 15cm, 厚15, T:15
+            let thickness = null;
+            const mThick = workStr.match(/(?:[tT厚][=:]?\s*|厚度\s*[=:]?\s*)(\d+(?:\.\d+)?)\s*(?:cm|CM)?\b/);
+            if (mThick) {
+                thickness = parseFloat(mThick[1]);
+            }
+
+            // 2. 版/牆的平面長寬或長高解析
+            let slabLength = null;
+            let slabWidth = null;
+            let wallHeight = null;
+
+            // 支援 L=16.8, H=3.6, W=6.8 語法
+            const mLenExplicit = workStr.match(/(?:[lL長][=:]?\s*)(\d+(?:\.\d+)?)\s*(m|M|cm|CM)?\b/);
+            const mWidExplicit = workStr.match(/(?:[wW寬][=:]?\s*)(\d+(?:\.\d+)?)\s*(m|M|cm|CM)?\b/);
+            const mHeiExplicit = workStr.match(/(?:[hH高][=:]?\s*)(\d+(?:\.\d+)?)\s*(m|M|cm|CM)?\b/);
+            if (mLenExplicit) {
+                let v = parseFloat(mLenExplicit[1]);
+                if (mLenExplicit[2] && mLenExplicit[2].toLowerCase() === 'cm') v /= 100;
+                slabLength = v;
+            }
+            if (mWidExplicit) {
+                let v = parseFloat(mWidExplicit[1]);
+                if (mWidExplicit[2] && mWidExplicit[2].toLowerCase() === 'cm') v /= 100;
+                slabWidth = v;
+            }
+            if (mHeiExplicit) {
+                let v = parseFloat(mHeiExplicit[1]);
+                if (mHeiExplicit[2] && mHeiExplicit[2].toLowerCase() === 'cm') v /= 100;
+                wallHeight = v;
+            }
+
+            // 支援星號尺寸: 7.2*6.8 (版長寬) 或 720*680 (cm) 或 12m*3.2m
+            if (type === 'slab' || type === 'wall') {
+                const mStar = workStr.match(/(\d+(?:\.\d+)?)\s*(?:m|M|cm|CM)?\s*[*xX×]\s*(\d+(?:\.\d+)?)\s*(?:m|M|cm|CM)?/);
+                if (mStar) {
+                    let v1 = parseFloat(mStar[1]);
+                    let v2 = parseFloat(mStar[2]);
+                    // 若輸入大於 50 視為 cm，換算為 m (如 720*680 -> 7.2*6.8)
+                    if (v1 >= 50) v1 /= 100;
+                    if (v2 >= 50) v2 /= 100;
+
+                    if (type === 'slab') {
+                        if (slabLength === null) slabLength = Math.max(v1, v2);
+                        if (slabWidth === null) slabWidth = Math.min(v1, v2);
+                    } else if (type === 'wall') {
+                        if (slabLength === null) slabLength = Math.max(v1, v2);
+                        if (wallHeight === null) wallHeight = Math.min(v1, v2);
+                    }
+                }
+            }
+
+            // 3. 配筋層數解析 (雙層/雙排 vs 單層/單排)
+            let rebarLayers = '雙層';
+            if (workStr.includes('單層') || workStr.includes('單排') || workStr.toLowerCase().includes('single')) {
+                rebarLayers = '單層';
+            } else if (workStr.includes('雙層') || workStr.includes('雙排') || workStr.includes('雙向') || workStr.toLowerCase().includes('double')) {
+                rebarLayers = '雙層';
+            }
+
+            // 4. 版牆雙向鋼筋解析 (例: #4@15 #4@20 或 2-#4@15)
+            let rebarSizeX = null, rebarSpacingX = null;
+            let rebarSizeY = null, rebarSpacingY = null;
+            if (type === 'slab' || type === 'wall') {
+                const rebarGridMatches = [...workStr.matchAll(/(#\d+|D\d+)\s*@\s*(\d+)/gi)];
+                if (rebarGridMatches.length >= 1) {
+                    rebarSizeX = rebarGridMatches[0][1].toUpperCase();
+                    rebarSpacingX = `${rebarGridMatches[0][2]} cm`;
+                    if (rebarGridMatches.length >= 2) {
+                        rebarSizeY = rebarGridMatches[1][1].toUpperCase();
+                        rebarSpacingY = `${rebarGridMatches[1][2]} cm`;
+                    } else {
+                        // 若只填一組，雙向同尺寸間距
+                        rebarSizeY = rebarSizeX;
+                        rebarSpacingY = rebarSpacingX;
+                    }
+                }
+            }
+
+            // 5. 數量解析 (支援 *12, x12, 12支, 12塊, 共12)
+            // 先移除已經匹配到的長寬尺寸 (如 7.2*6.8 或 60*60 或 12m*3.2m)，避免尺寸中的星號被誤判為數量
+            let compCount = null;
+            const countSearchStr = workStr.replace(/(\d+(?:\.\d+)?)\s*(?:m|M|cm|CM)?\s*[*xX×]\s*(\d+(?:\.\d+)?)\s*(?:m|M|cm|CM)?/i, '');
+            const mCount = countSearchStr.match(/(?:[*xX×]\s*|共\s*|數量\s*[=:]?\s*)(\d+)\s*(?:支|跨|組|塊)?\b/);
+            if (mCount) {
+                compCount = parseInt(mCount[1], 10);
+            }
+
             // 切換至對應分頁並新增表單
             if (typeof showTab === 'function') showTab(type);
             const newForm = addForm(type, false);
@@ -2859,14 +2971,52 @@
             function selectOptionFuzzy(selectEl, needle) {
                 if (!selectEl || !needle) return;
                 const needleClean = needle.replace(/[#\s]/g, '').toLowerCase();
+                let matched = false;
+                // 1. 開頭前綴比對 (例如 #10 優先比對 #10，避免誤選 #3 (10mm))
                 for (let i = 0; i < selectEl.options.length; i++) {
-                    const optText = selectEl.options[i].text.replace(/[#\s]/g, '').toLowerCase();
-                    const optVal = selectEl.options[i].value.replace(/[#\s]/g, '').toLowerCase();
-                    if (optText.includes(needleClean) || optVal.includes(needleClean)) {
+                    const optText = selectEl.options[i].text.trim().toLowerCase();
+                    const optVal = selectEl.options[i].value.trim().toLowerCase();
+                    const needleLower = needle.trim().toLowerCase();
+                    if (optText.startsWith(needleLower) || optVal.startsWith(needleLower)) {
                         selectEl.selectedIndex = i;
                         selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                        matched = true;
                         break;
                     }
+                }
+                // 2. 鋼筋開頭號數比對
+                if (!matched) {
+                    for (let i = 0; i < selectEl.options.length; i++) {
+                        const optText = selectEl.options[i].text.replace(/[#\s]/g, '').toLowerCase();
+                        const m = optText.match(/^([0-9]+)/);
+                        if (m && m[1] === needleClean) {
+                            selectEl.selectedIndex = i;
+                            selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+                // 3. 通用包含比對
+                if (!matched) {
+                    for (let i = 0; i < selectEl.options.length; i++) {
+                        const optText = selectEl.options[i].text.replace(/[#\s]/g, '').toLowerCase();
+                        const optVal = selectEl.options[i].value.replace(/[#\s]/g, '').toLowerCase();
+                        if (optText.includes(needleClean) || optVal.includes(needleClean)) {
+                            selectEl.selectedIndex = i;
+                            selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+                if (!matched) {
+                    const newOpt = document.createElement('option');
+                    newOpt.value = needle;
+                    newOpt.text = needle;
+                    newOpt.selected = true;
+                    selectEl.appendChild(newOpt);
+                    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             }
 
@@ -2909,6 +3059,10 @@
                 }
                 if (stirrupSpacing) {
                     selectOptionFuzzy(newForm.querySelector('.form-stirrup-spacing'), stirrupSpacing);
+                }
+                if (compCount !== null) {
+                    const elC = newForm.querySelector('.form-component-count');
+                    if (elC) { elC.value = compCount; elC.dispatchEvent(new Event('input', { bubbles: true })); }
                 }
             } else if (type === 'beam') {
                 if (sectionA !== null) {
@@ -2954,6 +3108,62 @@
                     const elMode = newForm.querySelector('.form-top-rebar-mode');
                     if (elMode) { elMode.value = topRebarMode; elMode.dispatchEvent(new Event('change', { bubbles: true })); }
                 }
+                if (compCount !== null) {
+                    const elC = newForm.querySelector('.form-component-count');
+                    if (elC) { elC.value = compCount; elC.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
+            } else if (type === 'slab') {
+                // 注入版專屬欄位
+                if (slabLength !== null) {
+                    const elL = newForm.querySelector('.form-component-length');
+                    if (elL) { elL.value = slabLength; elL.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
+                if (slabWidth !== null) {
+                    const elW = newForm.querySelector('.form-component-width');
+                    if (elW) { elW.value = slabWidth; elW.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
+                if (thickness !== null) {
+                    const elT = newForm.querySelector('.form-component-thickness');
+                    if (elT) { elT.value = thickness; elT.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
+                if (rebarLayers) {
+                    const elLayers = newForm.querySelector('.form-rebar-layers');
+                    if (elLayers) { elLayers.value = rebarLayers; elLayers.dispatchEvent(new Event('change', { bubbles: true })); }
+                }
+                if (rebarSizeX) selectOptionFuzzy(newForm.querySelector('.form-main-rebar-size-x'), rebarSizeX);
+                if (rebarSpacingX) selectOptionFuzzy(newForm.querySelector('.form-rebar-spacing-x'), rebarSpacingX);
+                if (rebarSizeY) selectOptionFuzzy(newForm.querySelector('.form-main-rebar-size-y'), rebarSizeY);
+                if (rebarSpacingY) selectOptionFuzzy(newForm.querySelector('.form-rebar-spacing-y'), rebarSpacingY);
+                if (compCount !== null) {
+                    const elC = newForm.querySelector('.form-component-count');
+                    if (elC) { elC.value = compCount; elC.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
+            } else if (type === 'wall') {
+                // 注入牆專屬欄位
+                if (slabLength !== null) {
+                    const elL = newForm.querySelector('.form-component-length');
+                    if (elL) { elL.value = slabLength; elL.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
+                if (wallHeight !== null) {
+                    const elH = newForm.querySelector('.form-component-height');
+                    if (elH) { elH.value = wallHeight; elH.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
+                if (thickness !== null) {
+                    const elT = newForm.querySelector('.form-component-thickness');
+                    if (elT) { elT.value = thickness; elT.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
+                if (rebarLayers) {
+                    const elLayers = newForm.querySelector('.form-rebar-layers');
+                    if (elLayers) { elLayers.value = rebarLayers; elLayers.dispatchEvent(new Event('change', { bubbles: true })); }
+                }
+                if (rebarSizeX) selectOptionFuzzy(newForm.querySelector('.form-main-rebar-size-x'), rebarSizeX);
+                if (rebarSpacingX) selectOptionFuzzy(newForm.querySelector('.form-rebar-spacing-x'), rebarSpacingX);
+                if (rebarSizeY) selectOptionFuzzy(newForm.querySelector('.form-main-rebar-size-y'), rebarSizeY);
+                if (rebarSpacingY) selectOptionFuzzy(newForm.querySelector('.form-rebar-spacing-y'), rebarSpacingY);
+                if (compCount !== null) {
+                    const elC = newForm.querySelector('.form-component-count');
+                    if (elC) { elC.value = compCount; elC.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
             }
 
             if (typeof updateFormIdentifier === 'function') updateFormIdentifier(newForm);
@@ -2977,8 +3187,9 @@
             if (res) {
                 if (typeof playSound === 'function') playSound('success');
                 if (feedback) {
+                    const typeLabels = { column: '柱', beam: '樑', slab: '版', wall: '牆' };
                     feedback.className = 'mt-2 text-xs font-mono text-emerald-300 font-semibold flex items-center gap-1.5';
-                    feedback.innerHTML = `成功生成構件 【${res.id}】(${res.type === 'column' ? '柱' : '樑'}斷面已完成即時配筋繪圖)！`;
+                    feedback.innerHTML = `成功生成構件 【${res.id}】(${typeLabels[res.type] || '構件'} 表單已自動建立並完成數量試算)！`;
                     feedback.classList.remove('hidden');
                     setTimeout(() => feedback.classList.add('hidden'), 4000);
                 }
@@ -2986,7 +3197,7 @@
             } else {
                 if (feedback) {
                     feedback.className = 'mt-2 text-xs font-mono text-rose-400 font-semibold flex items-center gap-1.5';
-                    feedback.innerHTML = `無法解析代碼，請依格式輸入（例如: C1 60*60 12-#8 #4@15 3.2m）`;
+                    feedback.innerHTML = `無法解析代碼，請依格式輸入（例如: C1 60*60 12-#8 #4@15 3.2m 或 S1 7.2*6.8 t=15 #4@15 #4@20）`;
                     feedback.classList.remove('hidden');
                     setTimeout(() => feedback.classList.add('hidden'), 4000);
                 }
@@ -3424,14 +3635,28 @@
             const actualBotSize = (topRebarCountB > 0 || bottomRebarCountB > 0) ? bottomRebarSizeB : fallbackMainSize;
 
             const stirrupSizeB = form.querySelector('.form-stirrup-size')?.value;
-            const stirrupSpacingB = parseFloat(form.querySelector('.form-stirrup-spacing')?.value.replace(' cm', '')) || 0;
+            const rawStirrupSpacingB = form.querySelector('.form-stirrup-spacing')?.value || '15 cm';
+            let sb1 = 15, sb2 = 15;
+            let isBeamDualSpacing = false;
+            if (rawStirrupSpacingB.includes('/') || rawStirrupSpacingB.includes('端部')) {
+                isBeamDualSpacing = true;
+                const m = rawStirrupSpacingB.match(/端部@?(\d+).*?中央@?(\d+)/) || rawStirrupSpacingB.match(/(\d+)\s*[\/|\,]\s*(\d+)/);
+                sb1 = m ? parseFloat(m[1]) : 10;
+                sb2 = m ? parseFloat(m[2]) : 15;
+            } else {
+                sb1 = parseFloat(rawStirrupSpacingB.replace(' cm', '')) || 15;
+                sb2 = sb1;
+            }
             const waistRebarSize = form.querySelector('.form-waist-rebar-size')?.value;
             
             // 【深水區 2】幾何重複扣除模式 (依公共工程標準扣除梁柱節點交會體積)
             const deductionMode = document.getElementById('deduction-mode-select')?.value || 'net_qs';
             const isNetQS = deductionMode === 'net_qs';
-            // 預設兩端各支承於 50cm 柱寬，共 1.0m 交會體積；若樑淨跨長度過短則保底 0.5m
-            const netLengthB = isNetQS ? Math.max(0.5, componentLengthB - 1.0) : componentLengthB;
+            // 支承柱寬 (cm)，預設兩端各 30cm (共扣 60cm)
+            const supportWidthCm = parseFloat(form.dataset.supportWidth || form.querySelector('.form-support-width')?.value) || 60;
+            // 公共工程扣除模式：依實際柱寬扣除樑柱節點交會長度
+            const deductionSpanM = supportWidthCm / 100;
+            const netLengthB = isNetQS ? Math.max(0.5, componentLengthB - deductionSpanM) : componentLengthB;
 
             if (sectionWidthB > 0 && sectionHeightB > 0 && componentLengthB > 0) {
                 const concreteVolume = (sectionWidthB / 100) * (sectionHeightB / 100) * netLengthB;
@@ -3441,7 +3666,7 @@
                 const concreteStrength = form.querySelector('.form-concrete-strength')?.value || '280 kg/cm²';
                 const calcStrings = {
                     concrete: isNetQS 
-                        ? `${sectionWidthB}cm x ${sectionHeightB}cm x ${netLengthB.toFixed(2)}m (已依公共工程標準扣除梁柱節點交會1.0m)`
+                        ? `${sectionWidthB}cm x ${sectionHeightB}cm x ${netLengthB.toFixed(2)}m (已依公共工程標準扣除梁柱節點交會${deductionSpanM.toFixed(2)}m)`
                         : `${sectionWidthB}cm x ${sectionHeightB}cm x ${componentLengthB}m (毛量未扣交會)`,
                     formwork: isNetQS
                         ? `(${sectionWidthB}cm + 2 x ${sectionHeightB}cm) x ${netLengthB.toFixed(2)}m (已扣除兩端柱交會模)`
@@ -3469,13 +3694,29 @@
 
             const cover = 4, hook135Ratio = 12;
             const lapRatio = getLapRatio(rebarGrade);
-            const Ln_float = (componentLengthB * 100) - (2 * cover);
-            const Ln = Math.ceil(Ln_float);
+            // 大樑鋼筋真實淨跨 Ln (淨跨度 = 跨長扣減柱寬後，再扣兩端保護層)
+            const Ln_float = isNetQS 
+                ? (netLengthB * 100) - (2 * cover) 
+                : (componentLengthB * 100) - supportWidthCm - (2 * cover);
+            const Ln = Math.max(50, Math.ceil(Ln_float));
             const stirrupPropsB = getRebarProperties(stirrupSizeB);
+
+            const maxStockLengthCm = 1200; // 定尺上限 12m
+            function applyLapSplice(rawLengthCm, lapRatioVal, barDia) {
+                if (rawLengthCm <= maxStockLengthCm) {
+                    return { finalLength: rawLengthCm, spliceCount: 0, addLapLen: 0, lapLengthPerSplice: 0 };
+                }
+                // 超過定尺，每 12m 需搭接 1 次
+                const spliceCount = Math.floor((rawLengthCm - 1) / maxStockLengthCm);
+                const lapLengthPerSplice = Math.ceil(lapRatioVal * barDia); // 乙級受拉搭接長度
+                const addLapLen = spliceCount * lapLengthPerSplice;
+                const finalLength = rawLengthCm + addLapLen;
+                return { finalLength, spliceCount, addLapLen, lapLengthPerSplice };
+            }
 
             result.calculationSteps.push(`--- 構件 (${componentTypes.beam}) 編號: ${componentId}, 樓層: ${componentFloor}, 數量: ${componentCount} ---`);
             result.calculationSteps.push(`跨別型式: ${spanType === 'exterior' ? '邊跨 (外端錨定90°+內端搭接)' : spanType === 'interior' ? '內跨/連續跨 (兩端直通搭接無彎鉤)' : '單跨/獨立樑 (兩端90°耐震錨定彎鉤)'}`);
-            result.calculationSteps.push(`淨跨長度 Ln: ${componentLengthB * 100} - 2*${cover} = ${Ln} cm`);
+            result.calculationSteps.push(`淨跨長度 Ln: 樑跨長 ${componentLengthB * 100}cm - 支承柱寬 ${supportWidthCm}cm - 兩端保護層 2*${cover}cm = ${Ln} cm`);
 
                         // 【深水區 1 & 問題 2 實裝】頂筋計算 (支援全跨貫通與耐震 1/3 跨截斷筋)
             const topRebarMode = form.querySelector('.form-top-rebar-mode')?.value || 'continuous';
@@ -3535,6 +3776,20 @@
                     result.calculationSteps.push(`  - 頂通長筋: 雙端90°彎鉤 2*${hook90Top}cm + 淨跨 ${Ln}cm = ${singleLength} cm (${continuousTopCount}根)`);
                 }
 
+                // 超過定尺搭接計算
+                const topSplice = applyLapSplice(singleLength, lapRatio, topProps.diameter);
+                if (topSplice.spliceCount > 0) {
+                    result.calculationSteps.push(`  - 樑主筋超過12m定尺，自動計入 ${topSplice.spliceCount} 處乙級受拉搭接 (+${topSplice.addLapLen}cm)`);
+                    singleLength = topSplice.finalLength;
+                    lapLengthTop += topSplice.addLapLen;
+                    remarks += `(超過12m定尺，已自動計入${topSplice.spliceCount}處乙級搭接+${topSplice.addLapLen}cm)`;
+                    if (shape === '直筋' || shape === '直筋(連續)') {
+                        A = singleLength;
+                    } else if (B > 0) {
+                        B += topSplice.addLapLen;
+                    }
+                }
+
                 result.rebars.push({
                     componentId, componentFloor, rebarGrade, rebarSize: actualTopSize,
                     rebarType: isTopCutoff ? '樑頂通長筋' : '樑頂筋', shape, singleLength,
@@ -3580,6 +3835,13 @@
                         cutoffRemarks = `樑頂端部截斷筋(折鉤+跨內Ln/3:${cutoffThird}cm)`;
                         cA = hook90Top; cB = cutoffThird;
                         result.calculationSteps.push(`  - 頂端部截斷筋 (單跨端部): 折鉤 ${hook90Top}cm + Ln/3 ${cutoffThird}cm = ${cutoffLen} cm (${cutoffTopCount*2}根)`);
+                    }
+
+                    const cutoffSplice = applyLapSplice(cutoffLen, lapRatio, topProps.diameter);
+                    if (cutoffSplice.spliceCount > 0) {
+                        cutoffLen = cutoffSplice.finalLength;
+                        cutoffRemarks += `(超過12m定尺，已自動計入${cutoffSplice.spliceCount}處乙級搭接+${cutoffSplice.addLapLen}cm)`;
+                        result.calculationSteps.push(`  - 頂端部截斷筋超過12m定尺，自動計入 ${cutoffSplice.spliceCount} 處乙級受拉搭接 (+${cutoffSplice.addLapLen}cm)`);
                     }
 
                     const finalCutoffCount = (spanType === 'simple' ? cutoffTopCount * 2 : cutoffTopCount) * componentCount;
@@ -3648,6 +3910,20 @@
                     result.calculationSteps.push(`  - 底筋(單跨): 雙端90°彎鉤 2*${hook90Bot}cm + 淨跨 ${Ln}cm = ${singleLength} cm (${actualBotCount}根)`);
                 }
 
+                // 超過定尺搭接計算
+                const botSplice = applyLapSplice(singleLength, lapRatio, botProps.diameter);
+                if (botSplice.spliceCount > 0) {
+                    result.calculationSteps.push(`  - 樑主筋超過12m定尺，自動計入 ${botSplice.spliceCount} 處乙級受拉搭接 (+${botSplice.addLapLen}cm)`);
+                    singleLength = botSplice.finalLength;
+                    lapLengthBot += botSplice.addLapLen;
+                    remarks += `(超過12m定尺，已自動計入${botSplice.spliceCount}處乙級搭接+${botSplice.addLapLen}cm)`;
+                    if (shape === '直筋' || shape === '直筋(連續)' || shape === '直筋(外端錨定內端搭接)' || shape === '直筋(柱端平錨)') {
+                        A = singleLength;
+                    } else if (B > 0) {
+                        B += botSplice.addLapLen;
+                    }
+                }
+
                 result.rebars.push({
                     componentId, componentFloor, rebarGrade, rebarSize: actualBotSize,
                     rebarType: '樑底筋', shape, singleLength,
@@ -3659,15 +3935,44 @@
             }
 
             // 箍筋計算
-            if (stirrupSpacingB > 0 && sectionHeightB > 0 && sectionWidthB > 0) { 
-                result.calculationSteps.push(`箍筋計算 (耐震彎鉤):`);
+            if (sb1 > 0 && sectionHeightB > 0 && sectionWidthB > 0) { 
+                result.calculationSteps.push(`箍筋計算 (耐震雙間距與梁端2h圍束):`);
                 const effectiveHeightB_float = sectionHeightB - 2 * cover, effectiveWidthB_float = sectionWidthB - 2 * cover; 
                 const singleHook135_float = hook135Ratio * stirrupPropsB.diameter;
                 const effectiveHeightB = Math.ceil(effectiveHeightB_float);
                 const effectiveWidthB = Math.ceil(effectiveWidthB_float);
                 const singleHook135 = Math.ceil(singleHook135_float);
                 const stirrupLength = (effectiveHeightB * 2) + (effectiveWidthB * 2) + (2 * singleHook135);
-                const stirrupCount = Math.floor((componentLengthB * 100) / stirrupSpacingB); 
+                
+                const hBeam = sectionHeightB; // 樑深 (cm)
+                const lConfined = 2 * hBeam;   // 兩端各 2h 圍束加密區長度 (cm)
+                let stirrupCountB = 0;
+                let beamSpacingRemark = '';
+                if (isBeamDualSpacing && Ln > 0) {
+                    if (Ln <= 2 * lConfined) {
+                        // 樑短跨 (Ln <= 4h)：全跨加密
+                        stirrupCountB = Math.max(2, Math.floor((Ln - 10) / sb1) + 1);
+                        beamSpacingRemark = `梁箍筋(全跨加密@${sb1}cm)`;
+                        result.calculationSteps.push(`  - 梁短跨全跨加密: 淨跨 Ln (${Ln}cm) <= 4h (${2 * lConfined}cm), 全跨加密@${sb1}cm, 共 ${stirrupCountB} 支`);
+                    } else {
+                        // 正常跨度：兩端各 2h (第一支距柱面 5cm)
+                        const nConfPerEnd = Math.max(1, Math.floor((lConfined - 5) / sb1) + 1);
+                        const nConfTotal = nConfPerEnd * 2;
+                        const lMid = Ln - (2 * lConfined);
+                        const nMid = Math.max(1, Math.ceil(lMid / sb2) - 1);
+                        stirrupCountB = nConfTotal + nMid;
+                        beamSpacingRemark = `梁箍筋(兩端2h加密@${sb1}cm共${nConfTotal}支+中央@${sb2}cm共${nMid}支)`;
+                        result.calculationSteps.push(`  - 依 ACI 318 18.6.4 計算梁端 2h 加密區與跨中一般區:`);
+                        result.calculationSteps.push(`    * 兩端 2h (${lConfined}cm) 加密區 (@${sb1}cm, 首支距柱面5cm): 單端 ${nConfPerEnd} 支, 兩端合計 ${nConfTotal} 支`);
+                        result.calculationSteps.push(`    * 跨中一般區 (@${sb2}cm, 長度 ${lMid}cm): 共 ${nMid} 支`);
+                        result.calculationSteps.push(`    * 梁箍筋總支數: 兩端加密 ${nConfTotal} 支 + 中央一般 ${nMid} 支 = ${stirrupCountB} 支`);
+                    }
+                } else {
+                    stirrupCountB = Math.max(2, Math.floor(Ln / sb1));
+                    beamSpacingRemark = `梁箍筋(@${sb1}cm)`;
+                    result.calculationSteps.push(`  - 梁箍筋單一間距 (@${sb1}cm): 淨跨 ${Ln}cm / ${sb1}cm = ${stirrupCountB} 支`);
+                }
+
                 result.calculationSteps.push(`  - 箍筋彎鉤 (135°耐震): ${hook135Ratio} * ${stirrupPropsB.diameter.toFixed(3)} = ${singleHook135_float.toFixed(2)} cm, 取 ${singleHook135} cm`);
                 result.calculationSteps.push(`  - 箍筋單根長度: ${singleHook135}(A) + ${effectiveWidthB}(B) + ${effectiveHeightB}(C) + ${effectiveWidthB}(D) + ${effectiveHeightB}(E) + ${singleHook135}(F) = ${stirrupLength} cm`);
                 result.rebars.push({
@@ -3675,7 +3980,7 @@
                     rebarType: '箍筋', shape: '矩形閉合', singleLength: stirrupLength,
                     lapLength: 0, anchorLength: 2 * singleHook135,
                     singleWeight: (stirrupLength / 100) * stirrupPropsB.weight,
-                    count: stirrupCount * componentCount, remarks: `梁箍筋(耐震)`,
+                    count: stirrupCountB * componentCount, remarks: beamSpacingRemark,
                     componentType: componentTypes.beam, componentCount, A: singleHook135, B: effectiveWidthB, C: effectiveHeightB, D: effectiveWidthB, E: effectiveHeightB, F: singleHook135
                 }); 
             }
@@ -3686,16 +3991,25 @@
                 const waistRebarProps = getRebarProperties(waistRebarSize);
                 const waistRebarCount = Math.max(2, Math.floor((sectionHeightB - 30) / 30) * 2);
                 const waistRebarLength_float = (componentLengthB * 100) - (2 * cover);
-                const waistRebarLength = Math.ceil(waistRebarLength_float);
+                let waistRebarLength = Math.ceil(waistRebarLength_float);
+                let waistRemarks = `樑側腰筋(防裂)`;
+                let waistLapLen = 0;
+                const waistSplice = applyLapSplice(waistRebarLength, lapRatio, waistRebarProps.diameter);
+                if (waistSplice.spliceCount > 0) {
+                    waistRebarLength = waistSplice.finalLength;
+                    waistLapLen = waistSplice.addLapLen;
+                    waistRemarks += `(超過12m定尺，已自動計入${waistSplice.spliceCount}處乙級搭接+${waistSplice.addLapLen}cm)`;
+                    result.calculationSteps.push(`  - 腰筋超過12m定尺，自動計入 ${waistSplice.spliceCount} 處乙級受拉搭接 (+${waistSplice.addLapLen}cm) -> 最終長度: ${waistRebarLength} cm`);
+                }
                 result.calculationSteps.push(`  - 腰筋數量: 樑深 ${sectionHeightB}cm 配置 ${waistRebarCount} 根/跨`);
                 result.calculationSteps.push(`  - 腰筋單根長度: ${componentLengthB * 100} - 2 * ${cover} = ${waistRebarLength_float.toFixed(2)} cm, 取 ${waistRebarLength} cm`);
                 result.rebars.push({
                     componentId, componentFloor, rebarGrade, rebarSize: waistRebarSize,
                     rebarType: '腰筋', shape: '直筋', singleLength: waistRebarLength,
-                    lapLength: 0, anchorLength: 0,
+                    lapLength: waistLapLen, anchorLength: 0,
                     singleWeight: (waistRebarLength / 100) * waistRebarProps.weight,
                     count: waistRebarCount * componentCount,
-                    remarks: `樑側腰筋(防裂)`, componentType: componentTypes.beam,
+                    remarks: waistRemarks, componentType: componentTypes.beam,
                     componentCount, A: waistRebarLength
                 });
             }
@@ -3724,7 +4038,8 @@
             // 【深水區 2】幾何重複扣除模式 (依公共工程標準折減樓版 5% 扣除梁頂交會)
             const deductionMode = document.getElementById('deduction-mode-select')?.value || 'net_qs';
             const isNetQS = deductionMode === 'net_qs';
-            const slabDeductionFactor = (isSlab && isNetQS) ? 0.95 : 1.0;
+            const slabDeductionPercent = 5; // 依公共工程標準施工規範，樓板以淨跨計量，預設扣除周邊支承梁交會寬度 5%
+            const slabDeductionFactor = (isSlab && isNetQS) ? (1 - slabDeductionPercent / 100) : 1.0;
 
             if (length > 0 && widthOrHeight > 0 && thickness > 0) {
                 const concreteVolume = length * widthOrHeight * (thickness / 100) * slabDeductionFactor;
@@ -3738,10 +4053,10 @@
                     const ceilingFinishType = getFinishValue(ceilingFinishSelect);
                     const calcStrings = {
                         concrete: isNetQS
-                            ? `${length}m x ${widthOrHeight}m x ${thickness}cm x 0.95 (已依公共工程標準扣除梁板交會5%)`
+                            ? `${length}m x ${widthOrHeight}m x ${thickness}cm (已依公共工程規範扣除周邊支承梁交會體積 ${slabDeductionPercent}%)`
                             : `${length}m x ${widthOrHeight}m x ${thickness}cm (毛量未扣梁交會)`,
                         formwork: isNetQS
-                            ? `${length}m x ${widthOrHeight}m x 0.95 (已扣除梁板交會模5%)`
+                            ? `${length}m x ${widthOrHeight}m (已依公共工程規範扣除周邊支承梁交會模 ${slabDeductionPercent}%)`
                             : `${length}m x ${widthOrHeight}m`,
                         floorFinish: `${length}m x ${widthOrHeight}m`,
                         ceilingFinish: `${length}m x ${widthOrHeight}m`,
@@ -4065,8 +4380,8 @@
                 ["4. 彎鉤長度 (Hook): 135° 耐震彎鉤為 12db；90° 標準彎鉤取 12db 與 15cm 之較大值 (依 ACI 318 錨定要求不得小於 15cm)。"], 
                 ["5. 梁柱版重複交會扣除 (公共工程標準 QS):"], 
                 ["   - 柱 (Column): 垂直貫通主構件，全斷面全層高計量，不予扣除。"], 
-                ["   - 樑 (Beam): 扣除兩端支承柱交會體積 (預設每端扣除50cm，即樑有效淨長 Ln = Lbeam - 1.0m)，兩端側模亦扣除交會面積。"], 
-                ["   - 版 (Slab): 混凝土體積與模板面積自動折減 5% 以扣除梁頂交會重複區域。"], 
+                ["   - 樑 (Beam): 依支承柱寬 (預設兩端共扣 60cm 或依表單設定) 精確扣除梁柱節點交會體積，兩端側模亦扣除交會面積；大樑真實淨跨 Ln = 跨長 - 柱寬 - 2*保護層。"], 
+                ["   - 版 (Slab): 混凝土體積與模板面積依公共工程標準施工規範扣除周邊支承梁交會寬度 5%。"], 
                 ["6. 鋼筋水平淨距施工性防呆檢核 (ACI 318 / 建築技術規則):"], 
                 ["   - 柱主筋淨距不得小於 max(1.5db, 2.5cm)；樑主筋淨距不得小於 max(1.0db, 2.5cm)。"], 
                 ["   - 淨距小於 2.5cm 時系統自動發布施工性蜂窩警告，提示粗骨材無法通過，防止工程瑕疵。"], 
@@ -4082,7 +4397,8 @@
                 ["   - 邊跨 (Exterior Span): 頂筋外端折 90° 錨定彎鉤 (>=15cm)、內端伸入相鄰跨連續搭接 (+0.5 lap)；底筋外端柱錨 15cm、內端伸入搭接 (+0.5 lap)。"], 
                 ["   - 內跨 / 連續跨 (Interior Span): 頂底筋皆直通配置，兩端各加 0.5 lap 連續搭接，兩端皆無彎鉤。"], 
                 ["   - 單跨 / 獨立樑 (Simple Span): 頂底筋兩端皆折 90° 耐震錨定彎鉤。"], 
-                ["   - 箍筋: 採用 135° 耐震閉合箍筋。"], 
+                ["   - 箍筋: 採用 135° 耐震閉合箍筋，全面支援耐震雙間距與 ACI 318 18.6.4 梁端 2h 圍束加密區計算。"], 
+                ["   - 主筋定尺搭接: 頂通長筋與底筋長度超過 12m 定尺上限時，系統自動進行定尺切割並累計乙級受拉搭接長度。"], 
                 ["   - 腰筋 (防裂): 樑深 >= 60cm 啟動配置，樑深 60~89cm 配置一排 (2支)，每增加 30cm 再加一排 (2支)。"], 
                 [""], 
                 ["9. 版 (Slab) & 牆 (Wall):"], 
@@ -5522,7 +5838,7 @@
             const deductionMode = document.getElementById('deduction-mode-select')?.value || 'net_qs';
             const isProcurement = document.getElementById('procurement-mode-toggle')?.checked || false;
             const lossModeText = isProcurement ? '採購發包總量 (含損耗)' : '設計淨量 (0% 損耗)';
-            const deductionModeText = deductionMode === 'gross' ? '全斷面粗算 (不扣除交會)' : '依公共工程標準 (柱貫通，樑扣兩端柱交會1.0m，板折減5%)';
+            const deductionModeText = deductionMode === 'gross' ? '全斷面粗算 (不扣除交會)' : '依公共工程標準 (柱貫通，樑依柱寬扣除交會，板折減5%)';
             const lossSettingsText = isProcurement ? '鋼筋 5%, 混凝土 3%, 模板 5%' : '無 (0%)';
 
             const meta = { projectName, companyName, designCompany, location, dateStr, vendor, novera, lossModeText, deductionModeText, lossSettingsText };
