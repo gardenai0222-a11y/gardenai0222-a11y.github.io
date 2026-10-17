@@ -1,7 +1,7 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-10-16 17:09",
-  "total": 724,
+  "updated_at": "2026-10-17 09:24",
+  "total": 723,
   "tenders": [
     {
       "id": "1151015-J1",
@@ -5321,6 +5321,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzMjIzOTQ="
     },
     {
+      "id": "11503A",
+      "name": "育賢樓西北側老舊廁所整修工程採購",
+      "org": "桃園市立楊明國民中學",
+      "county": "桃園市",
+      "category": "work",
+      "budget": 4602973,
+      "deadline": "115/10/21",
+      "publish_date": "115/10/20",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDczNTE="
+    },
+    {
       "id": "CW-11150044",
       "name": "115年龍門漁港漁具倉庫南側突堤修建工程",
       "org": "澎湖縣政府",
@@ -6257,19 +6270,6 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNTU0MDE="
     },
     {
-      "id": "115190210394",
-      "name": "Danas-F-06-02-12-114年8月楊柳颱風金崙溪下多良一號護岸災後復建工程",
-      "org": "臺東縣政府",
-      "county": "全國",
-      "category": "work",
-      "budget": 4395600,
-      "deadline": "115/10/21",
-      "publish_date": "115/10/16",
-      "transmissions": "第 04 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNTU0MDA="
-    },
-    {
       "id": "TC115A089",
       "name": "埔埤制排水門改建工程",
       "org": "農業部農田水利署",
@@ -6437,19 +6437,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDUzNDE="
-    },
-    {
-      "id": "KSPH115107",
-      "name": "115年度大寮精神護理之家公廁馬桶改建工程",
-      "org": "高雄市立凱旋醫院",
-      "county": "高雄市",
-      "category": "work",
-      "budget": 2245700,
-      "deadline": "115/10/16",
-      "publish_date": "115/10/06",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNDM5OTg="
     },
     {
       "id": "115-B-Z-001",
