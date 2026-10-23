@@ -1,6 +1,6 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-10-23 09:44",
+  "updated_at": "2026-10-23 17:27",
   "total": 742,
   "tenders": [
     {
@@ -5399,6 +5399,32 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNjE2MTM="
     },
     {
+      "id": "115LY1020",
+      "name": "115-新來義社區出入口及既有裝置藝術增設地標投射燈工程",
+      "org": "屏東縣來義鄉公所",
+      "county": "屏東縣",
+      "category": "work",
+      "budget": 578000,
+      "deadline": "115/10/30",
+      "publish_date": "115/10/27",
+      "transmissions": "第 01 次",
+      "tender_way": "公開取得報價單或企劃書",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNjEyODk="
+    },
+    {
+      "id": "FLES1150901",
+      "name": "富林城堡老舊廁所整修工程",
+      "org": "桃園市觀音區富林國民小學",
+      "county": "桃園市",
+      "category": "work",
+      "budget": 2666853,
+      "deadline": "115/10/27",
+      "publish_date": "115/10/27",
+      "transmissions": "第 02 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNTYyMjk="
+    },
+    {
       "id": "SZ115-050",
       "name": "115年度汐止區低地排水設備改善更新工程",
       "org": "新北市汐止區公所",
@@ -6463,32 +6489,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNjE5OTk="
-    },
-    {
-      "id": "C115-082101",
-      "name": "花壇鄉中村橋改善工程",
-      "org": "彰化縣花壇鄉公所",
-      "county": "彰化縣",
-      "category": "work",
-      "budget": 1750000,
-      "deadline": "115/11/05",
-      "publish_date": "115/10/23",
-      "transmissions": "第 04 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNjE5OTA="
-    },
-    {
-      "id": "11518",
-      "name": "沙鹿營運所管線單價採購工程(115年度開口契約)(二)",
-      "org": "台灣自來水股份有限公司第四區管理處",
-      "county": "全國",
-      "category": "work",
-      "budget": 65000053,
-      "deadline": "115/11/12",
-      "publish_date": "115/10/23",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNjE5ODU="
     },
     {
       "id": "1151005",
