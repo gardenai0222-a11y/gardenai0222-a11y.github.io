@@ -1269,7 +1269,7 @@
 
         const rebarGrades = ['SD280', 'SD280W', 'SD420', 'SD420W', 'SD490', 'SD490W', 'SD690'];
 
-        const stirrupSpacing = ['耐震標準: 端部@10cm / 中央@15cm', '耐震加強: 端部@10cm / 中央@20cm', '#4@10/15', '端部@10/中央@15', '10 cm', '15 cm', '20 cm', '25 cm'];
+        const stirrupSpacing = ['耐震標準: 端部@10cm / 中央@15cm', '耐震加強: 端部@10cm / 中央@20cm', '#4@10/15', '端部@10/中央@15', '10 cm', '12 cm', '15 cm', '18 cm', '20 cm', '25 cm', '30 cm'];
 
         function toggleColumnShape(select) {
             const form = select.closest('.rebar-input-container');
@@ -1421,7 +1421,42 @@
 
         function createGradeOptions(selectedGrade = 'SD420W') { return createOptions(rebarGrades, selectedGrade); }
 
-        function createSpacingOptions(selectedSpacing = null) { return createOptions(stirrupSpacing, selectedSpacing); }
+        function createSpacingOptions(selectedSpacing = null) {
+            return createOptions(stirrupSpacing, selectedSpacing) + `<option value="自訂" ${selectedSpacing === '自訂' ? 'selected' : ''}>自訂 (手動輸入)</option>`;
+        }
+
+        function toggleCustomSpacing(selectElement) {
+            if (!selectElement) return;
+            const customInput = selectElement.nextElementSibling;
+            if (customInput && customInput.classList.contains('spacing-custom-input')) {
+                if (selectElement.value === '自訂') {
+                    customInput.classList.remove('hidden');
+                } else {
+                    customInput.classList.add('hidden');
+                }
+            }
+            if (typeof triggerLiveRecalculation === 'function') {
+                triggerLiveRecalculation();
+            }
+        }
+
+        function getSpacingRawValue(selectElement, fallback = '15 cm') {
+            if (!selectElement) return fallback;
+            if (selectElement.value === '自訂') {
+                const customInput = selectElement.nextElementSibling;
+                const val = (customInput && customInput.classList.contains('spacing-custom-input')) ? customInput.value.trim() : '';
+                if (!val) return fallback;
+                return /^\d+(\.\d+)?$/.test(val) ? `${val} cm` : val;
+            }
+            return selectElement.value || fallback;
+        }
+
+        function getSpacingCmValue(selectElement, fallback = 0) {
+            const raw = getSpacingRawValue(selectElement, '');
+            if (!raw) return fallback;
+            const num = parseFloat(String(raw).replace(/[^0-9.]/g, ''));
+            return isNaN(num) ? fallback : num;
+        }
 
         function createLengthOptions(selectedLength = null) { return createOptions(maxStockLengths, selectedLength) + `<option value="自訂">自訂</option>`; }
 
@@ -1688,20 +1723,20 @@
             let specificFields = '';
             switch (type) {
                 case 'column':
-                    specificFields = `<div class="input-group"><label>柱編號</label><input type="text" class="form-component-id" placeholder="例如: C1" value="C1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>柱斷面形狀</label><select class="form-column-shape" onchange="toggleColumnShape(this)"><option value="rect" selected>矩形柱 (長x寬)</option><option value="circle">圓形柱 (直徑 D)</option></select></div> <div class="input-group"><label class="label-section-a">柱長 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group group-section-b"><label class="label-section-b">柱寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group"><label>構件高 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.2" inputmode="decimal" value="3.2"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>柱頂收頭型式</label><select class="form-column-top-mode" onchange="toggleColumnTopMode(this)"><option value="lap" selected>一般續接層 (向上伸出搭接+錯開60cm)</option><option value="top_anchor">頂層/獨立收頭柱 (柱頂 90° 彎鉤錨定)</option></select></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 12" inputmode="numeric" value="12"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing">${createSpacingOptions('15 cm')}</select></div> <div class="input-group"><label>續接器</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
+                    specificFields = `<div class="input-group"><label>柱編號</label><input type="text" class="form-component-id" placeholder="例如: C1" value="C1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>柱斷面形狀</label><select class="form-column-shape" onchange="toggleColumnShape(this)"><option value="rect" selected>矩形柱 (長x寬)</option><option value="circle">圓形柱 (直徑 D)</option></select></div> <div class="input-group"><label class="label-section-a">柱長 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group group-section-b"><label class="label-section-b">柱寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group"><label>構件高 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.2" inputmode="decimal" value="3.2"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>柱頂收頭型式</label><select class="form-column-top-mode" onchange="toggleColumnTopMode(this)"><option value="lap" selected>一般續接層 (向上伸出搭接+錯開60cm)</option><option value="top_anchor">頂層/獨立收頭柱 (柱頂 90° 彎鉤錨定)</option></select></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 12" inputmode="numeric" value="12"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing" onchange="toggleCustomSpacing(this)">${createSpacingOptions('15 cm')}</select><input type="text" class="custom-stirrup-spacing spacing-custom-input hidden mt-2" placeholder="自訂間距(cm)，例: 12 或 10/15" inputmode="decimal"></div> <div class="input-group"><label>續接器</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
 
                 case 'beam':
-                    specificFields = `<div class="input-group"><label>樑編號</label><input type="text" class="form-component-id" placeholder="例如: B1" value="B1"></div> <div class="input-group"><label>樑構造/底模位置</label><select class="form-beam-category" onchange="toggleBeamCategory(this)"><option value="FLOOR" selected>一般懸空樓層樑 (計梁底+雙側模)</option><option value="GROUND">基礎地樑/連樑 (貼地免底模，僅計雙側模)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>跨別型式</label><select class="form-beam-span-type"><option value="exterior" selected>邊跨 (外端錨定 90° 彎鉤 + 內端直通搭接)</option><option value="interior">內跨 / 連續跨 (兩端直通搭接，無端部彎鉤)</option><option value="simple">單跨 / 獨立樑 (兩端 90° 耐震錨定彎鉤)</option><option value="cantilever">懸臂跨 / 挑樑 (柱端充分錨定 + 挑出端向下彎折)</option></select></div> <div class="input-group"><label>頂筋配筋形式</label><select class="form-top-rebar-mode"><option value="continuous" selected>全跨貫通/搭接 (標準)</option><option value="cutoff">耐震截斷 (2支通長+餘支端部截斷Ln/3)</option></select></div> <div class="input-group"><label>構件長 (m)</label><input type="text" class="form-component-length" placeholder="例如: 6.0" inputmode="decimal" value="6.0"></div> <div class="input-group"><label>斷面高 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 70" inputmode="numeric" value="70"></div> <div class="input-group"><label>斷面寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 40" inputmode="numeric" value="40"></div> <div class="input-group"><label>支承柱寬 (cm)</label><input type="text" class="form-support-width" placeholder="例如: 60" inputmode="numeric" value="60"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>頂筋號數</label><select class="form-top-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>頂筋數量</label><input type="text" class="form-top-rebar-count" placeholder="例如: 4" inputmode="numeric" value="4"></div> <div class="input-group"><label>底筋號數</label><select class="form-bottom-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>底筋數量</label><input type="text" class="form-bottom-rebar-count" placeholder="例如: 3" inputmode="numeric" value="3"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing">${createSpacingOptions('耐震標準: 端部@10cm / 中央@15cm')}</select></div> <div class="input-group"><label>腰筋號數</label><select class="form-waist-rebar-size"><option value="無">無</option>${createRebarOptions('#4 (13mm)')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
+                    specificFields = `<div class="input-group"><label>樑編號</label><input type="text" class="form-component-id" placeholder="例如: B1" value="B1"></div> <div class="input-group"><label>樑構造/底模位置</label><select class="form-beam-category" onchange="toggleBeamCategory(this)"><option value="FLOOR" selected>一般懸空樓層樑 (計梁底+雙側模)</option><option value="GROUND">基礎地樑/連樑 (貼地免底模，僅計雙側模)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>跨別型式</label><select class="form-beam-span-type"><option value="exterior" selected>邊跨 (外端錨定 90° 彎鉤 + 內端直通搭接)</option><option value="interior">內跨 / 連續跨 (兩端直通搭接，無端部彎鉤)</option><option value="simple">單跨 / 獨立樑 (兩端 90° 耐震錨定彎鉤)</option><option value="cantilever">懸臂跨 / 挑樑 (柱端充分錨定 + 挑出端向下彎折)</option></select></div> <div class="input-group"><label>頂筋配筋形式</label><select class="form-top-rebar-mode"><option value="continuous" selected>全跨貫通/搭接 (標準)</option><option value="cutoff">耐震截斷 (2支通長+餘支端部截斷Ln/3)</option></select></div> <div class="input-group"><label>構件長 (m)</label><input type="text" class="form-component-length" placeholder="例如: 6.0" inputmode="decimal" value="6.0"></div> <div class="input-group"><label>斷面高 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 70" inputmode="numeric" value="70"></div> <div class="input-group"><label>斷面寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 40" inputmode="numeric" value="40"></div> <div class="input-group"><label>支承柱寬 (cm)</label><input type="text" class="form-support-width" placeholder="例如: 60" inputmode="numeric" value="60"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>頂筋號數</label><select class="form-top-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>頂筋數量</label><input type="text" class="form-top-rebar-count" placeholder="例如: 4" inputmode="numeric" value="4"></div> <div class="input-group"><label>底筋號數</label><select class="form-bottom-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>底筋數量</label><input type="text" class="form-bottom-rebar-count" placeholder="例如: 3" inputmode="numeric" value="3"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing" onchange="toggleCustomSpacing(this)">${createSpacingOptions('耐震標準: 端部@10cm / 中央@15cm')}</select><input type="text" class="custom-stirrup-spacing spacing-custom-input hidden mt-2" placeholder="自訂間距(cm)，例: 12 或 10/15" inputmode="decimal"></div> <div class="input-group"><label>腰筋號數</label><select class="form-waist-rebar-size"><option value="無">無</option>${createRebarOptions('#4 (13mm)')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
 
                 case 'slab':
-                    specificFields = `<div class="input-group"><label>版/基腳編號</label><input type="text" class="form-component-id" placeholder="例如: S1 或 F1"></div> <div class="input-group"><label>樓版構造/底模</label><select class="form-slab-category" onchange="toggleSlabCategory(this)"><option value="RC" selected>一般懸空 RC 樓版 (計底模)</option><option value="DECK">鋼承鈑 Deck 樓版 (免拆底模 0m²)</option><option value="SOG">接地地坪/基礎底版 (免底模 0m²)</option><option value="FOOTING">獨立基腳/聯合基腳 (免底模，計四周側模)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 8.0" inputmode="decimal"></div> <div class="input-group"><label>寬度 (m)</label><input type="text" class="form-component-width" placeholder="例如: 6.0" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="例如: 15" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>配筋層數</label><select class="form-rebar-layers" onchange="toggleSlabRebarLayers(this)"><option value="單層">單層</option><option value="雙層" selected>雙層 (上下同規格)</option><option value="雙層(上下不同)">雙層 (上下不同規格)</option></select></div> <div class="input-group"><label class="label-slab-x-size">X向主筋尺寸</label><select class="form-main-rebar-size-x">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label class="label-slab-x-space">X向間距 (cm)</label><select class="form-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group"><label class="label-slab-y-size">Y向主筋尺寸</label><select class="form-main-rebar-size-y">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label class="label-slab-y-space">Y向間距 (cm)</label><select class="form-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group slab-top-layer-field hidden"><label class="text-amber-300">上層 X向主筋尺寸</label><select class="form-top-rebar-size-x">${createRebarOptions('#3 (10mm)')}</select></div> <div class="input-group slab-top-layer-field hidden"><label class="text-amber-300">上層 X向間距 (cm)</label><select class="form-top-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group slab-top-layer-field hidden"><label class="text-amber-300">上層 Y向主筋尺寸</label><select class="form-top-rebar-size-y">${createRebarOptions('#3 (10mm)')}</select></div> <div class="input-group slab-top-layer-field hidden"><label class="text-amber-300">上層 Y向間距 (cm)</label><select class="form-top-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group md:col-span-2"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
+                    specificFields = `<div class="input-group"><label>版/基腳編號</label><input type="text" class="form-component-id" placeholder="例如: S1 或 F1"></div> <div class="input-group"><label>樓版構造/底模</label><select class="form-slab-category" onchange="toggleSlabCategory(this)"><option value="RC" selected>一般懸空 RC 樓版 (計底模)</option><option value="DECK">鋼承鈑 Deck 樓版 (免拆底模 0m²)</option><option value="SOG">接地地坪/基礎底版 (免底模 0m²)</option><option value="FOOTING">獨立基腳/聯合基腳 (免底模，計四周側模)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 8.0" inputmode="decimal"></div> <div class="input-group"><label>寬度 (m)</label><input type="text" class="form-component-width" placeholder="例如: 6.0" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="例如: 15" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>配筋層數</label><select class="form-rebar-layers" onchange="toggleSlabRebarLayers(this)"><option value="單層">單層</option><option value="雙層" selected>雙層 (上下同規格)</option><option value="雙層(上下不同)">雙層 (上下不同規格)</option></select></div> <div class="input-group"><label class="label-slab-x-size">X向主筋尺寸</label><select class="form-main-rebar-size-x">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label class="label-slab-x-space">X向間距 (cm)</label><select class="form-rebar-spacing-x" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-rebar-spacing-x spacing-custom-input hidden mt-2" placeholder="自訂X向間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group"><label class="label-slab-y-size">Y向主筋尺寸</label><select class="form-main-rebar-size-y">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label class="label-slab-y-space">Y向間距 (cm)</label><select class="form-rebar-spacing-y" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-rebar-spacing-y spacing-custom-input hidden mt-2" placeholder="自訂Y向間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group slab-top-layer-field hidden"><label class="text-amber-300">上層 X向主筋尺寸</label><select class="form-top-rebar-size-x">${createRebarOptions('#3 (10mm)')}</select></div> <div class="input-group slab-top-layer-field hidden"><label class="text-amber-300">上層 X向間距 (cm)</label><select class="form-top-rebar-spacing-x" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-top-rebar-spacing-x spacing-custom-input hidden mt-2" placeholder="自訂上層X向間距 (cm)" inputmode="decimal"></div> <div class="input-group slab-top-layer-field hidden"><label class="text-amber-300">上層 Y向主筋尺寸</label><select class="form-top-rebar-size-y">${createRebarOptions('#3 (10mm)')}</select></div> <div class="input-group slab-top-layer-field hidden"><label class="text-amber-300">上層 Y向間距 (cm)</label><select class="form-top-rebar-spacing-y" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-top-rebar-spacing-y spacing-custom-input hidden mt-2" placeholder="自訂上層Y向間距 (cm)" inputmode="decimal"></div> <div class="input-group md:col-span-2"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
 
                 case 'wall':
                     const wallConcreteField = `<div class="input-group wall-rc-only-field"><label>混凝土強度</label><select class="form-concrete-strength">${createOptions(concreteStrengths, '280 kg/cm²')}</select></div>`;
-                    specificFields = `<div class="input-group"><label>牆編號</label><input type="text" class="form-component-id" placeholder="例如: W1 或 BW1"></div> <div class="input-group"><label>牆體材質/構造</label><select class="form-wall-category" onchange="toggleWallCategory(this)"><option value="RC" selected>RC 鋼筋混凝土牆</option><option value="BRICK_HALF">1/2B 紅磚牆 (半磚 12cm)</option><option value="BRICK_FULL">1B 紅磚牆 (一磚 24cm)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group wall-rc-only-field"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 5.0" inputmode="decimal"></div> <div class="input-group"><label>高度 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.5" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="RC例:20 / 半磚:12 / 一磚:24" inputmode="decimal"></div> <div class="input-group"><label>扣除門窗開口 (m²/處)</label><input type="text" class="form-wall-opening-area" placeholder="例如: 1.8 (無則填 0)" inputmode="decimal" value="0"></div> ${wallConcreteField} ${finishFields} <div class="wall-brick-info-banner hidden col-span-full p-3 my-2 rounded-lg bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-center justify-between flex-wrap gap-2"><span class="brick-spec-detail font-mono">【1/2B 半磚牆 (12cm) 標準】CNS 382 紅磚：64 塊/m²（約 212 塊/坪）｜1:3 水泥砂漿：水泥 0.22 包/m²、砂 0.026 m³/m²</span><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">自動核算紅磚、水泥與用砂</span></div> <div class="col-span-full border-t border-dashed border-gray-600 my-2 wall-rc-only-field"></div> <div class="input-group wall-rc-only-field"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group wall-rc-only-field"><label>水平筋尺寸 (X)</label><select class="form-main-rebar-size-x">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>水平筋間距 (X)</label><select class="form-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group wall-rc-only-field"><label>垂直筋尺寸 (Y)</label><select class="form-main-rebar-size-y">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>垂直筋間距 (Y)</label><select class="form-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group md:col-span-2 wall-rc-only-field"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2 wall-rc-only-field"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
+                    specificFields = `<div class="input-group"><label>牆編號</label><input type="text" class="form-component-id" placeholder="例如: W1 或 BW1"></div> <div class="input-group"><label>牆體材質/構造</label><select class="form-wall-category" onchange="toggleWallCategory(this)"><option value="RC" selected>RC 鋼筋混凝土牆</option><option value="BRICK_HALF">1/2B 紅磚牆 (半磚 12cm)</option><option value="BRICK_FULL">1B 紅磚牆 (一磚 24cm)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group wall-rc-only-field"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 5.0" inputmode="decimal"></div> <div class="input-group"><label>高度 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.5" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="RC例:20 / 半磚:12 / 一磚:24" inputmode="decimal"></div> <div class="input-group"><label>扣除門窗開口 (m²/處)</label><input type="text" class="form-wall-opening-area" placeholder="例如: 1.8 (無則填 0)" inputmode="decimal" value="0"></div> ${wallConcreteField} ${finishFields} <div class="wall-brick-info-banner hidden col-span-full p-3 my-2 rounded-lg bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-center justify-between flex-wrap gap-2"><span class="brick-spec-detail font-mono">【1/2B 半磚牆 (12cm) 標準】CNS 382 紅磚：64 塊/m²（約 212 塊/坪）｜1:3 水泥砂漿：水泥 0.22 包/m²、砂 0.026 m³/m²</span><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">自動核算紅磚、水泥與用砂</span></div> <div class="col-span-full border-t border-dashed border-gray-600 my-2 wall-rc-only-field"></div> <div class="input-group wall-rc-only-field"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group wall-rc-only-field"><label>水平筋尺寸 (X)</label><select class="form-main-rebar-size-x">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>水平筋間距 (X)</label><select class="form-rebar-spacing-x" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-rebar-spacing-x spacing-custom-input hidden mt-2" placeholder="自訂水平筋間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group wall-rc-only-field"><label>垂直筋尺寸 (Y)</label><select class="form-main-rebar-size-y">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>垂直筋間距 (Y)</label><select class="form-rebar-spacing-y" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-rebar-spacing-y spacing-custom-input hidden mt-2" placeholder="自訂垂直筋間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group md:col-span-2 wall-rc-only-field"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2 wall-rc-only-field"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
 
                 case 'pile':
-                    specificFields = `<div class="input-group"><label>樁編號</label><input type="text" class="form-component-id" placeholder="例如: P1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('B1')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: B2F"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>樁直徑 (m)</label><input type="text" class="form-component-diameter" placeholder="例如: 1.5" inputmode="decimal"></div> <div class="input-group"><label>樁長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 30" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 16" inputmode="numeric"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距 (cm)</label><select class="form-stirrup-spacing">${createSpacingOptions('15 cm')}</select></div> <div class="input-group"><label>續接器類型</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>`; break;
+                    specificFields = `<div class="input-group"><label>樁編號</label><input type="text" class="form-component-id" placeholder="例如: P1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('B1')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: B2F"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>樁直徑 (m)</label><input type="text" class="form-component-diameter" placeholder="例如: 1.5" inputmode="decimal"></div> <div class="input-group"><label>樁長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 30" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 16" inputmode="numeric"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距 (cm)</label><select class="form-stirrup-spacing" onchange="toggleCustomSpacing(this)">${createSpacingOptions('15 cm')}</select><input type="text" class="custom-stirrup-spacing spacing-custom-input hidden mt-2" placeholder="自訂箍筋間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group"><label>續接器類型</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>`; break;
 
                 case 'misc':
                     specificFields = `<div class="input-group"><label>名稱/備註</label><input type="text" class="form-rebar-remarks" placeholder="例如: 工作筋/吊模筋"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: B2F"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>鋼筋尺寸</label><select class="form-rebar-size">${createRebarOptions(commonWorkingRebarSizes[0])}</select></div> <div class="input-group"><label>鋼筋形狀</label><select class="form-rebar-shape" onchange="toggleWorkingRebarShape(this)"><option value="直筋">直筋</option><option value="L型">L型</option></select></div> <div class="straight-rebar-group col-span-1"><div class="input-group"><label>單根長度 (cm)</label><input type="text" class="form-rebar-length" placeholder="例如: 120" inputmode="decimal"></div></div> <div class="l-shape-rebar-group hidden md:col-span-2 grid grid-cols-2 gap-4"><div class="input-group"><label>長度1 (cm)</label><input type="text" class="form-rebar-length-1" placeholder="例如: 150" inputmode="decimal"></div><div class="input-group"><label>長度2 (cm)</label><input type="text" class="form-rebar-length-2" placeholder="例如: 50" inputmode="decimal"></div></div> <div class="input-group"><label>總根數</label><input type="text" class="form-rebar-count" placeholder="例如: 100" inputmode="numeric"></div>`; break;
@@ -2142,6 +2177,26 @@
                                             if (element.type === 'checkbox' || element.type === 'radio') {
 
                                                 element.checked = componentData[key];
+
+                                            } else if (element.tagName === 'SELECT') {
+
+                                                const targetVal = String(componentData[key] ?? '');
+                                                element.value = targetVal;
+                                                if (targetVal && element.value !== targetVal) {
+                                                    const hasCustomOpt = Array.from(element.options).some(o => o.value === '自訂');
+                                                    const customSibling = element.nextElementSibling;
+                                                    if (hasCustomOpt && customSibling && customSibling.classList.contains('spacing-custom-input')) {
+                                                        element.value = '自訂';
+                                                        customSibling.value = targetVal.replace(/\s*cm$/i, '').trim();
+                                                        customSibling.classList.remove('hidden');
+                                                    } else {
+                                                        const newOpt = document.createElement('option');
+                                                        newOpt.value = targetVal;
+                                                        newOpt.text = targetVal;
+                                                        newOpt.selected = true;
+                                                        element.appendChild(newOpt);
+                                                    }
+                                                }
 
                                             } else {
 
@@ -3142,12 +3197,22 @@
                     }
                 }
                 if (!matched) {
-                    const newOpt = document.createElement('option');
-                    newOpt.value = needle;
-                    newOpt.text = needle;
-                    newOpt.selected = true;
-                    selectEl.appendChild(newOpt);
-                    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    const hasCustomOpt = Array.from(selectEl.options).some(o => o.value === '自訂');
+                    const customSibling = selectEl.nextElementSibling;
+                    if (hasCustomOpt && customSibling && customSibling.classList.contains('spacing-custom-input')) {
+                        selectEl.value = '自訂';
+                        customSibling.value = String(needle).replace(/\s*cm$/i, '').trim();
+                        customSibling.classList.remove('hidden');
+                        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                        customSibling.dispatchEvent(new Event('input', { bubbles: true }));
+                    } else {
+                        const newOpt = document.createElement('option');
+                        newOpt.value = needle;
+                        newOpt.text = needle;
+                        newOpt.selected = true;
+                        selectEl.appendChild(newOpt);
+                        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
                 }
             }
 
@@ -3546,20 +3611,19 @@
             const mainRebarCountC = parseInt(form.querySelector('.form-main-rebar-count')?.value) || 0;
             const mainRebarSizeC = form.querySelector('.form-main-rebar-size')?.value;
             const stirrupSizeC = form.querySelector('.form-stirrup-size')?.value;
-            const rawStirrupSpacing = form.querySelector('.form-stirrup-spacing')?.value || '15 cm';
+            const rawStirrupSpacing = getSpacingRawValue(form.querySelector('.form-stirrup-spacing'), '15 cm');
             const connectorType = form.querySelector('.form-connector-type')?.value;
 
-            // 雙間距或單一間距解析
+            // 雙間距或單一間距解析 (支援自訂輸入如 12、12.5 或 10/15)
             let s1 = 15, s2 = 15;
             let isDualSpacing = false;
             if (rawStirrupSpacing.includes('端部') || rawStirrupSpacing.includes('/')) {
                 isDualSpacing = true;
-                const m1 = rawStirrupSpacing.match(/端部@?(\d+)/);
-                const m2 = rawStirrupSpacing.match(/中央@?(\d+)/);
-                s1 = m1 ? parseFloat(m1[1]) : 10;
-                s2 = m2 ? parseFloat(m2[1]) : 15;
+                const mDual = rawStirrupSpacing.match(/端部@?(\d+(?:\.\d+)?).*?中央@?(\d+(?:\.\d+)?)/) || rawStirrupSpacing.match(/(\d+(?:\.\d+)?)\s*[\/|\,]\s*(\d+(?:\.\d+)?)/);
+                s1 = mDual ? parseFloat(mDual[1]) : 10;
+                s2 = mDual ? parseFloat(mDual[2]) : 15;
             } else {
-                s1 = parseFloat(rawStirrupSpacing.replace(' cm', '')) || 15;
+                s1 = parseFloat(String(rawStirrupSpacing).replace(/[^0-9.]/g, '')) || 15;
                 s2 = s1;
             }
             
@@ -3844,7 +3908,7 @@
             const actualBotSize = (topRebarCountB > 0 || bottomRebarCountB > 0) ? bottomRebarSizeB : fallbackMainSize;
 
             const stirrupSizeB = form.querySelector('.form-stirrup-size')?.value;
-            const rawStirrupSpacingB = form.querySelector('.form-stirrup-spacing')?.value || '15 cm';
+            const rawStirrupSpacingB = getSpacingRawValue(form.querySelector('.form-stirrup-spacing'), '15 cm');
             let sb1 = 15, sb2 = 15;
             let isBeamDualSpacing = false;
             if (rawStirrupSpacingB.includes('/') || rawStirrupSpacingB.includes('端部')) {
@@ -4262,9 +4326,9 @@
             const openingArea = (!isSlab ? parseFloat(form.querySelector('.form-wall-opening-area')?.value) : 0) || 0;
             const rebarLayers = form.querySelector('.form-rebar-layers')?.value;
             const rebarSizeX = form.querySelector('.form-main-rebar-size-x')?.value;
-            const rebarSpacingX = parseFloat(form.querySelector('.form-rebar-spacing-x')?.value.replace(' cm', '')) || 0;
+            const rebarSpacingX = getSpacingCmValue(form.querySelector('.form-rebar-spacing-x'), 0);
             const rebarSizeY = form.querySelector('.form-main-rebar-size-y')?.value;
-            const rebarSpacingY = parseFloat(form.querySelector('.form-rebar-spacing-y')?.value.replace(' cm', '')) || 0;
+            const rebarSpacingY = getSpacingCmValue(form.querySelector('.form-rebar-spacing-y'), 0);
             const maxLengthSelect = form.querySelector('.form-max-length')?.value;
             let maxCutLength = (maxLengthSelect === '自訂') ? parseFloat(form.querySelector('.custom-max-length')?.value) || 0 : parseFloat(maxLengthSelect.replace(' m', '')) || 0;
 
@@ -4476,9 +4540,9 @@
             ];
             if (isDiffDoubleLayers) {
                 const topSizeX = form.querySelector('.form-top-rebar-size-x')?.value || rebarSizeX;
-                const topSpacingX = parseFloat(form.querySelector('.form-top-rebar-spacing-x')?.value?.replace(' cm', '')) || rebarSpacingX;
+                const topSpacingX = getSpacingCmValue(form.querySelector('.form-top-rebar-spacing-x'), rebarSpacingX);
                 const topSizeY = form.querySelector('.form-top-rebar-size-y')?.value || rebarSizeY;
-                const topSpacingY = parseFloat(form.querySelector('.form-top-rebar-spacing-y')?.value?.replace(' cm', '')) || rebarSpacingY;
+                const topSpacingY = getSpacingCmValue(form.querySelector('.form-top-rebar-spacing-y'), rebarSpacingY);
                 directions.push(
                     { dir: '上層X', size: topSizeX, spacing: topSpacingX, countDim: widthOrHeight * 100, runLength: length * 100, sets: 1 },
                     { dir: '上層Y', size: topSizeY, spacing: topSpacingY, countDim: length * 100, runLength: widthOrHeight * 100, sets: 1 }
@@ -4639,7 +4703,7 @@
             const mainRebarCountP = parseInt(form.querySelector('.form-main-rebar-count')?.value) || 0;
             const mainRebarSizeP = form.querySelector('.form-main-rebar-size')?.value;
             const stirrupSizeP = form.querySelector('.form-stirrup-size')?.value;
-            const stirrupSpacingP = parseFloat(form.querySelector('.form-stirrup-spacing')?.value.replace(' cm', '')) || 0;
+            const stirrupSpacingP = getSpacingCmValue(form.querySelector('.form-stirrup-spacing'), 0);
             const connectorType = form.querySelector('.form-connector-type')?.value;
             
             // 【修復 1】地下場鑄樁或預力樁無現場側模，模板面積強制歸 0
@@ -6054,11 +6118,11 @@
             sortedComponents.forEach(component => {
                 const calcStrings = component.calculationStrings || {};
                 const componentFinishes = [
-                    { type: component.generalFinishType, area: component.generalFinishArea, calc: calcStrings.finish },
-                    { type: component.floorFinishType, area: component.floorFinishArea, calc: calcStrings.floorFinish },
-                    { type: component.ceilingFinishType, area: component.ceilingFinishArea, calc: calcStrings.ceilingFinish },
-                    { type: component.interiorFinishType, area: component.interiorFinishArea, calc: calcStrings.interiorFinish },
-                    { type: component.exteriorFinishType, area: component.exteriorFinishArea, calc: calcStrings.exteriorFinish },
+                    { type: component.generalFinishType, area: component.generalFinishArea, calc: calcStrings.finish ? `${calcStrings.finish} [柱/樑粉刷面]` : '[柱/樑粉刷面]' },
+                    { type: component.floorFinishType, area: component.floorFinishArea, calc: calcStrings.floorFinish ? `${calcStrings.floorFinish} [版上地坪面]` : '[版上地坪面]' },
+                    { type: component.ceilingFinishType, area: component.ceilingFinishArea, calc: calcStrings.ceilingFinish ? `${calcStrings.ceilingFinish} [版下平頂面]` : '[版下平頂面]' },
+                    { type: component.interiorFinishType, area: component.interiorFinishArea, calc: calcStrings.interiorFinish ? `${calcStrings.interiorFinish} [內側牆面]` : '[內側牆面]' },
+                    { type: component.exteriorFinishType, area: component.exteriorFinishArea, calc: calcStrings.exteriorFinish ? `${calcStrings.exteriorFinish} [外側牆面]` : '[外側牆面]' },
                 ];
                 componentFinishes.forEach(finish => {
                     if (finish.type && finish.type !== '無' && (finish.area || 0) > 0) {
@@ -6081,24 +6145,28 @@
             const priceRebarEx = parseFloat(document.getElementById('unit-price-rebar')?.value) || 23000;
             const priceConcreteEx = parseFloat(document.getElementById('unit-price-concrete')?.value) || 2850;
             const priceFormworkEx = parseFloat(document.getElementById('unit-price-formwork')?.value) || 650;
+            const priceBrickEx = parseFloat(document.getElementById('unit-price-brick')?.value) || 1350;
 
             const totRebarTonsEx = (totalRebarWt * (meta.lossModeText.includes('損耗') ? 1.05 : 1.0)) / 1000;
             const totConcEx = (materialSummary?.totalConcrete || 0) * (meta.lossModeText.includes('損耗') ? 1.03 : 1.0);
             const totFormEx = (materialSummary?.totalFormwork || 0) * (meta.lossModeText.includes('損耗') ? 1.05 : 1.0);
+            const totBrickAreaEx = (materialSummary?.totalBrickArea || 0) * (meta.lossModeText.includes('損耗') ? 1.05 : 1.0);
 
             const amtRebar = totRebarTonsEx * priceRebarEx;
             const amtConc = totConcEx * priceConcreteEx;
             const amtForm = totFormEx * priceFormworkEx;
-            const totAmt = amtRebar + amtConc + amtForm;
+            const amtBrick = totBrickAreaEx * priceBrickEx;
+            const totAmt = amtRebar + amtConc + amtForm + amtBrick;
 
             ws2.addRow([]);
             ws2.addRow(['發包工程造價估算 (依發包單價與採購數量)']).eachCell(c => Object.assign(c, styleSec));
             const rCostHead = ws2.addRow(['工程分項', '發包採購數量 (含損耗)', '單位', '預估單價 (NT$)', '預估發包金額 (NT$)', '成本佔比 (%)']);
             rCostHead.eachCell(c => Object.assign(c, styleHeader));
 
-            const pctR = totAmt > 0 ? (amtRebar / totAmt) * 100 : 0;
-            const pctC = totAmt > 0 ? (amtConc / totAmt) * 100 : 0;
-            const pctF = totAmt > 0 ? (amtForm / totAmt) * 100 : 0;
+            const pctR = totAmt > 0 ? (amtRebar / totAmt) : 0;
+            const pctC = totAmt > 0 ? (amtConc / totAmt) : 0;
+            const pctF = totAmt > 0 ? (amtForm / totAmt) : 0;
+            const pctB = totAmt > 0 ? (amtBrick / totAmt) : 0;
 
             const r1 = ws2.addRow(['鋼筋工程', totRebarTonsEx, '噸', priceRebarEx, amtRebar, pctR]);
             applyDataRow(r1, false, ['left', 'right', 'center', 'right', 'right', 'right'], [null, '#,##0.00', null, '#,##0', '#,##0', '0.0%']);
@@ -6106,9 +6174,16 @@
             applyDataRow(r2, true, ['left', 'right', 'center', 'right', 'right', 'right'], [null, '#,##0.00', null, '#,##0', '#,##0', '0.0%']);
             const r3 = ws2.addRow(['模板工程', totFormEx, 'm²', priceFormworkEx, amtForm, pctF]);
             applyDataRow(r3, false, ['left', 'right', 'center', 'right', 'right', 'right'], [null, '#,##0.00', null, '#,##0', '#,##0', '0.0%']);
+            if (totBrickAreaEx > 0) {
+                const r4 = ws2.addRow(['紅磚砌築工程 (連工帶料)', totBrickAreaEx, 'm²', priceBrickEx, amtBrick, pctB]);
+                applyDataRow(r4, true, ['left', 'right', 'center', 'right', 'right', 'right'], [null, '#,##0.00', null, '#,##0', '#,##0', '0.0%']);
+            }
 
-            const rTotCost = ws2.addRow(['預估發包總造價合計', '', '', '', totAmt, 100]);
-            rTotCost.eachCell(c => Object.assign(c, styleTotal));
+            const rTotCost = ws2.addRow(['預估發包總造價合計', '', '', '', totAmt, 1.0]);
+            rTotCost.eachCell((c, colNum) => {
+                Object.assign(c, styleTotal);
+                if (colNum === 6) c.numFmt = '0.0%';
+            });
 
             Object.entries(finishBreakdowns).forEach(([fName, items]) => {
                 ws2.addRow([]);
@@ -6707,11 +6782,11 @@
             sortedComponents.forEach(component => {
                 const calcStrings = component.calculationStrings || {};
                 const componentFinishes = [
-                    { type: component.generalFinishType, area: component.generalFinishArea, calc: calcStrings.finish },
-                    { type: component.floorFinishType, area: component.floorFinishArea, calc: calcStrings.floorFinish },
-                    { type: component.ceilingFinishType, area: component.ceilingFinishArea, calc: calcStrings.ceilingFinish },
-                    { type: component.interiorFinishType, area: component.interiorFinishArea, calc: calcStrings.interiorFinish },
-                    { type: component.exteriorFinishType, area: component.exteriorFinishArea, calc: calcStrings.exteriorFinish },
+                    { type: component.generalFinishType, area: component.generalFinishArea, calc: calcStrings.finish ? `${calcStrings.finish} [柱/樑粉刷面]` : '[柱/樑粉刷面]' },
+                    { type: component.floorFinishType, area: component.floorFinishArea, calc: calcStrings.floorFinish ? `${calcStrings.floorFinish} [版上地坪面]` : '[版上地坪面]' },
+                    { type: component.ceilingFinishType, area: component.ceilingFinishArea, calc: calcStrings.ceilingFinish ? `${calcStrings.ceilingFinish} [版下平頂面]` : '[版下平頂面]' },
+                    { type: component.interiorFinishType, area: component.interiorFinishArea, calc: calcStrings.interiorFinish ? `${calcStrings.interiorFinish} [內側牆面]` : '[內側牆面]' },
+                    { type: component.exteriorFinishType, area: component.exteriorFinishArea, calc: calcStrings.exteriorFinish ? `${calcStrings.exteriorFinish} [外側牆面]` : '[外側牆面]' },
                 ];
                 componentFinishes.forEach(f => {
                     if (f.type && f.type !== '無' && (f.area || 0) > 0) {
