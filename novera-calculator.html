@@ -1276,6 +1276,54 @@
             }
         }
 
+        function toggleWallCategory(select) {
+            const form = select.closest('.rebar-input-container');
+            if (!form) return;
+            const category = select.value || 'RC';
+            const isBrick = (category === 'BRICK_HALF' || category === 'BRICK_FULL');
+            const rcFields = form.querySelectorAll('.wall-rc-only-field');
+            rcFields.forEach(el => {
+                if (isBrick) {
+                    el.classList.add('hidden');
+                } else {
+                    if (el.classList.contains('custom-max-length-group')) {
+                        const maxLenSel = form.querySelector('.form-max-length');
+                        if (maxLenSel && maxLenSel.value === '自訂') el.classList.remove('hidden');
+                    } else {
+                        el.classList.remove('hidden');
+                    }
+                }
+            });
+            const brickBanner = form.querySelector('.wall-brick-info-banner');
+            if (brickBanner) {
+                if (isBrick) {
+                    brickBanner.classList.remove('hidden');
+                    const specText = category === 'BRICK_HALF'
+                        ? '【1/2B 半磚牆 (12cm) 標準】CNS 382 紅磚：64 塊/m²（約 212 塊/坪）｜1:3 水泥砂漿：水泥 0.22 包/m²、砂 0.026 m³/m²（免計 RC 鋼筋、混凝土與模板）'
+                        : '【1B 一磚牆 (24cm) 標準】CNS 382 紅磚：128 塊/m²（約 423 塊/坪）｜1:3 水泥砂漿：水泥 0.47 包/m²、砂 0.056 m³/m²（免計 RC 鋼筋、混凝土與模板）';
+                    const spanEl = brickBanner.querySelector('.brick-spec-detail');
+                    if (spanEl) spanEl.textContent = specText;
+                } else {
+                    brickBanner.classList.add('hidden');
+                }
+            }
+            const thickInput = form.querySelector('.form-component-thickness');
+            if (thickInput) {
+                const curVal = thickInput.value.trim();
+                if (category === 'BRICK_HALF' && (curVal === '' || curVal === '30' || curVal === '24' || curVal === '15' || curVal === '20')) {
+                    thickInput.value = '12';
+                } else if (category === 'BRICK_FULL' && (curVal === '' || curVal === '30' || curVal === '12' || curVal === '15' || curVal === '20')) {
+                    thickInput.value = '24';
+                }
+            }
+            if (typeof updateFormIdentifier === 'function') {
+                updateFormIdentifier(form);
+            }
+            if (typeof triggerLiveRecalculation === 'function') {
+                triggerLiveRecalculation();
+            }
+        }
+
         const maxStockLengths = ['6 m', '7 m', '8 m', '12 m'];
 
         const connectorTypes = ['無', '單端母頭', '雙端公母頭', '公母續接器', '摩擦壓接續接器', '灌漿套筒式續接器'];
@@ -1586,7 +1634,8 @@
                     specificFields = `<div class="input-group"><label>版編號</label><input type="text" class="form-component-id" placeholder="例如: S1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 8.0" inputmode="decimal"></div> <div class="input-group"><label>寬度 (m)</label><input type="text" class="form-component-width" placeholder="例如: 6.0" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="例如: 15" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group"><label>X向主筋尺寸</label><select class="form-main-rebar-size-x">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>X向間距 (cm)</label><select class="form-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group"><label>Y向主筋尺寸</label><select class="form-main-rebar-size-y">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>Y向間距 (cm)</label><select class="form-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group md:col-span-2"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
 
                 case 'wall':
-                    specificFields = `<div class="input-group"><label>牆編號</label><input type="text" class="form-component-id" placeholder="例如: W1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 5.0" inputmode="decimal"></div> <div class="input-group"><label>高度 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.5" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="例如: 30" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group"><label>水平筋尺寸 (X)</label><select class="form-main-rebar-size-x">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group"><label>水平筋間距 (X)</label><select class="form-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group"><label>垂直筋尺寸 (Y)</label><select class="form-main-rebar-size-y">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group"><label>垂直筋間距 (Y)</label><select class="form-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group md:col-span-2"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
+                    const wallConcreteField = `<div class="input-group wall-rc-only-field"><label>混凝土強度</label><select class="form-concrete-strength">${createOptions(concreteStrengths, '280 kg/cm²')}</select></div>`;
+                    specificFields = `<div class="input-group"><label>牆編號</label><input type="text" class="form-component-id" placeholder="例如: W1 或 BW1"></div> <div class="input-group"><label>牆體材質/構造</label><select class="form-wall-category" onchange="toggleWallCategory(this)"><option value="RC" selected>RC 鋼筋混凝土牆</option><option value="BRICK_HALF">1/2B 紅磚牆 (半磚 12cm)</option><option value="BRICK_FULL">1B 紅磚牆 (一磚 24cm)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group wall-rc-only-field"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 5.0" inputmode="decimal"></div> <div class="input-group"><label>高度 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.5" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="RC例:20 / 半磚:12 / 一磚:24" inputmode="decimal"></div> <div class="input-group"><label>扣除門窗開口 (m²/處)</label><input type="text" class="form-wall-opening-area" placeholder="例如: 1.8 (無則填 0)" inputmode="decimal" value="0"></div> ${wallConcreteField} ${finishFields} <div class="wall-brick-info-banner hidden col-span-full p-3 my-2 rounded-lg bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-center justify-between flex-wrap gap-2"><span class="brick-spec-detail font-mono">【1/2B 半磚牆 (12cm) 標準】CNS 382 紅磚：64 塊/m²（約 212 塊/坪）｜1:3 水泥砂漿：水泥 0.22 包/m²、砂 0.026 m³/m²</span><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">自動核算紅磚、水泥與用砂</span></div> <div class="col-span-full border-t border-dashed border-gray-600 my-2 wall-rc-only-field"></div> <div class="input-group wall-rc-only-field"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group wall-rc-only-field"><label>水平筋尺寸 (X)</label><select class="form-main-rebar-size-x">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>水平筋間距 (X)</label><select class="form-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group wall-rc-only-field"><label>垂直筋尺寸 (Y)</label><select class="form-main-rebar-size-y">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>垂直筋間距 (Y)</label><select class="form-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group md:col-span-2 wall-rc-only-field"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2 wall-rc-only-field"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
 
                 case 'pile':
                     specificFields = `<div class="input-group"><label>樁編號</label><input type="text" class="form-component-id" placeholder="例如: P1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('B1')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: B2F"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>樁直徑 (m)</label><input type="text" class="form-component-diameter" placeholder="例如: 1.5" inputmode="decimal"></div> <div class="input-group"><label>樁長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 30" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 16" inputmode="numeric"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距 (cm)</label><select class="form-stirrup-spacing">${createSpacingOptions('15 cm')}</select></div> <div class="input-group"><label>續接器類型</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>`; break;
@@ -1636,9 +1685,15 @@
             const identifierSpan = formContainer.querySelector('.component-identifier');
 
             if(identifierSpan) {
-
-                identifierSpan.textContent = idInput?.value.trim() || '未命名';
-
+                const baseId = idInput?.value.trim() || '未命名';
+                const wallCat = formContainer.querySelector('.form-wall-category')?.value;
+                if (wallCat === 'BRICK_HALF') {
+                    identifierSpan.textContent = `${baseId} [1/2B紅磚牆]`;
+                } else if (wallCat === 'BRICK_FULL') {
+                    identifierSpan.textContent = `${baseId} [1B紅磚牆]`;
+                } else {
+                    identifierSpan.textContent = baseId;
+                }
             }
 
         }
@@ -2752,7 +2807,7 @@
 
             if (/^(CS\d*|[1-9]CS\d*|S\d*|[1-9]S\d*|FS\d*|SLAB\d*|板\d*|版\d*)$/i.test(firstUpper)) {
                 type = 'slab';
-            } else if (/^(CW\d*|W\d*|[1-9]W\d*|WALL\d*|PARAPET\d*|牆\d*|女兒牆\d*|RC牆\d*|剪力牆\d*)$/i.test(firstUpper)) {
+            } else if (/^(CW\d*|BW\d*|W\d*|[1-9]W\d*|[1-9]BW\d*|WALL\d*|BRICK\d*|PARAPET\d*|牆\d*|磚牆\d*|紅磚牆\d*|女兒牆\d*|RC牆\d*|剪力牆\d*)$/i.test(firstUpper)) {
                 type = 'wall';
             } else if (/^(CG\d*|B\d*|[1-9][BG]\d*|G\d*|FG\d*|BEAM\d*|樑\d*|梁\d*)$/i.test(firstUpper)) {
                 type = 'beam';
@@ -2764,7 +2819,7 @@
                     type = 'beam';
                 } else if (/(?:雙向|雙層|單層|厚度|t=\d+|T\d+|版|板)/i.test(cmd)) {
                     type = 'slab';
-                } else if (/(?:剪力牆|女兒牆|牆|WALL|PARAPET)/i.test(cmd)) {
+                } else if (/(?:剪力牆|女兒牆|紅磚|磚牆|半磚|一磚|1\/2B|0\.5B|1B|牆|WALL|PARAPET)/i.test(cmd)) {
                     type = 'wall';
                 } else {
                     type = 'column';
@@ -3139,6 +3194,26 @@
                     if (elC) { elC.value = compCount; elC.dispatchEvent(new Event('input', { bubbles: true })); }
                 }
             } else if (type === 'wall') {
+                // 識別是否為紅磚牆 (1/2B 或 1B)
+                let wallCat = 'RC';
+                if (/(?:1\/2B|0\.5B|半磚|12cm磚)/i.test(cmd) || (/(?:紅磚|磚牆|BW)/i.test(cmd) && !/(?:1B|一磚|24cm)/i.test(cmd))) {
+                    wallCat = 'BRICK_HALF';
+                    if (thickness === null) thickness = 12;
+                } else if (/(?:1B|一磚|24cm磚)/i.test(cmd)) {
+                    wallCat = 'BRICK_FULL';
+                    if (thickness === null) thickness = 24;
+                }
+                const elCat = newForm.querySelector('.form-wall-category');
+                if (elCat && wallCat !== 'RC') {
+                    elCat.value = wallCat;
+                    elCat.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (typeof toggleWallCategory === 'function') toggleWallCategory(elCat);
+                }
+                const mOpen = workStr.match(/(?:扣|開口|門窗)[=:]?\s*(\d+(?:\.\d+)?)/i);
+                if (mOpen) {
+                    const elOpen = newForm.querySelector('.form-wall-opening-area');
+                    if (elOpen) { elOpen.value = parseFloat(mOpen[1]); elOpen.dispatchEvent(new Event('input', { bubbles: true })); }
+                }
                 // 注入牆專屬欄位
                 if (slabLength !== null) {
                     const elL = newForm.querySelector('.form-component-length');
@@ -3604,6 +3679,16 @@
                     }
                 }
             }
+            if (componentHeightC > 0) {
+                const colSpacerRows = Math.max(2, Math.ceil(componentHeightC));
+                const colSpacerCount = colSpacerRows * 4 * componentCount;
+                result.calculationSteps.push(`水泥墊塊計算 (保護層4cm):`);
+                result.calculationSteps.push(`  - 數量 (柱四面@1m間距): ${colSpacerRows} (道) * 4 (面) * ${componentCount} (支) = ${colSpacerCount} 個`);
+                result.rebars.push({
+                    itemType: 'accessory', name: '水泥墊塊', count: colSpacerCount,
+                    componentId, componentFloor, componentType: componentTypes.column, remarks: '保護層 4cm (柱四面@1m間距)'
+                });
+            }
             return result;
         }
 
@@ -4013,6 +4098,15 @@
                     componentCount, A: waistRebarLength
                 });
             }
+            if (componentLengthB > 0) {
+                const beamSpacerCount = Math.ceil(componentLengthB) * 4 * componentCount;
+                result.calculationSteps.push(`水泥墊塊計算 (保護層4cm):`);
+                result.calculationSteps.push(`  - 數量 (梁底2個+兩側2個@1m間距): ceil(${componentLengthB}m) * 4 (個/m) * ${componentCount} (支) = ${beamSpacerCount} 個`);
+                result.rebars.push({
+                    itemType: 'accessory', name: '水泥墊塊', count: beamSpacerCount,
+                    componentId, componentFloor, componentType: componentTypes.beam, remarks: '保護層 4cm (梁底2+兩側2@1m)'
+                });
+            }
             return result;
         }
 
@@ -4026,7 +4120,11 @@
             const rebarGrade = form.querySelector('.form-rebar-grade')?.value || 'SD420W';
             const length = parseFloat(form.querySelector('.form-component-length')?.value) || 0;
             const widthOrHeight = parseFloat(form.querySelector(isSlab ? '.form-component-width' : '.form-component-height')?.value) || 0;
-            const thickness = parseFloat(form.querySelector('.form-component-thickness')?.value) || 0;
+            const wallCategory = (!isSlab && form.querySelector('.form-wall-category')?.value) ? form.querySelector('.form-wall-category').value : 'RC';
+            const isBrickWall = !isSlab && (wallCategory === 'BRICK_HALF' || wallCategory === 'BRICK_FULL');
+            const defaultBrickThick = wallCategory === 'BRICK_HALF' ? 12 : (wallCategory === 'BRICK_FULL' ? 24 : 0);
+            const thickness = parseFloat(form.querySelector('.form-component-thickness')?.value) || defaultBrickThick;
+            const openingArea = (!isSlab ? parseFloat(form.querySelector('.form-wall-opening-area')?.value) : 0) || 0;
             const rebarLayers = form.querySelector('.form-rebar-layers')?.value;
             const rebarSizeX = form.querySelector('.form-main-rebar-size-x')?.value;
             const rebarSpacingX = parseFloat(form.querySelector('.form-rebar-spacing-x')?.value.replace(' cm', '')) || 0;
@@ -4034,6 +4132,84 @@
             const rebarSpacingY = parseFloat(form.querySelector('.form-rebar-spacing-y')?.value.replace(' cm', '')) || 0;
             const maxLengthSelect = form.querySelector('.form-max-length')?.value;
             let maxCutLength = (maxLengthSelect === '自訂') ? parseFloat(form.querySelector('.custom-max-length')?.value) || 0 : parseFloat(maxLengthSelect.replace(' m', '')) || 0;
+
+            // 【紅磚牆專屬算料分支 (CNS 382 標準紅磚 1/2B & 1B)】
+            if (isBrickWall) {
+                if (length <= 0 || widthOrHeight <= 0) {
+                    result.calculationSteps.push(`${componentId} (樓層: ${componentFloor}) - 紅磚牆長度或高度輸入不足，無法計算。`);
+                    return result;
+                }
+                const isHalfBrick = wallCategory === 'BRICK_HALF';
+                const brickSpecName = isHalfBrick ? '1/2B 紅磚牆 (半磚 12cm)' : '1B 紅磚牆 (一磚 24cm)';
+                const compTypeLabel = isHalfBrick ? '牆 (1/2B紅磚)' : '牆 (1B紅磚)';
+                const bricksPerM2 = isHalfBrick ? 64 : 128; // CNS 382 標準磚 20x9.5x5.3cm 灰縫10mm
+                const cementPerM2 = isHalfBrick ? 0.22 : 0.47; // 1:3 水泥砂漿 50kg袋裝水泥 (包/m²)
+                const sandPerM2 = isHalfBrick ? 0.026 : 0.056; // 砌磚用砂 (m³/m²)
+
+                const rawSingleArea = length * widthOrHeight;
+                const netSingleArea = Math.max(rawSingleArea - openingArea, 0);
+                const totalBrickArea = netSingleArea * componentCount;
+                const totalBrickPing = totalBrickArea * 0.3025;
+                const brickCount = Math.ceil(totalBrickArea * bricksPerM2);
+                const mortarCementBags = Number((totalBrickArea * cementPerM2).toFixed(2));
+                const mortarSandM3 = Number((totalBrickArea * sandPerM2).toFixed(3));
+
+                const intFinishSelect = form.querySelector('.form-interior-finish');
+                const extFinishSelect = form.querySelector('.form-exterior-finish');
+                const interiorFinishType = getFinishValue(intFinishSelect);
+                const exteriorFinishType = getFinishValue(extFinishSelect);
+
+                const baseFormula = openingArea > 0
+                    ? `(${length}m x ${widthOrHeight}m - 扣開口${openingArea}m²)`
+                    : `${length}m x ${widthOrHeight}m`;
+                const countSuffix = componentCount > 1 ? ` x ${componentCount}處` : '';
+                const brickFormulaStr = `${baseFormula}${countSuffix} = ${totalBrickArea.toFixed(2)}m² (${totalBrickPing.toFixed(2)}坪) × ${bricksPerM2}塊/m²`;
+
+                const calcStrings = {
+                    concrete: '0 m³ (紅磚砌築非RC)',
+                    formwork: '0 m² (紅磚砌築免模板)',
+                    brick: brickFormulaStr,
+                    interiorFinish: `${baseFormula}${countSuffix}`,
+                    exteriorFinish: `${baseFormula}${countSuffix}`,
+                };
+
+                result.materials = {
+                    componentId,
+                    componentFloor,
+                    componentType: compTypeLabel,
+                    isBrickWall: true,
+                    wallCategory,
+                    brickSpecName,
+                    bricksPerM2,
+                    brickArea: totalBrickArea,
+                    brickPing: totalBrickPing,
+                    openingArea: openingArea * componentCount,
+                    brickCount,
+                    mortarCementBags,
+                    mortarSandM3,
+                    concreteStrength: '無 (紅磚砌築)',
+                    concreteVolume: 0,
+                    formworkType: '無 (紅磚砌築免模)',
+                    formworkArea: 0,
+                    interiorFinishType,
+                    interiorFinishArea: (interiorFinishType !== '無') ? totalBrickArea : 0,
+                    exteriorFinishType,
+                    exteriorFinishArea: (exteriorFinishType !== '無') ? totalBrickArea : 0,
+                    calculationStrings: calcStrings,
+                };
+
+                result.calculationSteps.push(`--- 構件 (${brickSpecName}) 編號: ${componentId}, 樓層: ${componentFloor}, 數量: ${componentCount} ---`);
+                result.calculationSteps.push(`  - 實砌淨面積: ${baseFormula}${countSuffix} = ${totalBrickArea.toFixed(2)} m² (折合 ${totalBrickPing.toFixed(2)} 坪)`);
+                result.calculationSteps.push(`  - 紅磚數量 (CNS 382 標準磚 ${bricksPerM2} 塊/m²): ceil(${totalBrickArea.toFixed(2)} * ${bricksPerM2}) = ${brickCount.toLocaleString()} 塊 (採購含5%損耗: ${Math.ceil(brickCount * 1.05).toLocaleString()} 塊)`);
+                result.calculationSteps.push(`  - 1:3 砌磚水泥砂漿: 50kg袋裝水泥 ${mortarCementBags.toFixed(2)} 包 ｜ 砌磚用砂 ${mortarSandM3.toFixed(3)} m³`);
+                if (interiorFinishType !== '無') {
+                    result.calculationSteps.push(`  - 內牆面材 (${interiorFinishType}): ${totalBrickArea.toFixed(2)} m²`);
+                }
+                if (exteriorFinishType !== '無') {
+                    result.calculationSteps.push(`  - 外牆面材 (${exteriorFinishType}): ${totalBrickArea.toFixed(2)} m²`);
+                }
+                return result;
+            }
             
             // 【深水區 2】幾何重複扣除模式 (依公共工程標準折減樓版 5% 扣除梁頂交會)
             const deductionMode = document.getElementById('deduction-mode-select')?.value || 'net_qs';
@@ -4042,9 +4218,9 @@
             const slabDeductionFactor = (isSlab && isNetQS) ? (1 - slabDeductionPercent / 100) : 1.0;
 
             if (length > 0 && widthOrHeight > 0 && thickness > 0) {
-                const concreteVolume = length * widthOrHeight * (thickness / 100) * slabDeductionFactor;
                 const concreteStrength = form.querySelector('.form-concrete-strength')?.value || '280 kg/cm²';
                 if (isSlab) {
+                    const concreteVolume = length * widthOrHeight * (thickness / 100) * slabDeductionFactor;
                     const rawArea = length * widthOrHeight;
                     const area = rawArea * slabDeductionFactor;
                     const floorFinishSelect = form.querySelector('.form-floor-finish');
@@ -4074,16 +4250,19 @@
                         calculationStrings: calcStrings,
                     };
                 } else {
-                    const area = length * widthOrHeight;
+                    const rawArea = length * widthOrHeight;
+                    const area = Math.max(rawArea - openingArea, 0);
+                    const concreteVolume = area * (thickness / 100);
                     const intFinishSelect = form.querySelector('.form-interior-finish');
                     const extFinishSelect = form.querySelector('.form-exterior-finish');
                     const interiorFinishType = getFinishValue(intFinishSelect);
                     const exteriorFinishType = getFinishValue(extFinishSelect);
+                    const areaExpr = openingArea > 0 ? `(${length}m x ${widthOrHeight}m - 扣開口${openingArea}m²)` : `${length}m x ${widthOrHeight}m`;
                     const calcStrings = {
-                        concrete: `${length}m x ${widthOrHeight}m x ${thickness}cm`,
-                        formwork: `(${length}m x ${widthOrHeight}m) x 2 (雙面側模)`,
-                        interiorFinish: `${length}m x ${widthOrHeight}m`,
-                        exteriorFinish: `${length}m x ${widthOrHeight}m`,
+                        concrete: `${areaExpr} x ${thickness}cm`,
+                        formwork: `(${areaExpr}) x 2 (雙面側模)`,
+                        interiorFinish: `${areaExpr}`,
+                        exteriorFinish: `${areaExpr}`,
                     }; 
                     result.materials = {
                         componentId, componentFloor, componentType: componentTypes[type],
@@ -4229,6 +4408,15 @@
                 result.rebars.push({
                     itemType: 'accessory', name: '水泥墊塊', count: spacerCount,
                     componentId, componentFloor, componentType: componentTypes.slab, remarks: `間距約 1m x 1m`
+                });
+            } else {
+                const netWallArea = Math.max(length * widthOrHeight - openingArea, 0);
+                const wallSpacerCount = Math.ceil(netWallArea) * 2 * componentCount;
+                result.calculationSteps.push(`水泥墊塊計算 (牆雙面保護層3cm):`);
+                result.calculationSteps.push(`  - 數量 (雙面模板 1m x 1m間距): ceil(${netWallArea.toFixed(2)}) * 2 (面) * ${componentCount} = ${wallSpacerCount} 個`);
+                result.rebars.push({
+                    itemType: 'accessory', name: '水泥墊塊', count: wallSpacerCount,
+                    componentId, componentFloor, componentType: componentTypes.wall, remarks: `保護層 3cm (牆雙面 1m x 1m間距)`
                 });
             }
             return result;
@@ -4401,14 +4589,20 @@
                 ["   - 主筋定尺搭接: 頂通長筋與底筋長度超過 12m 定尺上限時，系統自動進行定尺切割並累計乙級受拉搭接長度。"], 
                 ["   - 腰筋 (防裂): 樑深 >= 60cm 啟動配置，樑深 60~89cm 配置一排 (2支)，每增加 30cm 再加一排 (2支)。"], 
                 [""], 
-                ["9. 版 (Slab) & 牆 (Wall):"], 
-                ["   - 模板面積: 樓版僅計底部坪頂一面；牆體計算雙面側模。"], 
+                ["9. 版 (Slab) & RC 牆 (RC Wall):"], 
+                ["   - 模板面積: 樓版僅計底部坪頂一面；RC 牆體計算雙面側模 (支援扣除門窗開口面積)。"], 
                 ["   - 端部彎鉤: 90° 彎鉤取 12db 與 15cm 較大值 (符合 ACI 318 法定平直段錨定標準)。"], 
                 ["   - 長料搭接: 超出最大撿料長度時自動拆解為起、中、末段並加計合規受拉搭接長度。"], 
                 ["   - 椅馬筋 (Slab Chair): 雙層板筋專用，依 90cm x 90cm 間距估算數量。"], 
-                ["   - 水泥墊塊 (Spacer): 依 1m x 1m 間距估算數量。"], 
+                ["   - 水泥墊塊 (Spacer): 柱每1m高4個、樑每1m長3個、版與RC牆每1m²每層1個自動估算。"], 
                 [""], 
-                ["10. 樁 (Pile):"], 
+                ["10. 紅磚牆砌築 (Brick Wall - 1/2B 半磚牆 & 1B 一磚牆):"], 
+                ["   - 依據 CNS 382 普通磚標準規格 (200×95×53 mm，灰縫 10mm) 與公共工程施工綱要規範第 04211 章計量。"], 
+                ["   - 1/2B 半磚牆 (厚 12cm): 每 m² 實砌淨量 64 塊紅磚 (約 212 塊/坪)、1:3 水泥砂漿需 50kg 水泥 0.22 包/m²、砌磚用砂 0.026 m³/m²。"], 
+                ["   - 1B 一磚牆 (厚 24cm): 每 m² 實砌淨量 128 塊紅磚 (約 423 塊/坪)、1:3 水泥砂漿需 50kg 水泥 0.47 包/m²、砌磚用砂 0.056 m³/m²。"], 
+                ["   - 支援輸入門窗開口扣除面積 (m²)，且紅磚牆自動歸零 RC 混凝土、模板與鋼筋，並雙向連動內外牆泥作粉刷面材。"], 
+                [""], 
+                ["11. 樁 (Pile):"], 
                 ["   - 模板面積: 地下深基礎全套管鑽掘樁或預力樁無現場側模，模板面積強制計算為 0 m² (消除幽靈模板)。"], 
                 ["   - 箍筋: 連續螺旋箍筋，總長度 = 螺旋單圈周長 x 總圈數。"], 
                 [""], 
@@ -4452,24 +4646,41 @@
             const dataByFloor = {};
             const rebarSummary = {};
             const accessorySummary = {};
-            const materialSummary = { totalConcrete: 0, totalFormwork: 0, finishes: {} };
+            const materialSummary = {
+                totalConcrete: 0,
+                totalFormwork: 0,
+                totalBrickArea: 0,
+                totalBrickPing: 0,
+                totalBrickCount: 0,
+                totalBrickCementBags: 0,
+                totalBrickSandM3: 0,
+                finishes: {}
+            };
             const components = new Map();
 
-            allCalcs.forEach(calc => {
+            allCalcs.forEach((calc, calcIdx) => {
                 const firstItem = (Object.keys(calc.materials).length > 0) ? calc.materials : (calc.rebars?.[0]);
                 if (!firstItem) return;
                 const componentId = firstItem.componentId || (calc.rebars.length > 0 ? calc.rebars[0].componentId : 'N/A');
                 const componentFloor = firstItem.componentFloor || (calc.rebars.length > 0 ? calc.rebars[0].componentFloor : '未分類');
                 const componentType = firstItem.componentType || (calc.rebars.length > 0 ? calc.rebars[0].componentType : 'N/A');
-                const key = `${componentFloor}-${componentId}-${componentType}`;
-                if (!components.has(key)) {
-                    components.set(key, { componentId, componentFloor, componentType, ...calc.materials, rebars: calc.rebars || [] });
+                let key = `${componentFloor}-${componentId}-${componentType}`;
+                if (components.has(key)) {
+                    key = `${key}-${calcIdx}`;
                 }
+                components.set(key, { componentId, componentFloor, componentType, ...calc.materials, rebars: calc.rebars || [] });
             });
 
             components.forEach(component => {
                 materialSummary.totalConcrete += component.concreteVolume || 0;
                 materialSummary.totalFormwork += component.formworkArea || 0;
+                if (component.isBrickWall) {
+                    materialSummary.totalBrickArea += component.brickArea || 0;
+                    materialSummary.totalBrickPing += component.brickPing || 0;
+                    materialSummary.totalBrickCount += component.brickCount || 0;
+                    materialSummary.totalBrickCementBags += component.mortarCementBags || 0;
+                    materialSummary.totalBrickSandM3 += component.mortarSandM3 || 0;
+                }
                 const finishTypes = [
                     { type: component.generalFinishType, area: component.generalFinishArea },
                     { type: component.floorFinishType, area: component.floorFinishArea },
@@ -4616,13 +4827,20 @@
             const chairCount = calcData.accessorySummary['椅馬筋'] || 0;
             const spacerCount = calcData.accessorySummary['水泥墊塊'] || 0;
 
+            const brickMultiplier = isProcurement ? 1.05 : 1.0;
+            const totalBrickArea = calcData.materialSummary?.totalBrickArea || 0;
+            const totalBrickPing = calcData.materialSummary?.totalBrickPing || 0;
+            const totalBrickCount = Math.ceil((calcData.materialSummary?.totalBrickCount || 0) * brickMultiplier);
+            const totalBrickCementBags = (calcData.materialSummary?.totalBrickCementBags || 0) * brickMultiplier;
+            const totalBrickSandM3 = (calcData.materialSummary?.totalBrickSandM3 || 0) * brickMultiplier;
+
             const modeClass = isProcurement ? 'warning' : 'optimal';
             const deductionClass = isNetQS ? 'optimal' : 'warning';
 
             // 施工性警示卡片 HTML
             const alerts = calcData.spacingAlerts || [];
             let spacingAlertHtml = '';
-            const hasComponents = (calcData.allCalcs && calcData.allCalcs.length > 0) || totalConcrete > 0 || totalRebarWeight > 0;
+            const hasComponents = (calcData.allCalcs && calcData.allCalcs.length > 0) || totalConcrete > 0 || totalRebarWeight > 0 || totalBrickCount > 0;
             
             if (hasComponents) {
                 if (alerts.length > 0) {
@@ -4865,14 +5083,13 @@
                         </div>
                     </div>
 
-                    <!-- 右欄: 施工耗材配件、接頭統計與面材匯總 -->
+                    <!-- 右欄: 施工耗材配件、紅磚泥作與面材匯總 -->
                     <div class="kpi-card flex flex-col justify-between">
                         <div>
                             <div class="flex items-center gap-2 mb-4 pb-2 border-b border-[var(--border-plasma)]/60">
-                                
-                                <h3 class="text-sm font-bold tracking-wide text-white">施工配件估算 (ACCESSORIES)</h3>
+                                <h3 class="text-sm font-bold tracking-wide text-white">施工配件與紅磚泥作估算 (ACCESSORIES &amp; MASONRY)</h3>
                             </div>
-                            <div class="space-y-3">
+                            <div class="space-y-2.5">
                                 <div class="flex justify-between items-center p-2.5 rounded bg-black/40 border border-gray-700/60">
                                     <span class="text-xs text-gray-300">機械式續接器 (Couplers)</span>
                                     <span class="font-mono text-cyan-400 font-bold">${couplerCount} <span class="text-xs text-muted">個</span></span>
@@ -4883,13 +5100,27 @@
                                 </div>
                                 <div class="flex justify-between items-center p-2.5 rounded bg-black/40 border border-gray-700/60">
                                     <span class="text-xs text-gray-300">水泥保護層墊塊 (Spacers)</span>
-                                    <span class="font-mono text-cyan-400 font-bold">${spacerCount} <span class="text-xs text-muted">個</span></span>
+                                    <span class="font-mono text-cyan-400 font-bold">${spacerCount.toLocaleString()} <span class="text-xs text-muted">個</span></span>
+                                </div>
+                                <div class="flex justify-between items-center p-2.5 rounded bg-amber-950/30 border border-amber-500/40">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-amber-200 font-semibold">CNS 紅磚總數 (Red Bricks)</span>
+                                        <span class="text-[11px] text-gray-400 font-mono">實砌: ${totalBrickArea.toFixed(2)} m² (${totalBrickPing.toFixed(2)} 坪)</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="font-mono text-amber-300 font-bold text-sm">${totalBrickCount.toLocaleString()} <span class="text-xs text-muted">塊</span></span>
+                                        <div class="text-[10px] text-amber-400/80 font-mono">${isProcurement ? '含+5%損耗' : '設計淨量'}</div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center p-2.5 rounded bg-amber-950/20 border border-amber-500/30">
+                                    <span class="text-xs text-amber-200/90">砌磚水泥 / 砂漿用砂</span>
+                                    <span class="font-mono text-amber-300 font-bold text-xs">${totalBrickCementBags.toFixed(1)} <span class="text-muted">包</span> / ${totalBrickSandM3.toFixed(2)} <span class="text-muted">m³</span></span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mt-4 pt-3 border-t border-[var(--border-plasma)]/40 text-[11px] text-gray-400 leading-relaxed">
-                            提示：椅馬與墊塊係依台灣營造施工慣例與保護層間隔率自動換算，供備料參考。
+                            提示：紅磚依 CNS 382 標準磚 (1/2B=64塊/m², 1B=128塊/m²) 暨 1:3 水泥砂漿自動折算。
                         </div>
                     </div>
                 </div>
@@ -5111,7 +5342,30 @@
                 ctx.restore();
             }
 
-            if (shape.includes('ㄇ') || shape.includes('兩端彎鉤') || shape.includes('U型')) {
+            if (rebar.itemType === 'accessory') {
+                // 繪製水泥保護層墊塊 (Concrete Spacer) 工程大樣圖
+                ctx.save();
+                ctx.fillStyle = '#CBD5E1';
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(95, 26);
+                ctx.lineTo(155, 26);
+                ctx.lineTo(168, 54);
+                ctx.lineTo(82, 54);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                // 上方鋼筋斷面與綁紮鐵絲示意
+                ctx.fillStyle = '#0284C7';
+                ctx.beginPath();
+                ctx.arc(125, 21, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                drawDim('水泥保護層墊塊 (4~5cm)', 125, 11);
+                drawDim(`共 ${rebar.count || 0} 個`, 125, 65);
+                return canvas.toDataURL('image/png');
+            } else if (shape.includes('ㄇ') || shape.includes('兩端彎鉤') || shape.includes('U型')) {
                 // ㄇ字型（第一段 A、第二段 B、第三段 C、總長）
                 const xL = 50, xR = 200, yTop = 22, yBot = 58;
                 ctx.beginPath();
@@ -5353,7 +5607,7 @@
                 fitToWidth: 1,
                 fitToHeight: 0
             };
-            ws2.columns = [{ width: 25 }, { width: 16 }, { width: 22 }, { width: 24 }, { width: 16 }, { width: 35 }];
+            ws2.columns = [{ width: 25 }, { width: 18 }, { width: 22 }, { width: 24 }, { width: 38 }, { width: 20 }, { width: 18 }, { width: 18 }, { width: 20 }, { width: 18 }];
 
             ws2.addRow(['鋼筋總計 (設計淨量與採購發包總量對照)']).eachCell(c => Object.assign(c, styleSec));
             const rRhead = ws2.addRow(['鋼筋尺寸', '總長度 (m)', '設計淨重 (kg) [淨量]', '發包總重 (kg) [+5%損耗]', '採購噸數 (t)']);
@@ -5397,6 +5651,34 @@
             applyDataRow(mRow2, true, ['left', 'right', 'right', 'center', 'left'], [null, '#,##0.00', '#,##0.00', null, null]);
 
             let finishRowIdx = 0;
+            const spacerNetCount = accessorySummary?.['水泥墊塊'] || 0;
+            if (spacerNetCount > 0) {
+                const mRowSpacer = ws2.addRow(['水泥保護層墊塊', spacerNetCount, Math.ceil(spacerNetCount * 1.10), '個', '+10% (柱/樑/版/RC牆保護層墊塊，含施工破損損耗)']);
+                applyDataRow(mRowSpacer, finishRowIdx % 2 === 0, ['left', 'right', 'right', 'center', 'left'], [null, '#,##0', '#,##0', null, null]);
+                finishRowIdx++;
+            }
+            const brickNetCount = materialSummary?.totalBrickCount || 0;
+            const brickNetArea = materialSummary?.totalBrickArea || 0;
+            const brickNetPing = materialSummary?.totalBrickPing || 0;
+            const brickCementNet = materialSummary?.totalBrickCementBags || 0;
+            const brickSandNet = materialSummary?.totalBrickSandM3 || 0;
+            if (brickNetCount > 0) {
+                const mRowBrickArea = ws2.addRow(['紅磚牆實砌面積', brickNetArea, brickNetArea, 'm²', `折合 ${brickNetPing.toFixed(2)} 坪 (已扣除門窗開口淨面積)`]);
+                applyDataRow(mRowBrickArea, finishRowIdx % 2 === 0, ['left', 'right', 'right', 'center', 'left'], [null, '#,##0.00', '#,##0.00', null, null]);
+                finishRowIdx++;
+
+                const mRowBrick = ws2.addRow(['紅磚 (CNS標準磚)', brickNetCount, Math.ceil(brickNetCount * 1.05), '塊', '+5% (搬運及切磚損耗，CNS 382 標準磚)']);
+                applyDataRow(mRowBrick, finishRowIdx % 2 === 0, ['left', 'right', 'right', 'center', 'left'], [null, '#,##0', '#,##0', null, null]);
+                finishRowIdx++;
+
+                const mRowCement = ws2.addRow(['砌磚水泥 (50kg裝)', brickCementNet, brickCementNet * 1.05, '包', '+5% (1:3水泥砂漿拌合損耗)']);
+                applyDataRow(mRowCement, finishRowIdx % 2 === 0, ['left', 'right', 'right', 'center', 'left'], [null, '#,##0.00', '#,##0.00', null, null]);
+                finishRowIdx++;
+
+                const mRowSand = ws2.addRow(['砌磚用砂', brickSandNet, brickSandNet * 1.05, 'm³', '+5% (過篩及拌合損耗)']);
+                applyDataRow(mRowSand, finishRowIdx % 2 === 0, ['left', 'right', 'right', 'center', 'left'], [null, '#,##0.00', '#,##0.00', null, null]);
+                finishRowIdx++;
+            }
             Object.entries(materialSummary?.finishes || {}).forEach(([fName, fArea]) => {
                 const isE = finishRowIdx % 2 === 0;
                 const fProc = fArea * 1.05;
@@ -5450,6 +5732,54 @@
             });
             const fTot = ws2.addRow(['', '', '', '', '總計', materialSummary?.totalFormwork || 0]);
             fTot.eachCell(c => Object.assign(c, styleTotal));
+
+            // 紅磚牆砌築與泥作數量明細 (當案場有紅磚牆時自動輸出專業明細表)
+            const brickComponents = sortedComponents.filter(c => c.isBrickWall && (c.brickCount || 0) > 0);
+            if (brickComponents.length > 0) {
+                ws2.addRow([]);
+                ws2.addRow(['紅磚牆砌築與泥作數量明細 (CNS 382 標準紅磚)']).eachCell(c => Object.assign(c, styleSec));
+                const rBhead = ws2.addRow(['樓層', '構件類型', '構件編號', '磚牆規格', '計算式', '實砌面積 (m²)', '折合坪數 (坪)', '紅磚淨量 (塊)', '採購紅磚 (+5%)', '砌磚水泥 (包)']);
+                rBhead.eachCell(c => Object.assign(c, styleHeader));
+                let bIdx = 0;
+                let totBArea = 0, totBPing = 0, totBNet = 0, totBProc = 0, totBCement = 0;
+                brickComponents.forEach(component => {
+                    const isE = bIdx % 2 === 0;
+                    const calcStr = component.calculationStrings?.brick || '';
+                    const bArea = component.brickArea || 0;
+                    const bPing = component.brickPing || (bArea * 0.3025);
+                    const bNet = component.brickCount || 0;
+                    const bProc = Math.ceil(bNet * 1.05);
+                    const bCem = component.mortarCementBags || 0;
+                    totBArea += bArea;
+                    totBPing += bPing;
+                    totBNet += bNet;
+                    totBProc += bProc;
+                    totBCement += bCem;
+                    const bRow = ws2.addRow([
+                        component.componentFloor,
+                        component.componentType,
+                        component.componentId,
+                        component.brickSpecName || '紅磚牆',
+                        calcStr,
+                        bArea,
+                        bPing,
+                        bNet,
+                        bProc,
+                        bCem
+                    ]);
+                    applyDataRow(bRow, isE,
+                        ['center', 'center', 'center', 'center', 'left', 'right', 'right', 'right', 'right', 'right'],
+                        [null, null, null, null, null, '#,##0.00', '#,##0.00', '#,##0', '#,##0', '#,##0.00']
+                    );
+                    bIdx++;
+                });
+                const bTot = ws2.addRow(['', '', '', '', '總計', totBArea, totBPing, totBNet, Math.ceil(totBNet * 1.05), totBCement]);
+                bTot.eachCell((c, colNum) => {
+                    Object.assign(c, styleTotal);
+                    if (colNum === 8 || colNum === 9) c.numFmt = '#,##0';
+                    else if (colNum >= 6) c.numFmt = '#,##0.00';
+                });
+            }
 
             // 各面材明細
             const finishBreakdowns = {};
@@ -5637,22 +5967,21 @@
                         rObj.height = 50; // 加高至 50pt 容納大樣圖
                         applyDataRow(rObj, isE, rebarAligns, rebarNumFmts);
 
-                        // 嵌入鋼筋形狀圖形 (非配件時)
-                        if (rebar.itemType !== 'accessory') {
-                            try {
-                                const dataUrl = renderRebarShapeDataUrl(rebar);
-                                if (dataUrl && dataUrl.startsWith('data:image/png;base64,')) {
-                                    const b64 = dataUrl.split(',')[1];
-                                    const imgId = wb.addImage({ base64: b64, extension: 'png' });
-                                    wsR.addImage(imgId, {
-                                        tl: { col: 6.08, row: rIdx + 1.08 },
-                                        ext: { width: 180, height: 58 },
-                                        editAs: 'oneCell'
-                                    });
-                                }
-                            } catch (errImg) {
-                                console.warn("無法生成鋼筋大樣圖:", errImg);
+                        // 嵌入鋼筋形狀與配件大樣圖形，並清空底層文字避免重疊露出
+                        try {
+                            const dataUrl = renderRebarShapeDataUrl(rebar);
+                            if (dataUrl && dataUrl.startsWith('data:image/png;base64,')) {
+                                rObj.getCell(7).value = '';
+                                const b64 = dataUrl.split(',')[1];
+                                const imgId = wb.addImage({ base64: b64, extension: 'png' });
+                                wsR.addImage(imgId, {
+                                    tl: { col: 6.08, row: rIdx + 1.08 },
+                                    ext: { width: 180, height: 58 },
+                                    editAs: 'oneCell'
+                                });
                             }
+                        } catch (errImg) {
+                            console.warn("無法生成鋼筋大樣圖:", errImg);
                         }
                         rIdx++;
                     });
@@ -5683,6 +6012,13 @@
                         formworkType: component.formworkType || '普通合板模 (18mm)',
                         formArea: component.formworkArea || 0,
                         formCalc: calcStrings.formwork || '',
+                        isBrickWall: Boolean(component.isBrickWall),
+                        brickSpec: component.brickSpecName || (component.isBrickWall ? '紅磚牆' : '無'),
+                        brickArea: component.brickArea || 0,
+                        brickCount: component.brickCount || 0,
+                        brickCement: component.mortarCementBags || 0,
+                        brickSand: component.mortarSandM3 || 0,
+                        brickCalc: calcStrings.brick || '',
                         finishes: {}
                     };
 
@@ -5698,19 +6034,25 @@
                         }
                     });
 
-                    if (rowObj.concVol > 0 || rowObj.formArea > 0 || Object.keys(rowObj.finishes).length > 0) {
+                    if (rowObj.concVol > 0 || rowObj.formArea > 0 || rowObj.brickCount > 0 || Object.keys(rowObj.finishes).length > 0) {
                         floorMatRowsData.push(rowObj);
                     }
                 });
 
+                const hasBrickInProject = (materialSummary?.totalBrickCount || 0) > 0;
                 const extraHeaders = Array.from(usedFinishHeaders).sort();
+                const brickHeaders = hasBrickInProject
+                    ? ['磚牆規格', '實砌面積 (m²)', '紅磚數量 (塊)', '砌磚水泥 (包)', '砌磚用砂 (m³)', '砌磚計算式']
+                    : [];
                 const matHeaders = [
                     '構件類型', '構件編號', 
                     '混凝土強度 (fc\')', '混凝土體積 (m³)', '混凝土計算式', 
                     '模板規格', '模板面積 (m²)', '模板計算式'
-                ].concat(extraHeaders);
-                const matAligns = ['center', 'center', 'center', 'right', 'left', 'center', 'right', 'left'];
-                const matNumFmts = [null, null, null, '#,##0.00', null, null, '#,##0.00', null];
+                ].concat(brickHeaders).concat(extraHeaders);
+                const matAligns = ['center', 'center', 'center', 'right', 'left', 'center', 'right', 'left']
+                    .concat(hasBrickInProject ? ['center', 'right', 'right', 'right', 'right', 'left'] : []);
+                const matNumFmts = [null, null, null, '#,##0.00', null, null, '#,##0.00', null]
+                    .concat(hasBrickInProject ? [null, '#,##0.00', '#,##0', '#,##0.00', '#,##0.000', null] : []);
                 extraHeaders.forEach(eh => {
                     if (eh.endsWith('數量 (m²)')) {
                         matAligns.push('right');
@@ -5730,10 +6072,12 @@
                     fitToHeight: 0
                 };
                 wsM.columns = [
-                    { width: 12 }, { width: 12 }, 
+                    { width: 14 }, { width: 12 }, 
                     { width: 16 }, { width: 18 }, { width: 35 }, 
                     { width: 20 }, { width: 18 }, { width: 35 }
-                ].concat(extraHeaders.map(eh => ({ width: eh.endsWith('數量 (m²)') ? 22 : 35 })));
+                ].concat(hasBrickInProject ? [
+                    { width: 22 }, { width: 16 }, { width: 16 }, { width: 16 }, { width: 16 }, { width: 38 }
+                ] : []).concat(extraHeaders.map(eh => ({ width: eh.endsWith('數量 (m²)') ? 22 : 35 })));
 
                 const rMH = wsM.addRow(matHeaders);
                 rMH.eachCell(c => Object.assign(c, styleHeader));
@@ -5751,6 +6095,16 @@
                         row.formArea,
                         row.formCalc
                     ];
+                    if (hasBrickInProject) {
+                        rVals.push(
+                            row.brickSpec || '無',
+                            row.brickArea || 0,
+                            row.brickCount || 0,
+                            row.brickCement || 0,
+                            row.brickSand || 0,
+                            row.brickCalc || ''
+                        );
+                    }
                     extraHeaders.forEach(eh => {
                         rVals.push(row.finishes[eh] || (eh.endsWith('數量 (m²)') ? 0 : ''));
                     });
@@ -5935,6 +6289,21 @@
             summaryAOA.push([cellT('模板', true, 'left'), cellN(fNet, true, '#,##0.00'), cellN(fNet * 1.05, true, '#,##0.00'), cellT('m²', true, 'center'), cellT('+5% (合板裁切損耗)', true, 'left')]);
 
             let finishRowIdx = 0;
+            const spNetCnt = accessorySummary?.['水泥墊塊'] || 0;
+            if (spNetCnt > 0) {
+                summaryAOA.push([cellT('水泥保護層墊塊', false, 'left'), cellN(spNetCnt, false, '#,##0'), cellN(Math.ceil(spNetCnt * 1.10), false, '#,##0'), cellT('個', false, 'center'), cellT('+10% (柱/樑/版/RC牆保護層墊塊，含施工破損損耗)', false, 'left')]);
+            }
+            const bNetCnt = materialSummary.totalBrickCount || 0;
+            const bNetArea = materialSummary.totalBrickArea || 0;
+            const bNetPing = materialSummary.totalBrickPing || 0;
+            const bCemNet = materialSummary.totalBrickCementBags || 0;
+            const bSandNet = materialSummary.totalBrickSandM3 || 0;
+            if (bNetCnt > 0) {
+                summaryAOA.push([cellT('紅磚牆實砌面積', false, 'left'), cellN(bNetArea, false, '#,##0.00'), cellN(bNetArea, false, '#,##0.00'), cellT('m²', false, 'center'), cellT(`折合 ${bNetPing.toFixed(2)} 坪 (已扣除門窗開口淨面積)`, false, 'left')]);
+                summaryAOA.push([cellT('紅磚 (CNS標準磚)', true, 'left'), cellN(bNetCnt, true, '#,##0'), cellN(Math.ceil(bNetCnt * 1.05), true, '#,##0'), cellT('塊', true, 'center'), cellT('+5% (搬運及切磚損耗，CNS 382 標準磚)', true, 'left')]);
+                summaryAOA.push([cellT('砌磚水泥 (50kg裝)', false, 'left'), cellN(bCemNet, false, '#,##0.00'), cellN(bCemNet * 1.05, false, '#,##0.00'), cellT('包', false, 'center'), cellT('+5% (1:3水泥砂漿拌合損耗)', false, 'left')]);
+                summaryAOA.push([cellT('砌磚用砂', true, 'left'), cellN(bSandNet, true, '#,##0.00'), cellN(bSandNet * 1.05, true, '#,##0.00'), cellT('m³', true, 'center'), cellT('+5% (過篩及拌合損耗)', true, 'left')]);
+            }
             Object.entries(materialSummary.finishes).forEach(([fName, fArea]) => {
                 const isE = finishRowIdx % 2 === 0;
                 summaryAOA.push([
@@ -6015,6 +6384,55 @@
                 cellTot('總計', undefined, true),
                 cellTot(materialSummary.totalFormwork, '#,##0.00')
             ]);
+
+            // 紅磚牆砌築與泥作數量明細
+            const brickCompsSheetJS = sortedComponents.filter(c => c.isBrickWall && (c.brickCount || 0) > 0);
+            if (brickCompsSheetJS.length > 0) {
+                summaryAOA.push([]);
+                summaryAOA.push([cellSec('紅磚牆砌築與泥作數量明細 (CNS 382 標準紅磚)'), { v: '', s: EXCEL_STYLES.sectionTitle }, { v: '', s: EXCEL_STYLES.sectionTitle }, { v: '', s: EXCEL_STYLES.sectionTitle }, { v: '', s: EXCEL_STYLES.sectionTitle }, { v: '', s: EXCEL_STYLES.sectionTitle }, { v: '', s: EXCEL_STYLES.sectionTitle }, { v: '', s: EXCEL_STYLES.sectionTitle }, { v: '', s: EXCEL_STYLES.sectionTitle }, { v: '', s: EXCEL_STYLES.sectionTitle }]);
+                summaryAOA.push([cellH('樓層'), cellH('構件類型'), cellH('構件編號'), cellH('磚牆規格'), cellH('計算式'), cellH('實砌面積 (m²)'), cellH('折合坪數 (坪)'), cellH('紅磚淨量 (塊)'), cellH('採購紅磚 (+5%)'), cellH('砌磚水泥 (包)')]);
+                let bIdx = 0;
+                let totBArea = 0, totBPing = 0, totBNet = 0, totBProc = 0, totBCem = 0;
+                brickCompsSheetJS.forEach(component => {
+                    const isE = bIdx % 2 === 0;
+                    const calcStr = component.calculationStrings?.brick || '';
+                    const bArea = component.brickArea || 0;
+                    const bPing = component.brickPing || (bArea * 0.3025);
+                    const bNet = component.brickCount || 0;
+                    const bProc = Math.ceil(bNet * 1.05);
+                    const bCem = component.mortarCementBags || 0;
+                    totBArea += bArea;
+                    totBPing += bPing;
+                    totBNet += bNet;
+                    totBProc += bProc;
+                    totBCem += bCem;
+                    summaryAOA.push([
+                        cellT(component.componentFloor, isE, 'center'),
+                        cellT(component.componentType, isE, 'center'),
+                        cellT(component.componentId, isE, 'center'),
+                        cellT(component.brickSpecName || '紅磚牆', isE, 'center'),
+                        cellT(calcStr, isE, 'left'),
+                        cellN(bArea, isE, '#,##0.00'),
+                        cellN(bPing, isE, '#,##0.00'),
+                        cellN(bNet, isE, '#,##0'),
+                        cellN(bProc, isE, '#,##0'),
+                        cellN(bCem, isE, '#,##0.00')
+                    ]);
+                    bIdx++;
+                });
+                summaryAOA.push([
+                    cellTot('', undefined, true),
+                    cellTot('', undefined, true),
+                    cellTot('', undefined, true),
+                    cellTot('', undefined, true),
+                    cellTot('總計', undefined, true),
+                    cellTot(totBArea, '#,##0.00'),
+                    cellTot(totBPing, '#,##0.00'),
+                    cellTot(totBNet, '#,##0'),
+                    cellTot(Math.ceil(totBNet * 1.05), '#,##0'),
+                    cellTot(totBCem, '#,##0.00')
+                ]);
+            }
 
             // 各面材明細
             const finishBreakdowns = {};
@@ -6210,6 +6628,12 @@
                         formworkType: component.formworkType || '普通合板模 (18mm)',
                         formArea: component.formworkArea || 0,
                         formCalc: calcStrings.formwork || '',
+                        brickSpec: component.brickSpecName || (component.isBrickWall ? '紅磚牆' : '無'),
+                        brickArea: component.brickArea || 0,
+                        brickCount: component.brickCount || 0,
+                        brickCement: component.mortarCementBags || 0,
+                        brickSand: component.mortarSandM3 || 0,
+                        brickCalc: calcStrings.brick || '',
                         finishes: {}
                     };
 
@@ -6225,17 +6649,21 @@
                         }
                     });
 
-                    if (rowObj.concVol > 0 || rowObj.formArea > 0 || Object.keys(rowObj.finishes).length > 0) {
+                    if (rowObj.concVol > 0 || rowObj.formArea > 0 || rowObj.brickCount > 0 || Object.keys(rowObj.finishes).length > 0) {
                         floorMatRowsData.push(rowObj);
                     }
                 });
 
+                const hasBrickInProject = (materialSummary.totalBrickCount || 0) > 0;
                 const extraHeaders = Array.from(usedFinishHeaders).sort();
+                const brickHeaders = hasBrickInProject
+                    ? ['磚牆規格', '實砌面積 (m²)', '紅磚數量 (塊)', '砌磚水泥 (包)', '砌磚用砂 (m³)', '砌磚計算式']
+                    : [];
                 const matHeaders = [
                     '構件類型', '構件編號', 
                     '混凝土強度 (fc\')', '混凝土體積 (m³)', '混凝土計算式', 
                     '模板規格', '模板面積 (m²)', '模板計算式'
-                ].concat(extraHeaders);
+                ].concat(brickHeaders).concat(extraHeaders);
                 
                 const floorMatAOA = [
                     matHeaders.map(h => cellH(h))
@@ -6259,6 +6687,17 @@
                         cellN(row.formArea, isE, '#,##0.00'),
                         cellT(row.formCalc, isE, 'left')
                     ];
+
+                    if (hasBrickInProject) {
+                        rowCells.push(
+                            cellT(row.brickSpec || '無', isE, 'center'),
+                            cellN(row.brickArea || 0, isE, '#,##0.00'),
+                            cellN(row.brickCount || 0, isE, '#,##0'),
+                            cellN(row.brickCement || 0, isE, '#,##0.00'),
+                            cellN(row.brickSand || 0, isE, '#,##0.000'),
+                            cellT(row.brickCalc || '', isE, 'left')
+                        );
+                    }
 
                     extraHeaders.forEach(eh => {
                         const val = row.finishes[eh];
