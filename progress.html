@@ -54,7 +54,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- 引入 xlsx-populate 函式庫 -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx-populate@1.21.0/browser/xlsx-populate.min.js"></script>
-    <script src="js/main.js"></script>
 
     <style>
         /* NOVERA 工程顧問嚴謹質感樣式 */
@@ -343,12 +342,20 @@
             <h3 class="text-2xl font-bold text-primary-navy flex items-center gap-2">
                 <i class="fas fa-chart-area text-accent-gold"></i> 工程進度分析儀表板 ─ <span id="modal-project-title" class="text-accent-gold-light"></span>
             </h3>
-            <div class="border-b border-gray-200 mt-3 mb-4">
-                <nav class="-mb-px flex space-x-4">
+            <div class="border-b border-gray-200 mt-3 mb-4 flex flex-wrap justify-between items-center gap-2">
+                <nav class="-mb-px flex space-x-4 flex-wrap">
                     <button id="tab-btn-comparison" data-tab="comparison" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base active"><i class="fas fa-layer-group text-accent-gold"></i> 雙包絡香蕉 S-Curve ＆ EVM 實獲值分析</button>
                     <button id="tab-btn-planned" data-tab="planned" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-tasks"></i> 預定排程 (早期 vs. 晚期 S 曲線)</button>
                     <button id="tab-btn-actual" data-tab="actual" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-history"></i> 實際累積進度 S 曲線</button>
                 </nav>
+                <div class="flex items-center gap-2 pb-1">
+                    <label for="chartTimeScaleSelect" class="text-xs font-bold text-gray-600"><i class="fas fa-calendar-alt text-accent-gold"></i> X軸日期刻度:</label>
+                    <select id="chartTimeScaleSelect" onchange="onChartTimeScaleChange(this.value)" class="p-1.5 input-eng text-xs font-bold text-primary-navy">
+                        <option value="auto">自動適應刻度 (預設)</option>
+                        <option value="week">每週刻度 (7天)</option>
+                        <option value="day">逐日展開刻度 (每日明細)</option>
+                    </select>
+                </div>
             </div>
             
             <div id="tab-content-comparison" class="flex-grow min-h-0 overflow-y-auto">
@@ -493,15 +500,20 @@
                     </div>
                 </div>
                 <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                    <label class="block text-xs font-bold text-primary-navy mb-2 flex items-center gap-1">
-                        <i class="fas fa-project-diagram text-accent-gold"></i> 要徑網絡緊前相依關係 (Predecessor)
-                    </label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <div class="sm:col-span-2">
-                            <label class="block text-[11px] text-gray-500 mb-0.5">緊前分項工程</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-bold text-primary-navy flex items-center gap-1">
+                            <i class="fas fa-project-diagram text-accent-gold"></i> 要徑網絡緊前相依關係 (Predecessors)
+                        </label>
+                        <button type="button" onclick="addExtraPredRowInModal()" class="text-[11px] font-bold px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 border border-blue-200 transition">
+                            <i class="fas fa-plus"></i> 新增並聯緊前作業
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+                        <div class="sm:col-span-6">
+                            <label class="block text-[11px] text-gray-500 mb-0.5">主緊前分項工程</label>
                             <select id="editTaskPred" class="w-full p-2 input-eng text-xs"></select>
                         </div>
-                        <div>
+                        <div class="sm:col-span-4">
                             <label class="block text-[11px] text-gray-500 mb-0.5">依賴類型</label>
                             <select id="editTaskPredType" class="w-full p-2 input-eng text-xs font-mono">
                                 <option value="FS">FS (完成-開始)</option>
@@ -509,11 +521,12 @@
                                 <option value="FF">FF (同時完成)</option>
                             </select>
                         </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] text-gray-500 mb-0.5">Lag (天)</label>
+                            <input type="number" id="editTaskPredLag" value="0" class="w-full p-2 input-eng text-xs font-mono">
+                        </div>
                     </div>
-                    <div class="mt-2">
-                        <label class="block text-[11px] text-gray-500 mb-0.5">延遲天數 Lag (天)</label>
-                        <input type="number" id="editTaskPredLag" value="0" class="w-28 p-1.5 input-eng text-xs font-mono">
-                    </div>
+                    <div id="editTaskExtraPredsContainer" class="space-y-2 mt-2"></div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end items-center gap-3">
@@ -833,7 +846,9 @@
                 constructionUnit: document.getElementById('newConstructionUnit').value.trim(),
                 startDate: document.getElementById('newStartDate').value,
                 contractDuration: parseInt(document.getElementById('newContractDuration').value),
+                originalContractDuration: parseInt(document.getElementById('newContractDuration').value),
                 plannedCompletionDate: document.getElementById('newPlannedCompletionDate').value,
+                originalPlannedCompletionDate: document.getElementById('newPlannedCompletionDate').value,
                 isCollapsed: false,
                 tasks: []
             };
@@ -875,8 +890,8 @@
             document.getElementById('editSupervisor').value = project.supervisor;
             document.getElementById('editConstructionUnit').value = project.constructionUnit;
             document.getElementById('editStartDate').value = project.startDate;
-            document.getElementById('editContractDuration').value = project.contractDuration;
-            document.getElementById('editPlannedCompletionDate').value = project.plannedCompletionDate;
+            document.getElementById('editContractDuration').value = project.originalContractDuration || project.contractDuration;
+            document.getElementById('editPlannedCompletionDate').value = project.originalPlannedCompletionDate || project.plannedCompletionDate;
             
             document.getElementById('edit-project-modal').classList.remove('hidden');
         }
@@ -900,7 +915,9 @@
                 constructionUnit: document.getElementById('editConstructionUnit').value.trim(),
                 startDate: document.getElementById('editStartDate').value,
                 contractDuration: parseInt(document.getElementById('editContractDuration').value),
-                plannedCompletionDate: document.getElementById('editPlannedCompletionDate').value
+                originalContractDuration: parseInt(document.getElementById('editContractDuration').value),
+                plannedCompletionDate: document.getElementById('editPlannedCompletionDate').value,
+                originalPlannedCompletionDate: document.getElementById('editPlannedCompletionDate').value
             };
 
             saveToLocalStorage();
@@ -1167,40 +1184,58 @@
                 }
             }
 
-            // 4. 自由浮時 (Free Float) 計算
+            // 4. 自由浮時 (Free Float) 計算 (完整支援 FS / SS / FF 邏輯關係與 Lag)
             tasks.forEach(t => {
                 const succs = succMap[t.id] || [];
                 if (succs.length === 0) {
                     t.freeFloat = Math.max(0, projectDurationDays - t.ef);
                 } else {
-                    let minSuccES = Infinity;
+                    let minFF = Infinity;
                     succs.forEach(s => {
                         const succ = taskMap[s.succId];
                         if (succ) {
-                            const val = (s.type === 'FS') ? (succ.es - s.lag) : succ.es;
-                            if (val < minSuccES) minSuccES = val;
+                            let candFF = Infinity;
+                            if (s.type === 'SS') {
+                                candFF = (succ.es - s.lag) - t.es;
+                            } else if (s.type === 'FF') {
+                                candFF = (succ.ef - s.lag) - t.ef;
+                            } else { // 預設 FS
+                                candFF = (succ.es - s.lag) - t.ef;
+                            }
+                            if (candFF < minFF) minFF = candFF;
                         }
                     });
-                    t.freeFloat = minSuccES === Infinity ? 0 : Math.max(0, minSuccES - t.ef);
+                    t.freeFloat = minFF === Infinity ? 0 : Math.max(0, minFF);
                 }
             });
 
-            // 5. 日期反向對齊
+            // 5. 日期反向對齊 (含甘特圖視覺結束座標 ganttEarlyEnd / ganttLateEnd，解決 Chart.js 午夜 00:00 少畫 1 天問題)
             tasks.forEach(t => {
                 const earlyStart = new Date(baseDate.getTime() + t.es * MS_PER_DAY);
                 const earlyEnd = new Date(baseDate.getTime() + (t.ef - 1) * MS_PER_DAY);
                 const lateStart = new Date(baseDate.getTime() + t.ls * MS_PER_DAY);
                 const lateEnd = new Date(baseDate.getTime() + (t.lf - 1) * MS_PER_DAY);
+                const ganttEarlyEnd = new Date(baseDate.getTime() + t.ef * MS_PER_DAY);
+                const ganttLateEnd = new Date(baseDate.getTime() + t.lf * MS_PER_DAY);
                 
                 t.plannedStartDate = formatDate(earlyStart);
                 t.plannedEndDate = formatDate(earlyEnd);
                 t.lateStartDate = formatDate(lateStart);
                 t.lateEndDate = formatDate(lateEnd);
+                t.ganttEarlyEnd = formatDate(ganttEarlyEnd);
+                t.ganttLateEnd = formatDate(ganttLateEnd);
             });
 
-            // 同步專案總工期與預定完工日
+            // 保留原始契約工期設定，並同步排程推算總工期與預定完工日
+            if (!project.originalContractDuration && project.contractDuration) {
+                project.originalContractDuration = project.contractDuration;
+            }
+            if (!project.originalPlannedCompletionDate && project.plannedCompletionDate) {
+                project.originalPlannedCompletionDate = project.plannedCompletionDate;
+            }
             const projectEndDate = new Date(baseDate.getTime() + (projectDurationDays - 1) * MS_PER_DAY);
             project.plannedCompletionDate = formatDate(projectEndDate);
+            project.scheduledDuration = projectDurationDays;
             project.contractDuration = projectDurationDays;
         }
 
@@ -1343,7 +1378,9 @@
             if (!project || !asOfDate) return;
             
             project.ui_selectedProgressDate = asOfDate;
-            
+            saveToLocalStorage();
+            renderProjects();
+            return;
             project.tasks.forEach(task => {
                 const progressInput = document.getElementById(`task-progress-${task.id}`);
                 const totalProgressCell = document.getElementById(`task-total-progress-${task.id}`);
@@ -1389,6 +1426,88 @@
                 showMessage('分項工程已刪除，並自動重算 CPM 網圖。', 'warning');
             });
         }
+
+        function moveTask(projectId, taskId, direction) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project || !project.tasks) return;
+            const idx = project.tasks.findIndex(t => t.id === taskId);
+            if (idx === -1) return;
+            const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+            if (targetIdx < 0 || targetIdx >= project.tasks.length) return;
+            const temp = project.tasks[idx];
+            project.tasks[idx] = project.tasks[targetIdx];
+            project.tasks[targetIdx] = temp;
+            calculateProjectCPM(project);
+            saveToLocalStorage();
+            renderProjects();
+        }
+
+        function insertTaskAfter(projectId, targetTaskId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project || !project.tasks) return;
+            const idx = project.tasks.findIndex(t => t.id === targetTaskId);
+            if (idx === -1) return;
+            const refTask = project.tasks[idx];
+            const newTask = {
+                id: generateId(),
+                wbsCode: `${refTask.wbsCode || (idx + 1)}.1`,
+                taskName: `新增分項工程 (緊接於 ${refTask.wbsCode || refTask.taskName} 之後)`,
+                taskCost: 100000,
+                duration: 5,
+                predecessors: [{ taskId: refTask.id, type: 'FS', lag: 0 }],
+                weight: 0,
+                progressHistory: []
+            };
+            project.tasks.splice(idx + 1, 0, newTask);
+            calculateProjectCPM(project);
+            saveToLocalStorage();
+            renderProjects();
+            showEditTaskModal(projectId, newTask.id);
+            showMessage(`已於「${refTask.taskName}」下方插入新工項，請設定工項明細。`, 'info');
+        }
+
+        function addExtraPredRowInModal(prefill = null) {
+            const projectId = document.getElementById('editTaskProjectId').value;
+            const taskId = document.getElementById('editTaskId').value;
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            const container = document.getElementById('editTaskExtraPredsContainer');
+            if (!container) return;
+
+            let optionsHtml = '<option value="">-- 請選擇並聯緊前工項 --</option>';
+            project.tasks.forEach(t => {
+                if (t.id !== taskId) {
+                    const sel = (prefill && prefill.taskId === t.id) ? 'selected' : '';
+                    optionsHtml += `<option value="${t.id}" ${sel}>${t.wbsCode ? t.wbsCode + ' ' : ''}${t.taskName} (${t.duration}天)</option>`;
+                }
+            });
+            const pType = (prefill && prefill.type) ? prefill.type : 'FS';
+            const pLag = (prefill && prefill.lag !== undefined) ? prefill.lag : 0;
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'extra-pred-row grid grid-cols-1 sm:grid-cols-12 gap-2 items-center pt-1 border-t border-gray-200';
+            rowDiv.innerHTML = `
+                <div class="sm:col-span-6">
+                    <select class="extra-pred-id w-full p-1.5 input-eng text-xs">${optionsHtml}</select>
+                </div>
+                <div class="sm:col-span-3">
+                    <select class="extra-pred-type w-full p-1.5 input-eng text-xs font-mono">
+                        <option value="FS" ${pType === 'FS' ? 'selected' : ''}>FS (完成-開始)</option>
+                        <option value="SS" ${pType === 'SS' ? 'selected' : ''}>SS (同時開始)</option>
+                        <option value="FF" ${pType === 'FF' ? 'selected' : ''}>FF (同時完成)</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-2">
+                    <input type="number" class="extra-pred-lag w-full p-1.5 input-eng text-xs font-mono" value="${pLag}" placeholder="Lag">
+                </div>
+                <div class="sm:col-span-1 text-right">
+                    <button type="button" onclick="this.closest('.extra-pred-row').remove()" class="p-1.5 text-red-500 hover:bg-red-50 rounded" title="移除此緊前關係">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(rowDiv);
+        }
         
         function showEditTaskModal(projectId, taskId) {
             const project = projects.find(p => p.id === projectId);
@@ -1416,6 +1535,14 @@
             predSelect.value = currentPred ? currentPred.taskId : '';
             document.getElementById('editTaskPredType').value = currentPred ? (currentPred.type || 'FS') : 'FS';
             document.getElementById('editTaskPredLag').value = currentPred ? (currentPred.lag || 0) : 0;
+
+            const extraContainer = document.getElementById('editTaskExtraPredsContainer');
+            if (extraContainer) {
+                extraContainer.innerHTML = '';
+                if (task.predecessors && task.predecessors.length > 1) {
+                    task.predecessors.slice(1).forEach(p => addExtraPredRowInModal(p));
+                }
+            }
             
             document.getElementById('edit-task-modal').classList.remove('hidden');
         }
@@ -1445,11 +1572,28 @@
                 return;
             }
 
+            const newPreds = [];
+            const seenIds = new Set();
+            if (predId && predId !== taskId) {
+                newPreds.push({ taskId: predId, type: predType, lag: predLag });
+                seenIds.add(predId);
+            }
+            const extraRows = document.querySelectorAll('#editTaskExtraPredsContainer .extra-pred-row');
+            extraRows.forEach(row => {
+                const eid = row.querySelector('.extra-pred-id')?.value;
+                const etype = row.querySelector('.extra-pred-type')?.value || 'FS';
+                const elag = parseInt(row.querySelector('.extra-pred-lag')?.value) || 0;
+                if (eid && eid !== taskId && !seenIds.has(eid)) {
+                    newPreds.push({ taskId: eid, type: etype, lag: elag });
+                    seenIds.add(eid);
+                }
+            });
+
             task.wbsCode = taskWbs || task.wbsCode || '1.1';
             task.taskName = taskName;
             task.taskCost = taskCost;
             task.duration = duration;
-            task.predecessors = predId ? [{ taskId: predId, type: predType, lag: predLag }] : [];
+            task.predecessors = newPreds;
 
             calculateProjectCPM(project);
             saveToLocalStorage();
@@ -1468,7 +1612,7 @@
             try {
                 const data = localStorage.getItem('novera_engineering_projects');
                 if (data) {
-                    const parsed = JSON.parse(data);
+                    const parsed = JSON.parse(data).filter(p => p && p.id !== 'renyi-2nd-st-opt-2026');
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         projects = parsed;
                         // 資料相容性檢查與 CPM 初始計算
@@ -1513,11 +1657,14 @@
                 ]
             }];
             projects.forEach(p => calculateProjectCPM(p));
+            saveToLocalStorage();
         }
 
         function renderProjects() {
             const today = formatDate(new Date());
             const projectListContainer = document.getElementById('project-list-container');
+            const savedWindowScrollY = window.scrollY;
+            const savedTableScrolls = Array.from(projectListContainer.querySelectorAll('.overflow-y-auto')).map(el => el.scrollTop);
             projectListContainer.innerHTML = '';
             
             if (projects.length === 0) {
@@ -1526,11 +1673,14 @@
             }
 
             projects.forEach(project => {
-                const summary = calculateProjectSummary(project, today);
+                const progressDisplayDate = project.ui_selectedProgressDate || today;
+                const summary = calculateProjectSummary(project, progressDisplayDate);
                 const status = getStatus(summary.overallProgress, summary.plannedProgress);
                 const isCollapsed = project.isCollapsed;
                 const progressColor = status.color.includes('emerald') ? 'border-emerald-500' : status.color.includes('amber') ? 'border-amber-500' : status.color.includes('red') ? 'border-red-500' : 'border-blue-500';
-                const progressDisplayDate = project.ui_selectedProgressDate || today;
+                const origDur = project.originalContractDuration || project.contractDuration;
+                const schedDur = summary.projectDuration || project.contractDuration || 0;
+                const durDiffNote = (origDur && origDur !== schedDur) ? `<span class="block text-[11px] ${schedDur > origDur ? 'text-red-600' : 'text-emerald-700'} font-semibold">契約核定 ${origDur}天 (${schedDur > origDur ? '+' + (schedDur - origDur) : (schedDur - origDur)}天)</span>` : '';
 
                 const projectHtml = `
                     <div class="mb-8 eng-card overflow-hidden ${progressColor} border-l-8">
@@ -1553,7 +1703,7 @@
                             </div>
                             <div class="w-full grid grid-cols-2 md:grid-cols-5 gap-3 text-center">
                                 <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">契約總額</p><p class="text-base md:text-lg font-black text-primary-navy font-mono">NT$ ${formatCurrency(project.contractSum)}</p></div>
-                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">總工期 / 要徑數</p><p class="text-base md:text-lg font-black text-primary-navy font-mono">${summary.projectDuration || project.contractDuration || 0} 天 <span class="text-xs text-red-600 font-bold">(${summary.criticalTasksCount || 0}項要徑)</span></p></div>
+                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">排程總工期 / 要徑數</p><p class="text-base md:text-lg font-black text-primary-navy font-mono">${schedDur} 天 <span class="text-xs text-red-600 font-bold">(${summary.criticalTasksCount || 0}項要徑)</span>${durDiffNote}</p></div>
                                 <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">實際累積進度</p><p class="text-lg md:text-xl font-black text-blue-700 font-mono">${summary.overallProgress.toFixed(2)}%</p></div>
                                 <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">預定累積進度</p><p class="text-lg md:text-xl font-black text-amber-600 font-mono">${summary.plannedProgress.toFixed(2)}%</p></div>
                                 <div class="p-3 rounded-lg border ${status.color}"><p class="text-xs font-bold">進度管考判定</p><p class="text-base md:text-lg font-black font-mono">${status.text} (${status.diff >= 0 ? '+' : ''}${status.diff.toFixed(2)}%)</p></div>
@@ -1574,6 +1724,11 @@
                 `;
                 projectListContainer.insertAdjacentHTML('beforeend', projectHtml);
             });
+            const newScrollContainers = projectListContainer.querySelectorAll('.overflow-y-auto');
+            newScrollContainers.forEach((el, idx) => {
+                if (savedTableScrolls[idx] !== undefined) el.scrollTop = savedTableScrolls[idx];
+            });
+            window.scrollTo(0, savedWindowScrollY);
         }
 
         function renderTaskPlanningSection(project, nextStartDate) {
@@ -1608,15 +1763,27 @@
                     <td class="p-2.5 text-center font-mono font-bold text-primary-navy">${task.duration || 1} 天</td>
                     <td class="p-2.5 text-center">${predHtml}</td>
                     <td class="p-2.5 text-center text-xs font-mono text-gray-600">${task.plannedStartDate || '---'} ~ ${task.plannedEndDate || '---'}</td>
-                    <td class="p-2.5 text-center font-mono font-bold ${isCrit ? 'text-red-600' : 'text-slate-700'}">${task.totalFloat ?? 0} 天</td>
+                    <td class="p-2.5 text-center font-mono font-bold ${isCrit ? 'text-red-600' : 'text-slate-700'}">
+                        <div>TF: ${task.totalFloat ?? 0} 天</div>
+                        ${!isCrit ? `<div class="text-[10px] text-slate-500 font-normal">FF: ${task.freeFloat ?? 0} 天</div>` : ''}
+                    </td>
                     <td class="p-2.5 text-center">${critBadge}</td>
                     <td class="p-2.5 text-center">
-                        <div class="flex justify-center items-center space-x-1.5">
-                            <button data-action="edit-task" data-project-id="${project.id}" data-task-id="${task.id}" title="修改工項" class="p-1.5 rounded bg-gray-100 hover:bg-amber-500 hover:text-white text-gray-700 transition border border-gray-200">
-                                <i class="fas fa-edit"></i>
+                        <div class="flex justify-center items-center space-x-1">
+                            <button data-action="move-task-up" data-project-id="${project.id}" data-task-id="${task.id}" title="上移此工項列" ${idx === 0 ? 'disabled' : ''} class="p-1 rounded bg-gray-100 hover:bg-slate-700 hover:text-white text-gray-600 disabled:opacity-30 transition border border-gray-200">
+                                <i class="fas fa-arrow-up text-[10px]"></i>
                             </button>
-                            <button data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}" title="刪除工項" class="p-1.5 rounded bg-gray-100 hover:bg-red-500 hover:text-white text-gray-700 transition border border-gray-200">
-                                <i class="fas fa-trash"></i>
+                            <button data-action="move-task-down" data-project-id="${project.id}" data-task-id="${task.id}" title="下移此工項列" ${idx === project.tasks.length - 1 ? 'disabled' : ''} class="p-1 rounded bg-gray-100 hover:bg-slate-700 hover:text-white text-gray-600 disabled:opacity-30 transition border border-gray-200">
+                                <i class="fas fa-arrow-down text-[10px]"></i>
+                            </button>
+                            <button data-action="insert-task-after" data-project-id="${project.id}" data-task-id="${task.id}" title="在此列下方插入新工項" class="p-1 rounded bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 transition border border-emerald-200">
+                                <i class="fas fa-plus text-[10px]"></i>
+                            </button>
+                            <button data-action="edit-task" data-project-id="${project.id}" data-task-id="${task.id}" title="修改工項" class="p-1 rounded bg-gray-100 hover:bg-amber-500 hover:text-white text-gray-700 transition border border-gray-200">
+                                <i class="fas fa-edit text-[10px]"></i>
+                            </button>
+                            <button data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}" title="刪除工項" class="p-1 rounded bg-gray-100 hover:bg-red-500 hover:text-white text-gray-700 transition border border-gray-200">
+                                <i class="fas fa-trash text-[10px]"></i>
                             </button>
                         </div>
                     </td>
@@ -1647,9 +1814,9 @@
                                     <th class="p-2 text-center">工期</th>
                                     <th class="p-2 text-center">緊前作業</th>
                                     <th class="p-2 text-center">最早起訖 (ES~EF)</th>
-                                    <th class="p-2 text-center">總浮時</th>
+                                    <th class="p-2 text-center">浮時 (TF/FF)</th>
                                     <th class="p-2 text-center">要徑判定</th>
-                                    <th class="p-2 text-center w-20">操作</th>
+                                    <th class="p-2 text-center w-36">排序 / 插入 / 編輯</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">${taskRows || '<tr><td colspan="10" class="p-4 text-center text-gray-400">尚未新增任何分項工程</td></tr>'}</tbody>
@@ -1812,10 +1979,19 @@
             ctx.restore();
         }
 
+        let currentChartTimeScaleMode = 'auto';
+
+        function onChartTimeScaleChange(mode) {
+            currentChartTimeScaleMode = mode || 'auto';
+            const activeTabBtn = document.querySelector('#chart-modal .tab-button.active');
+            const tabName = activeTabBtn ? activeTabBtn.dataset.tab : 'comparison';
+            drawChartsForTab(tabName, currentModalProjectId);
+        }
+
         function drawChartsForTab(tabName, projectId) {
             const targetId = projectId || currentModalProjectId;
             const project = projects.find(p => p.id === targetId);
-            const asOfDate = formatDate(new Date());
+            const asOfDate = project?.ui_selectedProgressDate || formatDate(new Date());
             const chartCanvasIds = ['plannedSCurveCanvas', 'plannedGanttCanvas', 'plannedCombinedCanvas', 'actualSCurveCanvas', 'comparisonSCurveCanvas'];
 
             if (!project || !project.startDate || !project.plannedCompletionDate || isNaN(new Date(project.startDate)) || isNaN(new Date(project.plannedCompletionDate))) {
@@ -1882,70 +2058,93 @@
         Chart.register(whiteBackgroundPlugin, todayLinePlugin, ChartDataLabels);
         Chart.defaults.plugins.datalabels.color = '#334155';
         
-        const chartDefaultOptions = (title, minDate, maxDate) => ({
-            responsive: true, maintainAspectRatio: false,
-            plugins: {
-                legend: { labels: { color: '#1E293B', font: { size: 13, weight: 'bold' } } },
-                title: { display: true, text: title, color: '#0E1B2E', font: { size: 16, weight: 'bold' } },
-                tooltip: {
-                    mode: 'index', intersect: false,
-                    backgroundColor: 'rgba(14, 27, 46, 0.95)', titleFont: { size: 14 }, bodyFont: { size: 13 },
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (context.dataset.type === 'bar' || context.dataset.backgroundColor) { 
-                                const raw = context.raw;
-                                let start, end;
-                                if (typeof raw === 'object' && raw.x) { [start, end] = raw.x; } 
-                                else if (Array.isArray(context.raw)) { [start, end] = context.raw; }
-                                if (start && end) {
-                                    const duration = getDurationDays(start, end);
-                                    return `${label}: ${formatDate(start)} ~ ${formatDate(end)} (${duration}天)`;
+        const chartDefaultOptions = (title, minDate, maxDate) => {
+            const isDaily = currentChartTimeScaleMode === 'day';
+            const isWeekly = currentChartTimeScaleMode === 'week';
+            return {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#1E293B', font: { size: 13, weight: 'bold' } } },
+                    title: { display: true, text: title, color: '#0E1B2E', font: { size: 16, weight: 'bold' } },
+                    tooltip: {
+                        mode: 'index', intersect: false,
+                        backgroundColor: 'rgba(14, 27, 46, 0.95)', titleFont: { size: 14 }, bodyFont: { size: 13 },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (context.dataset.type === 'bar' || context.dataset.backgroundColor) { 
+                                    const proj = projects.find(p => p.id === currentModalProjectId) || projects[0];
+                                    const task = proj?.tasks?.[context.dataIndex];
+                                    if (task) {
+                                        if (context.datasetIndex === 0) {
+                                            return `${label}: ${task.plannedStartDate} ~ ${task.plannedEndDate} (工期 ${task.duration}天)`;
+                                        } else if (context.datasetIndex === 1 && task.totalFloat > 0) {
+                                            return `${label}: 最晚完成 ${task.lateEndDate} (總浮時 TF=${task.totalFloat}天 / 自由浮時 FF=${task.freeFloat ?? 0}天)`;
+                                        }
+                                    }
+                                    const raw = context.raw;
+                                    let start, end;
+                                    if (typeof raw === 'object' && raw.x) { [start, end] = raw.x; } 
+                                    else if (Array.isArray(context.raw)) { [start, end] = context.raw; }
+                                    if (start && end) {
+                                        const duration = Math.max(1, getDurationDays(start, end) - 1);
+                                        return `${label}: ${formatDate(start)} ~ ${formatDate(end)} (${duration}天)`;
+                                    }
                                 }
+                                if(context.parsed.y !== null) { return `${label}: ${context.parsed.y.toFixed(2)}%`; }
+                                return label;
                             }
-                            if(context.parsed.y !== null) { return `${label}: ${context.parsed.y.toFixed(2)}%`; }
-                            return label;
                         }
                     }
-                }
-            },
-            scales: {
-                x: {
-                    type: 'time', 
-                    time: { 
-                        unit: 'day',
-                        displayFormats: {
-                            day: 'MM/dd',
-                            week: 'MM/dd',
-                            month: 'yyyy/MM'
-                        }
-                    },
-                    grid: { color: '#F1F5F9' }, 
-                    ticks: { 
-                        color: '#475569',
-                        font: { size: 11, weight: '600' },
-                        maxRotation: 0,
-                        autoSkip: true,
-                        maxTicksLimit: 12,
-                        callback: function(val) {
-                            const d = new Date(val);
-                            if (isNaN(d.getTime())) return '';
-                            const m = String(d.getMonth() + 1).padStart(2, '0');
-                            const day = String(d.getDate()).padStart(2, '0');
-                            return `${m}/${day}`;
-                        }
-                    },
-                    min: minDate, max: maxDate,
-                    title: { display: true, text: '期程日期 (月/日)', color: '#0E1B2E', font: { weight: 'bold' } }
                 },
-                y: {
-                    grid: { color: '#F1F5F9' }, 
-                    ticks: { color: '#1E293B', font: { weight: 'bold' } },
-                    title: { display: true, text: '分項工程', color: '#0E1B2E', font: { weight: 'bold' } },
-                    stacked: false
+                scales: {
+                    x: {
+                        type: 'time', 
+                        time: { 
+                            unit: isWeekly ? 'week' : 'day',
+                            stepSize: 1,
+                            displayFormats: {
+                                day: 'MM/dd',
+                                week: 'MM/dd',
+                                month: 'yyyy/MM'
+                            }
+                        },
+                        afterBuildTicks: isDaily ? function(axis) {
+                            if (!minDate || !maxDate) return;
+                            const ticks = [];
+                            for (let d = new Date(minDate); d <= new Date(maxDate); d.setDate(d.getDate() + 1)) {
+                                ticks.push({ value: d.getTime(), major: false });
+                            }
+                            axis.ticks = ticks;
+                        } : undefined,
+                        grid: { color: '#F1F5F9' }, 
+                        ticks: { 
+                            color: '#475569',
+                            font: { size: isDaily ? 8.5 : 11, weight: '600' },
+                            minRotation: isDaily ? 90 : 0,
+                            maxRotation: isDaily ? 90 : (isWeekly ? 45 : 0),
+                            autoSkip: !isDaily,
+                            maxTicksLimit: isDaily ? 1000 : (isWeekly ? 60 : 12),
+                            callback: function(val) {
+                                const d = new Date(val);
+                                if (isNaN(d.getTime())) return '';
+                                const m = String(d.getMonth() + 1).padStart(2, '0');
+                                const day = String(d.getDate()).padStart(2, '0');
+                                return `${m}/${day}`;
+                            }
+                        },
+                        min: minDate, max: maxDate,
+                        title: { display: true, text: '期程日期 (月/日)', color: '#0E1B2E', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#F1F5F9' }, 
+                        ticks: { color: '#1E293B', font: { weight: 'bold' } },
+                        title: { display: true, text: '分項工程', color: '#0E1B2E', font: { weight: 'bold' } },
+                        stacked: false
+                    }
                 }
-            }
-        });
+            };
+        };
 
         function createOrUpdateChart(canvasId, config) {
             const canvas = document.getElementById(canvasId);
@@ -1991,7 +2190,14 @@
             });
 
             // 專業工程甘特圖：要徑亮紅條、非要徑深藍條、總浮時 (Total Float) 琥珀色半透明寬限條
-            const defGanttOpts = chartDefaultOptions('公共工程標準要徑甘特圖 (CPM Gantt Chart ＆ 總浮時展示)', project.startDate, project.plannedCompletionDate);
+            const ganttWrapEl = document.getElementById('plannedGanttCanvas')?.parentElement;
+            if (ganttWrapEl) {
+                const dynamicGanttHeight = Math.max(480, (project.tasks?.length || 10) * 34 + 110);
+                ganttWrapEl.style.minHeight = dynamicGanttHeight + 'px';
+                ganttWrapEl.style.height = dynamicGanttHeight + 'px';
+            }
+            const ganttMaxDate = formatDate(new Date(new Date(project.plannedCompletionDate).getTime() + MS_PER_DAY));
+            const defGanttOpts = chartDefaultOptions('公共工程標準要徑甘特圖 (CPM Gantt Chart ＆ 總浮時展示)', project.startDate, ganttMaxDate);
             createOrUpdateChart('plannedGanttCanvas', {
                 type: 'bar', 
                 data: { 
@@ -1999,7 +2205,7 @@
                     datasets: [
                         { 
                             label: '分項工程作業工期', 
-                            data: project.tasks.map(t => [t.plannedStartDate, t.plannedEndDate]), 
+                            data: project.tasks.map(t => [t.plannedStartDate, t.ganttEarlyEnd || t.plannedEndDate]), 
                             backgroundColor: project.tasks.map(t => t.isCritical ? '#DC2626' : '#2563EB'),
                             borderRadius: 4,
                             borderWidth: 1,
@@ -2009,7 +2215,11 @@
                         },
                         { 
                             label: '總浮時寬限緩衝', 
-                            data: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate && t.lateEndDate && t.plannedEndDate !== t.lateEndDate) ? [t.plannedEndDate, t.lateEndDate] : [t.plannedEndDate, t.plannedEndDate]), 
+                            data: project.tasks.map(t => {
+                                const eEnd = t.ganttEarlyEnd || t.plannedEndDate;
+                                const lEnd = t.ganttLateEnd || t.lateEndDate;
+                                return (t.totalFloat > 0 && eEnd && lEnd && eEnd !== lEnd) ? [eEnd, lEnd] : [eEnd, eEnd];
+                            }), 
                             backgroundColor: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate !== t.lateEndDate) ? 'rgba(245, 158, 11, 0.45)' : 'transparent'),
                             borderColor: project.tasks.map(t => (t.totalFloat > 0 && t.plannedEndDate !== t.lateEndDate) ? '#D97706' : 'transparent'),
                             borderWidth: 1.5,
@@ -2034,9 +2244,10 @@
                             type: 'category',
                             stacked: false,
                             ticks: { 
-                                font: { weight: 'bold', size: 12 }, 
+                                autoSkip: false,
+                                font: { weight: 'bold', size: 11.5 }, 
                                 color: '#0E1B2E',
-                                padding: 8
+                                padding: 6
                             },
                             grid: { color: '#F1F5F9' }
                         }
@@ -2592,7 +2803,7 @@
 
             ctx.font = '13px "Noto Sans TC", sans-serif';
             ctx.fillStyle = '#64748B';
-            ctx.fillText(`製表基準日：${formatDate(new Date())} ｜ 契約發包總額：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`, padding, 82);
+            ctx.fillText(`製表基準日：${project.ui_selectedProgressDate || formatDate(new Date())} ｜ 契約發包總額：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`, padding, 82);
 
             // 分隔線
             ctx.strokeStyle = '#E2E8F0';
@@ -2678,7 +2889,7 @@
 
             ctx.font = '13px "Noto Sans TC", sans-serif';
             ctx.fillStyle = '#64748B';
-            ctx.fillText(`製表基準日：${formatDate(new Date())} ｜ 契約發包總額：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期起訖：${project.startDate} ~ ${project.plannedCompletionDate} (共 ${project.contractDuration || 0} 天)`, padding, 82);
+            ctx.fillText(`製表基準日：${project.ui_selectedProgressDate || formatDate(new Date())} ｜ 契約發包總額：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期起訖：${project.startDate} ~ ${project.plannedCompletionDate} (共 ${project.contractDuration || 0} 天)`, padding, 82);
 
             // 分隔線
             ctx.strokeStyle = '#E2E8F0';
@@ -2717,7 +2928,7 @@
             showMessage('正在依行政院工程會標準產製專業進度管制 Excel 報告書...', 'info');
 
             try {
-                const today = formatDate(new Date());
+                const today = project.ui_selectedProgressDate || formatDate(new Date());
                 const totalCost = project.tasks.reduce((sum, t) => sum + (parseFloat(t.taskCost) || 0), 0);
                 
                 // 執行 CPM 演算以確保最新狀態
@@ -2818,7 +3029,7 @@
                             const pt = taskMap[p.taskId];
                             return pt ? (pt.wbsCode || pt.taskName) : '未知';
                         }).join('; ');
-                        predTypes = task.predecessors.map(p => `${p.type || 'FS'}${p.lag ? '+' + p.lag + 'd' : ''}`).join('; ');
+                        predTypes = task.predecessors.map(p => `${p.type || 'FS'}${p.lag ? (p.lag > 0 ? '+' + p.lag + 'd' : p.lag + 'd') : ''}`).join('; ');
                     }
 
                     const actualProg = getTaskProgressAsOf(task, today);
@@ -3005,6 +3216,9 @@
                         switch(action) {
                             case 'edit-project': showEditModal(projectId); break;
                             case 'delete-project': deleteProject(projectId); break;
+                            case 'move-task-up': moveTask(projectId, taskId, 'up'); break;
+                            case 'move-task-down': moveTask(projectId, taskId, 'down'); break;
+                            case 'insert-task-after': insertTaskAfter(projectId, taskId); break;
                             case 'edit-task': showEditTaskModal(projectId, taskId); break;
                             case 'delete-task': deleteTask(projectId, taskId); break;
                             case 'show-chart-modal': showChartModal(projectId); break;
