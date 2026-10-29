@@ -1,0 +1,44 @@
+name: 每日自動更新標案雷達 (PCC Daily Tender Crawler)
+
+on:
+  schedule:
+    # 每天台灣時間清晨 07:30 執行 (UTC 23:30)
+    - cron: '30 23 * * *'
+    # 每天台灣時間中午 12:30 執行 (UTC 04:30)
+    - cron: '30 4 * * *'
+  workflow_dispatch: # 支援在 GitHub 網頁上手動點擊「立即執行」
+
+permissions:
+  contents: write
+
+jobs:
+  crawl-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢出專案原始碼 (鎖定主分支)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安裝依賴庫
+        run: |
+          pip install requests urllib3 openpyxl
+
+      - name: 執行政府採購網雙引擎爬蟲
+        run: |
+          python -u run_crawler.py
+
+      - name: 提交更新數據並推送到 GitHub (觸發 GitHub 託管自動發布)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          date -u +"%Y-%m-%d %H:%M:%S UTC" > .keepalive
+          git add tenders_data.js tenders_today.xlsx 今日政府電子採購網.xlsx .keepalive
+          git commit -m "🤖 [自動排程] 即時更新標案雷達資料庫與防休眠活躍度" || echo "無變更"
+          git pull --rebase origin main || true
+          git push origin HEAD:main || git push
