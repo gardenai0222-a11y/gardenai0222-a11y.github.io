@@ -1600,7 +1600,7 @@
 
         const commonWorkingRebarSizes = ['#3 (10mm)', '#4 (13mm)', '#5 (16mm)'];
 
-        const floors = ['B1', '1F', '2F', '3F', '4F'];
+        const floors = ['基礎', 'B3', 'B2', 'B1', '1F', '2F', '3F', '4F', '5F', '6F', '7F', '8F', '9F', '10F', 'RF', 'R1F', 'R2F'];
 
         const componentTypes = { column: '柱', beam: '樑', slab: '版', wall: '牆', pile: '樁', misc: '工作筋' };
 
@@ -3215,13 +3215,14 @@
             let type = 'column';
             let id = firstToken;
 
-            if (/^(CS\d*|[1-9]CS\d*|DS\d*|[1-9]DS\d*|S\d*|[1-9]S\d*|FS\d*|F\d+|SLAB\d*|DECK\d*|FOOTING\d*|板\d*|版\d*|基腳\d*|獨立基腳\d*)$/i.test(firstUpper)) {
+            const flrPrefixPat = '(?:(?:B\\d+F?|R\\d*F?|GF|\\d+F?)[-_]?)?';
+            if (new RegExp('^' + flrPrefixPat + '(?:CS\\d*|DS\\d*|S\\d+|FS\\d*|F\\d+|ST\\d+|SLAB\\d*|DECK\\d*|FOOTING\\d*|板\\d*|版\\d*|基腳\\d*|獨立基腳\\d*|樓梯\\d*)$', 'i').test(firstUpper)) {
                 type = 'slab';
-            } else if (/^(CW\d*|BW\d*|SW\d*|W\d*|[1-9]W\d*|[1-9]BW\d*|WALL\d*|BRICK\d*|PARAPET\d*|牆\d*|磚牆\d*|紅磚牆\d*|女兒牆\d*|RC牆\d*|剪力牆\d*)$/i.test(firstUpper)) {
+            } else if (new RegExp('^' + flrPrefixPat + '(?:CW\\d*|BW\\d*|SW\\d*|W\\d+|WALL\\d*|BRICK\\d*|PARAPET\\d*|牆\\d*|磚牆\\d*|紅磚牆\\d*|女兒牆\\d*|RC牆\\d*|剪力牆\\d*)$', 'i').test(firstUpper)) {
                 type = 'wall';
-            } else if (/^(CG\d*|B\d*|[1-9][BG]\d*|G\d*|FG\d*|FB\d*|TB\d*|TG\d*|WB\d*|BEAM\d*|樑\d*|梁\d*|地樑\d*|地梁\d*)$/i.test(firstUpper)) {
+            } else if (new RegExp('^' + flrPrefixPat + '(?:CG\\d*|B\\d+|G\\d+|FG\\d*|FB\\d*|TB\\d*|TG\\d*|WB\\d*|BEAM\\d*|樑\\d*|梁\\d*|地樑\\d*|地梁\\d*)$', 'i').test(firstUpper)) {
                 type = 'beam';
-            } else if (/^(C\d*|[1-9]C\d*|COL\d*|柱\d*)$/i.test(firstUpper)) {
+            } else if (new RegExp('^' + flrPrefixPat + '(?:C\\d+|COL\\d*|柱\\d*)$', 'i').test(firstUpper)) {
                 type = 'column';
             } else {
                 // 關鍵字退耦判定
@@ -3373,9 +3374,10 @@
                 wallHeight = v;
             }
 
-            // 支援星號尺寸: 7.2*6.8 (版長寬) 或 720*680 (cm) 或 12m*3.2m
+            // 支援星號尺寸: 7.2*6.8 (版長寬) 或 720*680 (cm) 或 12m*3.2m (避免將 t=20 *2 或 扣=2 *2 誤判為尺寸)
+            const dimStarRegex = /(?<![=:@#\-tThHlLwW扣\d.])(\d+(?:\.\d+)?)(?:m|M|cm|CM)?[*xX×](\d+(?:\.\d+)?)(?:m|M|cm|CM)?/;
             if (type === 'slab' || type === 'wall') {
-                const mStar = workStr.match(/(\d+(?:\.\d+)?)\s*(?:m|M|cm|CM)?\s*[*xX×]\s*(\d+(?:\.\d+)?)\s*(?:m|M|cm|CM)?/);
+                const mStar = workStr.match(dimStarRegex);
                 if (mStar) {
                     let v1 = parseFloat(mStar[1]);
                     let v2 = parseFloat(mStar[2]);
@@ -3420,13 +3422,13 @@
                 }
             }
 
-            // 5. 數量解析 (支援 *12, x12, 12支, 12塊, 共12)
-            // 先移除已經匹配到的長寬尺寸 (如 7.2*6.8 或 60*60 或 12m*3.2m)，避免尺寸中的星號被誤判為數量
+            // 5. 數量解析 (支援 *12, x12, 12支, 12跨, 12處, 12座, 12道, 12塊, 共12)
+            // 先移除無空白緊鄰之長寬尺寸 (如 7.2*6.8 或 60*60 或 12m*3.2m)，避免尺寸中的星號被誤判為數量
             let compCount = null;
-            const countSearchStr = workStr.replace(/(\d+(?:\.\d+)?)\s*(?:m|M|cm|CM)?\s*[*xX×]\s*(\d+(?:\.\d+)?)\s*(?:m|M|cm|CM)?/i, '');
-            const mCount = countSearchStr.match(/(?:[*xX×]\s*|共\s*|數量\s*[=:]?\s*)(\d+)\s*(?:支|跨|組|塊)?\b/);
+            const countSearchStr = workStr.replace(dimStarRegex, ' ');
+            const mCount = countSearchStr.match(/(?:(?:^|\s)[*xX×]\s*(\d+)|(?:共\s*|數量\s*[=:]?\s*)(\d+)|(\d+)\s*(?:支|跨|組|塊|處|座|道))(?!\s*[mM])/);
             if (mCount) {
-                compCount = parseInt(mCount[1], 10);
+                compCount = parseInt(mCount[1] || mCount[2] || mCount[3], 10);
             }
 
             // 切換至對應分頁並新增表單
@@ -3491,6 +3493,49 @@
                         newOpt.selected = true;
                         selectEl.appendChild(newOpt);
                         selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            }
+
+            // 6. 智慧解析樓層 (支援指令中獨立樓層 token 如 2F、B1、RF、基礎，或構件編號前綴如 2G1、6C1、B1-C1、RF-B1)
+            let detectedFloor = null;
+            for (let tIdx = 1; tIdx < tokens.length; tIdx++) {
+                const tk = tokens[tIdx].trim();
+                if (/^(?:基礎|B\d+F?|BF|GF|\d+F|RF|R\d+F?|PRF)$/i.test(tk)) {
+                    detectedFloor = tk.toUpperCase();
+                    if (/^B\d+F$/i.test(detectedFloor)) detectedFloor = detectedFloor.slice(0, -1);
+                    break;
+                }
+            }
+            if (!detectedFloor && id) {
+                const mDashFlr = id.match(/^(基礎|B\d+F?|GF|\d+F|RF|R\d+F?)[-_]/i);
+                if (mDashFlr) {
+                    detectedFloor = mDashFlr[1].toUpperCase();
+                    if (/^B\d+F$/i.test(detectedFloor)) detectedFloor = detectedFloor.slice(0, -1);
+                } else {
+                    const mLeadNum = id.match(/^([1-9]\d?)(?:C|G|B|S|W|CS|CW|DS)\d+/i);
+                    if (mLeadNum) {
+                        detectedFloor = `${mLeadNum[1]}F`;
+                    } else if (/^(?:C0|F\d+|FG\d*|FB\d*|FS\d*|基礎)/i.test(id)) {
+                        detectedFloor = '基礎';
+                    }
+                }
+            }
+            if (detectedFloor) {
+                const floorSelect = newForm.querySelector('.form-component-floor');
+                const customFloorInput = newForm.querySelector('.custom-floor');
+                if (floorSelect) {
+                    const isStd = Array.from(floorSelect.options).some(o => o.value === detectedFloor);
+                    if (isStd) {
+                        floorSelect.value = detectedFloor;
+                        floorSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    } else {
+                        floorSelect.value = '自訂';
+                        floorSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                        if (customFloorInput) {
+                            customFloorInput.value = detectedFloor;
+                            customFloorInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
                     }
                 }
             }
@@ -4227,11 +4272,11 @@
             let isBeamDualSpacing = false;
             if (rawStirrupSpacingB.includes('/') || rawStirrupSpacingB.includes('端部')) {
                 isBeamDualSpacing = true;
-                const m = rawStirrupSpacingB.match(/端部@?(\d+).*?中央@?(\d+)/) || rawStirrupSpacingB.match(/(\d+)\s*[\/|\,]\s*(\d+)/);
+                const m = rawStirrupSpacingB.match(/端部@?(\d+(?:\.\d+)?).*?中央@?(\d+(?:\.\d+)?)/) || rawStirrupSpacingB.match(/(\d+(?:\.\d+)?)\s*[\/|\,]\s*(\d+(?:\.\d+)?)/);
                 sb1 = m ? parseFloat(m[1]) : 10;
                 sb2 = m ? parseFloat(m[2]) : 15;
             } else {
-                sb1 = parseFloat(rawStirrupSpacingB.replace(' cm', '')) || 15;
+                sb1 = parseFloat(String(rawStirrupSpacingB).replace(/[^0-9.]/g, '')) || 15;
                 sb2 = sb1;
             }
             const waistRebarSize = form.querySelector('.form-waist-rebar-size')?.value;
@@ -4796,17 +4841,18 @@
                     const floorFinishType = getFinishValue(floorFinishSelect);
                     const ceilingFinishType = getFinishValue(ceilingFinishSelect);
                     const openNoteStr = openingArea > 0 ? ` - 扣開口${openingArea}m²` : '';
+                    const slabCntSuffix = componentCount > 1 ? ` x ${componentCount}${isFootingSlab || isStairSlab ? '座' : '處'}` : '';
                     const formworkCalcStr = isStairSlab
                         ? `[斜底模(${stairSlopeLenM.toFixed(2)}m+平台${stairLandingLenM.toFixed(2)}m)×寬${widthOrHeight}m + 踏步立幫模(高${stairHeightM}m×寬${widthOrHeight}m) + 雙側幫模]${componentCount > 1 ? ' × ' + componentCount + '座' : ''}`
                         : (isFootingSlab
-                            ? `2 x (${length}m + ${widthOrHeight}m) x ${thickness}cm (獨立基腳四周側模，底部免模)`
+                            ? `2 x (${length}m + ${widthOrHeight}m) x ${thickness}cm${slabCntSuffix} (獨立基腳四周側模，底部免模)`
                             : (isDeckSlab
                                 ? `0 m² (鋼承鈑 Deck 免拆底模，不計普通木底模)`
                                 : (isSogSlab
                                     ? `0 m² (接地地坪/基礎底版直接澆置於土方或PC上，免底模)`
                                     : (isNetQS
-                                        ? `(${length}m x ${widthOrHeight}m${openNoteStr}) (已依公共工程規範扣除周邊支承梁交會模 ${slabDeductionPercent}%)`
-                                        : `${length}m x ${widthOrHeight}m${openNoteStr}`))));
+                                        ? `(${length}m x ${widthOrHeight}m${openNoteStr})${slabCntSuffix} (已依公共工程規範扣除周邊支承梁交會模 ${slabDeductionPercent}%)`
+                                        : `(${length}m x ${widthOrHeight}m${openNoteStr})${slabCntSuffix}`))));
                     const formworkTypeLabel = isStairSlab
                         ? '普通合板模 (樓梯斜底模+踏步立幫模)'
                         : (isFootingSlab
@@ -4829,14 +4875,15 @@
                     const mainConcFormula = isStairSlab
                         ? `[斜版(${stairSlopeLenM.toFixed(2)}m+平台${stairLandingLenM.toFixed(2)}m)×寬${widthOrHeight}m×厚${thickness}cm + 踏步三角(0.5×高${stairHeightM}m×長${length}m×寬${widthOrHeight}m÷${stairStepsN}階)]${componentCount > 1 ? ' × ' + componentCount + '座' : ''} (RC樓梯)`
                         : ((!isNoBottomForm && isNetQS)
-                            ? `(${length}m x ${widthOrHeight}m${openNoteStr}) x ${thickness}cm (已依公共工程規範扣除周邊支承梁交會體積 ${slabDeductionPercent}%)`
-                            : `(${length}m x ${widthOrHeight}m${openNoteStr}) x ${thickness}cm${componentCount > 1 ? ' x ' + componentCount + '座' : ''}${isFootingSlab ? ' (獨立基腳)' : (isDeckSlab ? ' (鋼承鈑樓版)' : (isSogSlab ? ' (接地底版)' : ' (毛量未扣梁交會)'))}`);
+                            ? `(${length}m x ${widthOrHeight}m${openNoteStr}) x ${thickness}cm${slabCntSuffix} (已依公共工程規範扣除周邊支承梁交會體積 ${slabDeductionPercent}%)`
+                            : `(${length}m x ${widthOrHeight}m${openNoteStr}) x ${thickness}cm${slabCntSuffix}${isFootingSlab ? ' (獨立基腳)' : (isDeckSlab ? ' (鋼承鈑樓版)' : (isSogSlab ? ' (接地底版)' : ' (毛量未扣梁交會)'))}`);
+                    const slabFinishFormula = `(${length}m x ${widthOrHeight}m${openNoteStr})${slabCntSuffix}`;
                     const calcStrings = {
                         concrete: isDirectPcSlab ? '0 m³ (本項為純 PC 打底墊層)' : mainConcFormula,
                         pcConcrete: isDirectPcSlab ? `${mainConcFormula} (140 kg/cm² PC打底)` : subPcCalcStr,
                         formwork: formworkCalcStr,
-                        floorFinish: `${length}m x ${widthOrHeight}m`,
-                        ceilingFinish: `${length}m x ${widthOrHeight}m`,
+                        floorFinish: slabFinishFormula,
+                        ceilingFinish: slabFinishFormula,
                     }; 
                     result.materials = {
                         componentId, componentFloor, componentType: compTypeLabel,
@@ -4867,11 +4914,12 @@
                     const interiorFinishType = getFinishValue(intFinishSelect);
                     const exteriorFinishType = getFinishValue(extFinishSelect);
                     const areaExpr = openingArea > 0 ? `(${length}m x ${widthOrHeight}m - 扣開口${openingArea}m²)` : `${length}m x ${widthOrHeight}m`;
+                    const wallCntSuffix = componentCount > 1 ? ` x ${componentCount}處` : '';
                     const calcStrings = {
-                        concrete: `${areaExpr} x ${thickness}cm`,
-                        formwork: `(${areaExpr}) x 2 (雙面側模)`,
-                        interiorFinish: `${areaExpr}`,
-                        exteriorFinish: `${areaExpr}`,
+                        concrete: `${areaExpr} x ${thickness}cm${wallCntSuffix}`,
+                        formwork: `${openingArea > 0 ? areaExpr : '(' + areaExpr + ')'} x 2${wallCntSuffix} (雙面側模)`,
+                        interiorFinish: `${areaExpr}${wallCntSuffix}`,
+                        exteriorFinish: `${areaExpr}${wallCntSuffix}`,
                     }; 
                     result.materials = {
                         componentId, componentFloor, componentType: componentTypes[type],
@@ -5079,16 +5127,19 @@
             }
 
             if (isSlab) {
+                const netSlabAreaForAcc = Math.max(effSlabRunLenM * widthOrHeight - openingArea, 0);
                 if (isDoubleLayerAny) {
                     result.calculationSteps.push(`椅馬筋計算:`);
                     const chairRebarSize = '#4 (13mm)';
                     const chairRebarProps = getRebarProperties(chairRebarSize);
-                    const chairCount = Math.ceil(length * widthOrHeight / 0.81) * componentCount;
-                    const legHeight_float = thickness - 2 * cover - getRebarProperties(rebarSizeX).diameter - getRebarProperties(rebarSizeY).diameter;
+                    const chairCount = Math.ceil(netSlabAreaForAcc / 0.81) * componentCount;
+                    const topSizeXForChair = isDiffDoubleLayers ? (form.querySelector('.form-top-rebar-size-x')?.value || rebarSizeX) : rebarSizeX;
+                    const topSizeYForChair = isDiffDoubleLayers ? (form.querySelector('.form-top-rebar-size-y')?.value || rebarSizeY) : rebarSizeY;
+                    const legHeight_float = thickness - 2 * cover - getRebarProperties(topSizeXForChair).diameter - getRebarProperties(topSizeYForChair).diameter;
                     const topLength = 30, footLength = 30;
                     const legHeight = Math.max(Math.ceil(legHeight_float), 5);
                     const singleLength = topLength + 2 * legHeight + 2 * footLength;
-                    result.calculationSteps.push(`  - 數量 (90cm間距): ceil(${length} * ${widthOrHeight} / 0.81) * ${componentCount} = ${chairCount} 支`);
+                    result.calculationSteps.push(`  - 數量 (90cm間距): ceil(${netSlabAreaForAcc.toFixed(2)} / 0.81) * ${componentCount} = ${chairCount} 支`);
                     result.calculationSteps.push(`  - 單支尺寸: ${footLength}(腳)+${legHeight}(腳高)+${topLength}(頂)+${legHeight}(腳高)+${footLength}(腳) = ${singleLength} cm`);
                     result.rebars.push({
                         componentId, componentFloor, rebarGrade, rebarSize: chairRebarSize,
@@ -5102,8 +5153,8 @@
                 }
                 result.calculationSteps.push(`水泥墊塊計算:`);
                 const totalSlabLayers = isDoubleLayerAny ? 2 : 1;
-                const spacerCount = Math.ceil(length * widthOrHeight) * totalSlabLayers * componentCount;
-                result.calculationSteps.push(`  - 數量 (1m間距): ceil(${length} * ${widthOrHeight}) * ${totalSlabLayers} (層) * ${componentCount} = ${spacerCount} 個`);
+                const spacerCount = Math.ceil(netSlabAreaForAcc) * totalSlabLayers * componentCount;
+                result.calculationSteps.push(`  - 數量 (1m間距): ceil(${netSlabAreaForAcc.toFixed(2)}) * ${totalSlabLayers} (層) * ${componentCount} = ${spacerCount} 個`);
                 result.rebars.push({
                     itemType: 'accessory', name: '水泥墊塊', count: spacerCount,
                     componentId, componentFloor, componentType: componentTypes.slab, remarks: `間距約 1m x 1m`
@@ -5142,8 +5193,9 @@
                 const concreteStrength = form.querySelector('.form-concrete-strength')?.value || '245 kg/cm²';
                 const finishSelect = form.querySelector('.form-finish-material');
                 const generalFinishType = getFinishValue(finishSelect);
+                const pileCntSuffix = componentCount > 1 ? ` x ${componentCount}支` : '';
                 const calcStrings = {
-                    concrete: `π x (${radius.toFixed(2)}m)² x ${componentLengthP}m`,
+                    concrete: `π x (${radius.toFixed(2)}m)² x ${componentLengthP}m${pileCntSuffix}`,
                     formwork: `0 m² (地下基礎無現場模板)`,
                     finish: `0 m² (地下基礎無現場面材)`,
                 }; 
@@ -5657,12 +5709,13 @@
             const netRebarTons = rawRebarWeightSum / 1000;
             const netConcrete = calcData.materialSummary?.totalConcrete || 0;
             const netFormwork = calcData.materialSummary?.totalFormwork || 0;
-            const netCost = (netRebarTons * priceRebar) + (netConcrete * priceConcrete) + (netFormwork * priceFormwork) + (netBrickArea * priceBrick);
+            const netCost = (netRebarTons * priceRebar) + (netConcrete * priceConcrete) + (netPcConcrete * pricePcConcrete) + (netFormwork * priceFormwork) + (netBrickArea * priceBrick);
 
             const procRebarTons = netRebarTons * 1.05;
             const procConcrete = netConcrete * 1.03;
+            const procPcConcrete = netPcConcrete * 1.05;
             const procFormwork = netFormwork * 1.05;
-            const procCost = (procRebarTons * priceRebar) + (procConcrete * priceConcrete) + (procFormwork * priceFormwork) + (netBrickArea * priceBrick);
+            const procCost = (procRebarTons * priceRebar) + (procConcrete * priceConcrete) + (procPcConcrete * pricePcConcrete) + (procFormwork * priceFormwork) + (netBrickArea * priceBrick);
 
             const diffCost = Math.max(procCost - netCost, 0);
             const diffRebar = Math.max(procRebarTons - netRebarTons, 0);
@@ -5897,7 +5950,7 @@
                                 NT$ <span id="kpi-total-cost">${Math.round(totalProjectCost).toLocaleString()}</span>
                             </div>
                             <div class="text-xs text-amber-400/90 mt-1 font-mono">
-                                鋼筋 (${priceRebar.toLocaleString()}元/t) ｜ 混凝土 (${priceConcrete.toLocaleString()}元/m³) ｜ 模板 (${priceFormwork.toLocaleString()}元/m²)${netBrickArea > 0 ? ` ｜ 紅磚牆 (${priceBrick.toLocaleString()}元/m²)` : ''}
+                                鋼筋 (${priceRebar.toLocaleString()}元/t) ｜ 混凝土 (${priceConcrete.toLocaleString()}元/m³)${netPcConcrete > 0 ? ` ｜ PC打底 (${pricePcConcrete.toLocaleString()}元/m³)` : ''} ｜ 模板 (${priceFormwork.toLocaleString()}元/m²)${netBrickArea > 0 ? ` ｜ 紅磚牆 (${priceBrick.toLocaleString()}元/m²)` : ''}
                             </div>
                         </div>
 
@@ -6278,7 +6331,7 @@
             const srcFloors = Object.keys(floorMap);
             srcSelect.innerHTML = srcFloors.map(f => `<option value="${f}">${f} (現有 ${floorMap[f]} 項構件)</option>`).join('');
 
-            const targetCandidates = ['B2', 'B1', '1F', '2F', '3F', '4F', '5F', '6F', 'R1F', 'R2F', 'RF'];
+            const targetCandidates = ['基礎', 'B3', 'B2', 'B1', '1F', '2F', '3F', '4F', '5F', '6F', '7F', '8F', '9F', '10F', 'RF', 'R1F', 'R2F'];
             tgtContainer.innerHTML = targetCandidates.map(flr => `
                 <label class="flex items-center gap-2 p-1.5 rounded hover:bg-cyan-950/40 cursor-pointer text-xs text-gray-200">
                     <input type="checkbox" value="${flr}" class="batch-floor-target-cb h-4 w-4 rounded text-cyan-400">
@@ -6301,8 +6354,8 @@
             if (reDash.test(origId)) {
                 return origId.replace(reDash, `${tgtFloor}$1`);
             }
-            const srcNumMatch = srcFloor.match(/^([1-9])F$/i);
-            const tgtNumMatch = tgtFloor.match(/^([1-9])F$/i);
+            const srcNumMatch = srcFloor.match(/^(\d+)F$/i);
+            const tgtNumMatch = tgtFloor.match(/^(\d+)F$/i);
             if (srcNumMatch && tgtNumMatch) {
                 const reNumPrefix = new RegExp(`^${srcNumMatch[1]}([CGBWSF]\d+)`, 'i');
                 if (reNumPrefix.test(origId)) {
@@ -7133,9 +7186,11 @@
                 const floorB = b.componentFloor || '';
                 const idA = a.componentId || '';
                 const idB = b.componentId || '';
-                const floorComp = floorA.localeCompare(floorB);
+                const rankDiff = getSmartFloorOrderRank(floorA) - getSmartFloorOrderRank(floorB);
+                if (rankDiff !== 0) return rankDiff;
+                const floorComp = floorA.localeCompare(floorB, undefined, { numeric: true });
                 if (floorComp !== 0) return floorComp;
-                return idA.localeCompare(idB);
+                return idA.localeCompare(idB, undefined, { numeric: true });
             });
 
             // 混凝土數量明細 (含結構主體混凝土與基礎 PC 打底混凝土)
@@ -7397,12 +7452,7 @@
             // 【工作表 3, 5 等】鋼筋撿料單 (${floor}) & 【工作表 4, 6 等】其他材料單 (${floor})
             // -------------------------------------------------------------
             let sortedFloors = sortFloorNamesSmart(Object.keys(dataByFloor || {}));
-            // 確保至少包含 1F 與 2F，完全吻合原始表單 8 工作表架構
-            if (!sortedFloors.includes('1F')) sortedFloors.unshift('1F');
-            if (!sortedFloors.includes('2F')) {
-                const idx1F = sortedFloors.indexOf('1F');
-                sortedFloors.splice(idx1F + 1, 0, '2F');
-            }
+            if (sortedFloors.length === 0) sortedFloors = ['1F'];
 
             const rebarCols = [
                 { width: 12 }, { width: 12 }, { width: 14 }, { width: 12 }, { width: 16 }, 
@@ -7869,9 +7919,11 @@
                 const floorB = b.componentFloor || '';
                 const idA = a.componentId || '';
                 const idB = b.componentId || '';
-                const floorComp = floorA.localeCompare(floorB);
+                const rankDiff = getSmartFloorOrderRank(floorA) - getSmartFloorOrderRank(floorB);
+                if (rankDiff !== 0) return rankDiff;
+                const floorComp = floorA.localeCompare(floorB, undefined, { numeric: true });
                 if (floorComp !== 0) return floorComp;
-                return idA.localeCompare(idB);
+                return idA.localeCompare(idB, undefined, { numeric: true });
             });
 
             // 混凝土數量明細
@@ -8039,13 +8091,7 @@
             // 【工作表 3..N】分樓層鋼筋撿料單與其他材料單 (完全還原 20 欄位原始架構)
             // ==========================================
             let sortedFloors = sortFloorNamesSmart(Object.keys(dataByFloor));
-
-            // 確保至少包含 1F 與 2F，完全吻合原始表單 8 工作表架構
-            if (!sortedFloors.includes('1F')) sortedFloors.unshift('1F');
-            if (!sortedFloors.includes('2F')) {
-                const idx1F = sortedFloors.indexOf('1F');
-                sortedFloors.splice(idx1F + 1, 0, '2F');
-            }
+            if (sortedFloors.length === 0) sortedFloors = ['1F'];
 
             // 擴充 22 欄位標準標頭 (保留所有原始欄位，新增搭接長度與錨定長度)
             const rebarHeaders = [
