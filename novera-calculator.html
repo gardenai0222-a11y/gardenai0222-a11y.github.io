@@ -1970,11 +1970,11 @@
                 case 'pile':
                      finishFields = `<div class="input-group"><label>面材</label><select class="form-finish-material" onchange="toggleCustomFinish(this)">${createOptions(generalFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
                 case 'slab':
-                     finishFields = `<div class="input-group"><label>版上(地坪)</label><select class="form-floor-finish" onchange="toggleCustomFinish(this)">${createOptions(floorFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
-                                     <div class="input-group"><label>版下(坪頂)</label><select class="form-ceiling-finish" onchange="toggleCustomFinish(this)">${createOptions(ceilingFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
+                     finishFields = `<div class="input-group"><label>版上(地坪)</label><select class="form-floor-finish" onchange="toggleCustomFinish(this)">${createOptions(floorFinishes)}</select><input type="text" class="custom-finish custom-floor-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
+                                     <div class="input-group"><label>版下(坪頂)</label><select class="form-ceiling-finish" onchange="toggleCustomFinish(this)">${createOptions(ceilingFinishes)}</select><input type="text" class="custom-finish custom-ceiling-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
                 case 'wall':
-                     finishFields = `<div class="input-group"><label>內牆面材</label><select class="form-interior-finish" onchange="toggleCustomFinish(this)">${createOptions(generalWallFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
-                                     <div class="input-group"><label>外牆面材</label><select class="form-exterior-finish" onchange="toggleCustomFinish(this)">${createOptions(exteriorWallFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
+                     finishFields = `<div class="input-group"><label>內牆面材</label><select class="form-interior-finish" onchange="toggleCustomFinish(this)">${createOptions(generalWallFinishes)}</select><input type="text" class="custom-finish custom-interior-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
+                                     <div class="input-group"><label>外牆面材</label><select class="form-exterior-finish" onchange="toggleCustomFinish(this)">${createOptions(exteriorWallFinishes)}</select><input type="text" class="custom-finish custom-exterior-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
             }
 
             let specificFields = '';
@@ -2571,40 +2571,51 @@
             let alertInfo = null;
 
             if (type === 'column') {
-                const sectionB = parseFloat(form.querySelector('.form-section-b')?.value) || 0;
-                const sectionA = parseFloat(form.querySelector('.form-section-a')?.value) || sectionB;
-                const minSectionDim = Math.min(sectionA, sectionB) || sectionB;
+                const isCircle = form.querySelector('.form-column-shape')?.value === 'circle';
+                const sectionA = parseFloat(form.querySelector('.form-section-a')?.value) || 0;
+                const sectionB = isCircle ? sectionA : (parseFloat(form.querySelector('.form-section-b')?.value) || sectionA);
                 const mainCount = parseInt(form.querySelector('.form-main-rebar-count')?.value) || 0;
                 const mainSize = form.querySelector('.form-main-rebar-size')?.value || '#8 (25mm)';
                 const stirrupSize = form.querySelector('.form-stirrup-size')?.value || '#4 (13mm)';
 
-                if (minSectionDim > 0 && mainCount > 0) {
+                if (sectionA > 0 && sectionB > 0 && mainCount > 0) {
                     const cover = 4;
                     const stirrupProps = getRebarProperties(stirrupSize);
                     const mainProps = getRebarProperties(mainSize);
                     const d_stirrup = stirrupProps.diameter || 1.27;
                     const d_b = mainProps.diameter || 2.54;
+                    const s_min = Math.max(1.5 * d_b, 2.5);
+                    let s_clear = 999;
 
-                    const effectiveWidth = minSectionDim - (2 * cover) - (2 * d_stirrup);
-                    const barsPerFace = Math.ceil((mainCount + 4) / 4);
+                    if (isCircle) {
+                        const r_bar_cm = Math.max((sectionA / 2) - cover - d_stirrup - (d_b / 2), 2);
+                        const circumference = 2 * Math.PI * r_bar_cm;
+                        s_clear = Math.max((circumference - mainCount * d_b) / mainCount, 0);
+                    } else {
+                        const rem = Math.max(mainCount - 4, 0);
+                        const side_h_count = Math.round((rem * (sectionA / (sectionA + sectionB))) / 2) * 2;
+                        const side_w_count = rem - side_h_count;
+                        const nx = Math.max((side_w_count / 2) + 1, 1);
+                        const ny = Math.max((side_h_count / 2) + 1, 1);
+                        const effective_w = sectionB - 2 * cover - 2 * d_stirrup;
+                        const effective_h = sectionA - 2 * cover - 2 * d_stirrup;
+                        const s_clear_w = Math.max((effective_w - (nx + 1) * d_b) / nx, 0);
+                        const s_clear_h = Math.max((effective_h - (ny + 1) * d_b) / ny, 0);
+                        s_clear = Math.min(s_clear_w, s_clear_h);
+                    }
 
-                    if (barsPerFace > 1 && effectiveWidth > 0) {
-                        const s_clear = (effectiveWidth - (barsPerFace * d_b)) / (barsPerFace - 1);
-                        const s_min = Math.max(1.5 * d_b, 2.5);
-
-                        if (s_clear < s_min) {
-                            alertInfo = {
-                                type: 'column',
-                                id: componentId,
-                                section: `${sectionA}x${sectionB}cm`,
-                                count: mainCount,
-                                size: mainSize,
-                                s_clear: s_clear,
-                                s_min: s_min,
-                                isUnder25: s_clear < 2.5,
-                                message: `[警告] 施工性警告：鋼筋淨距僅 ${s_clear.toFixed(1)}cm (< ${s_min.toFixed(1)}cm 法定低標 1.5db)，混凝土粗骨材無法通過，極易產生蜂窩瑕疵！建議放大斷面或改用粗號數！`
-                            };
-                        }
+                    if (s_clear < s_min) {
+                        alertInfo = {
+                            type: 'column',
+                            id: componentId,
+                            section: isCircle ? `D=${sectionA}cm` : `${sectionA}x${sectionB}cm`,
+                            count: mainCount,
+                            size: mainSize,
+                            s_clear: s_clear,
+                            s_min: s_min,
+                            isUnder25: s_clear < 2.5,
+                            message: `[警告] 施工性警告：鋼筋淨距僅 ${s_clear.toFixed(1)}cm (< ${s_min.toFixed(1)}cm 法定低標 1.5db)，混凝土粗骨材無法通過，極易產生蜂窩瑕疵！建議放大斷面或改用粗號數！`
+                        };
                     }
                 }
             } else if (type === 'beam') {
@@ -2628,7 +2639,7 @@
                     if (topCount > 1 && effectiveWidth > 0) {
                         const topProps = getRebarProperties(topSize);
                         const d_b = topProps.diameter || 2.22;
-                        const s_clear = (effectiveWidth - (topCount * d_b)) / (topCount - 1);
+                        const s_clear = Math.max((effectiveWidth - (topCount * d_b)) / (topCount - 1), 0);
                         const s_min = Math.max(1.0 * d_b, 2.5);
                         if (s_clear < s_min && s_clear < worstClear) {
                             worstClear = s_clear;
@@ -2639,7 +2650,7 @@
                     if (botCount > 1 && effectiveWidth > 0) {
                         const botProps = getRebarProperties(botSize);
                         const d_b = botProps.diameter || 2.22;
-                        const s_clear = (effectiveWidth - (botCount * d_b)) / (botCount - 1);
+                        const s_clear = Math.max((effectiveWidth - (botCount * d_b)) / (botCount - 1), 0);
                         const s_min = Math.max(1.0 * d_b, 2.5);
                         if (s_clear < s_min && s_clear < worstClear) {
                             worstClear = s_clear;
@@ -2870,9 +2881,12 @@
                     const ny = Math.max((side_h_count / 2) + 1, 1);
 
                     const effective_w = sectionB - 2 * cover - 2 * dbStirrup;
+                    const effective_h = sectionA - 2 * cover - 2 * dbStirrup;
                     const s_clear_w = Math.max((effective_w - (nx + 1) * dbMain) / nx, 0);
+                    const s_clear_h = Math.max((effective_h - (ny + 1) * dbMain) / ny, 0);
+                    const s_clear_min = Math.min(s_clear_w, s_clear_h);
                     const s_min = Math.max(1.5 * dbMain, 2.5);
-                    const isClash = s_clear_w < s_min;
+                    const isClash = s_clear_min < s_min;
 
                     // 混凝土柱幾何外框
                     svgInner += `<rect x="${x0}" y="${y0}" width="${w_px}" height="${h_px}" rx="5" fill="${cConcrete}" stroke="${sConcrete}" stroke-width="2" />`;
@@ -2949,12 +2963,12 @@
                     }
 
                     if (!isClash) {
-                        svgInner += `<text x="${cx}" y="${by0 + bh/2 + 3}" text-anchor="middle" fill="#34d399" font-size="8.5" font-weight="600" opacity="0.9">淨距 s = ${s_clear_w.toFixed(1)}cm</text>`;
+                        svgInner += `<text x="${cx}" y="${by0 + bh/2 + 3}" text-anchor="middle" fill="#34d399" font-size="8.5" font-weight="600" opacity="0.9">淨距 s = ${s_clear_min.toFixed(1)}cm</text>`;
                     }
 
                     // Update Metrics
                     coverMetric.textContent = `有效保護層: ${cover.toFixed(1)}cm`;
-                    spacingMetric.textContent = `計算淨距 s_clear: ${s_clear_w.toFixed(1)}cm`;
+                    spacingMetric.textContent = `計算淨距 s_clear: ${s_clear_min.toFixed(1)}cm`;
                     spacingMetric.className = `preview-metric-spacing font-mono font-bold ${isClash ? 'text-rose-400' : 'text-emerald-400'}`;
                     limitMetric.textContent = `法規下限: ${s_min.toFixed(1)}cm (1.5db)`;
                     if (isClash) {
@@ -3059,7 +3073,7 @@
                 if (sectionA >= 60 && waistSize !== '無') {
                     const dbWaist = (rebarDiameters[waistSize] || 1.27);
                     const r_waist = Math.max((dbWaist * scale) / 2, 2.8);
-                    const waistPairs = sectionA >= 90 ? 2 : 1;
+                    const waistPairs = Math.max(1, Math.floor((sectionA - 30) / 30));
                     const waist_x_left = sx0 + stirrup_d_px + r_waist;
                     const waist_x_right = sx0 + sw - stirrup_d_px - r_waist;
 
@@ -4112,7 +4126,7 @@
                     if (hasConnector) {
                         result.calculationSteps.push(`  - 續接器: 每柱 ${mainRebarCountC} 個，共 ${mainRebarCountC * componentCount} 組`);
                         result.rebars.push({
-                            itemType: 'accessory', name: '續接器', count: mainRebarCountC * componentCount,
+                            itemType: 'accessory', componentCount, name: '續接器', count: mainRebarCountC * componentCount,
                             componentId, componentFloor, componentType: componentTypes.column, remarks: connectorType
                         });
                     }
@@ -4232,7 +4246,7 @@
                 result.calculationSteps.push(`水泥墊塊計算 (保護層4cm):`);
                 result.calculationSteps.push(`  - 數量 (柱四面@1m間距): ${colSpacerRows} (道) * 4 (面) * ${componentCount} (支) = ${colSpacerCount} 個`);
                 result.rebars.push({
-                    itemType: 'accessory', name: '水泥墊塊', count: colSpacerCount,
+                    itemType: 'accessory', componentCount, name: '水泥墊塊', count: colSpacerCount,
                     componentId, componentFloor, componentType: componentTypes.column, remarks: '保護層 4cm (柱四面@1m間距)'
                 });
             }
@@ -4377,7 +4391,7 @@
             }
 
             result.calculationSteps.push(`--- 構件 (${componentTypes.beam}) 編號: ${componentId}, 樓層: ${componentFloor}, 數量: ${componentCount} ---`);
-            result.calculationSteps.push(`跨別型式: ${spanType === 'exterior' ? '邊跨 (外端錨定90°+內端搭接)' : spanType === 'interior' ? '內跨/連續跨 (兩端直通搭接無彎鉤)' : '單跨/獨立樑 (兩端90°耐震錨定彎鉤)'}`);
+            result.calculationSteps.push(`跨別型式: ${spanType === 'exterior' ? '邊跨 (外端錨定90°+內端搭接)' : spanType === 'interior' ? '內跨/連續跨 (兩端直通搭接無彎鉤)' : spanType === 'cantilever' ? '懸臂跨/挑樑 (柱端錨定+外挑端下折90°)' : '單跨/獨立樑 (兩端90°耐震錨定彎鉤)'}`);
             result.calculationSteps.push(`淨跨長度 Ln: 樑跨長 ${componentLengthB * 100}cm - 支承柱寬 ${supportWidthCm}cm - 兩端保護層 2*${cover}cm = ${Ln} cm`);
 
                         // 【深水區 1 & 問題 2 實裝】頂筋計算 (支援全跨貫通與耐震 1/3 跨截斷筋)
@@ -4507,10 +4521,11 @@
                     }
 
                     const finalCutoffCount = (spanType === 'simple' ? cutoffTopCount * 2 : cutoffTopCount) * componentCount;
+                    const cutoffAnchorLen = spanType === 'interior' ? 0 : (spanType === 'cantilever' ? lapTop : hook90Top);
                     result.rebars.push({
                         componentId, componentFloor, rebarGrade, rebarSize: actualTopSize,
                         rebarType: '樑頂截斷筋', shape: cutoffShape, singleLength: cutoffLen,
-                        lapLength: 0, anchorLength: hook90Top,
+                        lapLength: cutoffSplice.addLapLen || 0, anchorLength: cutoffAnchorLen,
                         singleWeight: (cutoffLen / 100) * topProps.weight,
                         count: finalCutoffCount, remarks: cutoffRemarks,
                         componentType: componentTypes.beam, componentCount, A: cA, B: cB
@@ -4680,7 +4695,7 @@
                 result.calculationSteps.push(`水泥墊塊計算 (保護層4cm):`);
                 result.calculationSteps.push(`  - 數量 (梁底2個+兩側2個@1m間距): ceil(${componentLengthB}m) * 4 (個/m) * ${componentCount} (支) = ${beamSpacerCount} 個`);
                 result.rebars.push({
-                    itemType: 'accessory', name: '水泥墊塊', count: beamSpacerCount,
+                    itemType: 'accessory', componentCount, name: '水泥墊塊', count: beamSpacerCount,
                     componentId, componentFloor, componentType: componentTypes.beam, remarks: '保護層 4cm (梁底2+兩側2@1m)'
                 });
             }
@@ -4936,6 +4951,10 @@
                 }
             }
 
+            if (isSlab && String(form.querySelector('.form-concrete-strength')?.value || '').startsWith('140')) {
+                result.calculationSteps.push(`--- 構件 (${componentId}, 樓層: ${componentFloor}) 為 140 kg/cm² PC 無筋打底混凝土墊層，免計結構鋼筋 ---`);
+                return result;
+            }
             if (!rebarSizeX || !rebarSizeY || length === 0 || widthOrHeight === 0 || thickness === 0 || maxCutLength === 0) {
                 result.calculationSteps.push(`${componentId} (樓層: ${componentFloor}) - 輸入資料不足，無法計算鋼筋。`);
                 return result;
@@ -5057,7 +5076,7 @@
                             singleWeight: (endLength / 100) * rebarProps.weight,
                             count: numberOfBars * rebarSets * componentCount,
                             remarks: '長料搭接', componentType: componentTypes[type], componentCount,
-                            A: avgPieceLength, B: dirHookLength
+                            A: dirHookLength, B: avgPieceLength
                         });
                     }
                 }
@@ -5156,7 +5175,7 @@
                 const spacerCount = Math.ceil(netSlabAreaForAcc) * totalSlabLayers * componentCount;
                 result.calculationSteps.push(`  - 數量 (1m間距): ceil(${netSlabAreaForAcc.toFixed(2)}) * ${totalSlabLayers} (層) * ${componentCount} = ${spacerCount} 個`);
                 result.rebars.push({
-                    itemType: 'accessory', name: '水泥墊塊', count: spacerCount,
+                    itemType: 'accessory', componentCount, name: '水泥墊塊', count: spacerCount,
                     componentId, componentFloor, componentType: componentTypes.slab, remarks: `間距約 1m x 1m`
                 });
             } else {
@@ -5165,7 +5184,7 @@
                 result.calculationSteps.push(`水泥墊塊計算 (牆雙面保護層3cm):`);
                 result.calculationSteps.push(`  - 數量 (雙面模板 1m x 1m間距): ceil(${netWallArea.toFixed(2)}) * 2 (面) * ${componentCount} = ${wallSpacerCount} 個`);
                 result.rebars.push({
-                    itemType: 'accessory', name: '水泥墊塊', count: wallSpacerCount,
+                    itemType: 'accessory', componentCount, name: '水泥墊塊', count: wallSpacerCount,
                     componentId, componentFloor, componentType: componentTypes.wall, remarks: `保護層 3cm (牆雙面 1m x 1m間距)`
                 });
             }
@@ -5255,7 +5274,7 @@
                     const totalPileCouplers = spliceCountPerBar * mainRebarCountP * componentCount;
                     result.calculationSteps.push(`  - 基樁續接器: ${spliceCountPerBar} (處/支) * ${mainRebarCountP} (支) * ${componentCount} (樁) = ${totalPileCouplers} 個`);
                     result.rebars.push({
-                        itemType: 'accessory', name: '續接器', count: totalPileCouplers,
+                        itemType: 'accessory', componentCount, name: '續接器', count: totalPileCouplers,
                         componentId, componentFloor, componentType: componentTypes.pile, remarks: `${connectorType} (基樁主筋續接)`
                     });
                 }
@@ -5296,7 +5315,7 @@
                 result.calculationSteps.push(`水泥墊塊計算 (基樁保護層7.5cm):`);
                 result.calculationSteps.push(`  - 數量 (每2m配置1圈×4個輪型墊塊): ${pileSpacerRings} (圈) * 4 (個) * ${componentCount} (支) = ${pileSpacerCount} 個`);
                 result.rebars.push({
-                    itemType: 'accessory', name: '水泥墊塊', count: pileSpacerCount,
+                    itemType: 'accessory', componentCount, name: '水泥墊塊', count: pileSpacerCount,
                     componentId, componentFloor, componentType: componentTypes.pile, remarks: '保護層 7.5cm (基樁輪型墊塊@2m間距)'
                 });
             }
@@ -5332,6 +5351,7 @@
                     rebarSize,
                     anchorLength: dowelEmbedCm,
                     count: rebarCount,
+                    componentCount: compMult,
                     componentId: remarks,
                     componentFloor,
                     componentType: '化學植筋(純鑽孔)',
@@ -5389,7 +5409,7 @@
                 singleWeight: (singleLengthCm / 100) * rebarProps.weight, count: rebarCount,
                 remarks: isDowelWithBar ? `${remarks} (含鑽孔植筋藥劑 ${rebarCount} 孔，埋深${effAnchor}cm+外露${effLap}cm)` : remarks,
                 componentType: isDowelWithBar ? '化學植筋(定尺)' : componentTypes.misc,
-                componentCount: rebarCount
+                componentCount: compMult
             });
             return result;
         }
@@ -6854,7 +6874,7 @@
                 drawDim('C: ' + (C !== '' ? C : 10), xR + 18, (yTop + yBot) / 2);
                 drawBadge(totalLen || (Number(A || 10) + Number(B || 20) + Number(C || 10)));
 
-            } else if (shape.includes('L型') || shape.includes('一端彎鉤')) {
+            } else if (shape.includes('L型') || shape.includes('一端彎鉤') || shape.includes('單端彎鉤')) {
                 // L型（垂直段 A、水平長段 B）
                 const xL = 45, xR = 205, yTop = 20, yBot = 54;
                 ctx.beginPath();
@@ -7494,14 +7514,21 @@
                         let singleLen = 0, countPerComp = 0, count = 0, totLen = 0, singleWt = 0, totWt = 0;
 
                         if (rebar.itemType === 'accessory') {
+                            const isDowelHole = rebar.accessorySubType === 'dowel_hole';
+                            const accCount = Number(rebar.count) || 0;
+                            const accCompCount = Number(rebar.componentCount) || 1;
+                            const accPerComp = accCount / accCompCount;
                             rowValues = [
                                 rebar.componentType || component.componentType || '',
                                 rebar.componentId || component.componentId || '',
                                 rebar.name || '',
-                                '-', '-', '-', '-',
+                                isDowelHole ? (rebar.rebarGrade || '-') : '-',
+                                isDowelHole ? (rebar.rebarSize || '-') : '-',
+                                '-',
+                                isDowelHole ? '植筋鑽孔' : '-',
                                 '', '', '', '', '', '',
-                                0, 0, // 搭接, 錨定
-                                0, 0, rebar.count || 0, 0, 0, 0,
+                                0, isDowelHole ? (Number(rebar.anchorLength) || 0) : 0, // 搭接, 錨定(植筋埋深)
+                                0, accPerComp, accCount, 0, 0, 0,
                                 rebar.remarks || ''
                             ];
                         } else {
