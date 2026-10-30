@@ -1388,9 +1388,46 @@
             }
         }
 
+        // 智慧萬用樓層排序權重解析器 (支援任意地下室 B99~B1、基礎層、地上 1F~99F、夾層 MF、屋突 RF/R1F~R9F/PRF)
+        function getSmartFloorOrderRank(flr) {
+            const s = String(flr || '').trim().toUpperCase();
+            if (!s || s === '未分類') return 9999;
+            if (/^(?:基礎|BASE|FD|FT|PC|GL)/.test(s)) return -1000;
+            const mB = s.match(/^B(\d+)F?$/);
+            if (mB) return -parseInt(mB[1], 10) * 10;
+            if (s === 'BF' || s === 'B') return -5;
+            if (s === 'GF' || s === 'G') return 5;
+            const mM = s.match(/^(\d+)?M(\d+)?F?$/);
+            if (mM) {
+                const baseF = parseInt(mM[1] || mM[2] || '1', 10);
+                return baseF * 10 + 5;
+            }
+            const mF = s.match(/^(\d+)F?$/);
+            if (mF) return parseInt(mF[1], 10) * 10;
+            if (s === 'RF' || s === 'R') return 10000;
+            const mR = s.match(/^R(\d+)F?$/);
+            if (mR) return 10000 + parseInt(mR[1], 10) * 10;
+            if (s === 'PRF' || s === 'PR') return 11000;
+            return 5000;
+        }
+
+        function sortFloorNamesSmart(floorList) {
+            return [...floorList].sort((a, b) => {
+                const ra = getSmartFloorOrderRank(a);
+                const rb = getSmartFloorOrderRank(b);
+                if (ra !== rb) return ra - rb;
+                return String(a).localeCompare(String(b));
+            });
+        }
+
         function toggleColumnTopMode(select) {
             const form = select.closest('.rebar-input-container');
             if (!form) return;
+            const isPedestal = select.value === 'pedestal_anchor';
+            form.querySelectorAll('.col-pedestal-field').forEach(el => {
+                if (isPedestal) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
             if (typeof updateFormIdentifier === 'function') updateFormIdentifier(form);
             if (typeof triggerLiveRecalculation === 'function') triggerLiveRecalculation();
         }
@@ -1943,7 +1980,7 @@
             let specificFields = '';
             switch (type) {
                 case 'column':
-                    specificFields = `<div class="input-group"><label>柱編號</label><input type="text" class="form-component-id" placeholder="例如: C1" value="C1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>柱斷面形狀</label><select class="form-column-shape" onchange="toggleColumnShape(this)"><option value="rect" selected>矩形柱 (長x寬)</option><option value="circle">圓形柱 (直徑 D)</option></select></div> <div class="input-group"><label class="label-section-a">柱長 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group group-section-b"><label class="label-section-b">柱寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group"><label>構件高 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.2" inputmode="decimal" value="3.2"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>柱頂收頭型式</label><select class="form-column-top-mode" onchange="toggleColumnTopMode(this)"><option value="lap" selected>一般續接層 (向上伸出搭接+錯開60cm)</option><option value="top_anchor">頂層/獨立收頭柱 (柱頂 90° 彎鉤錨定)</option></select></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 12" inputmode="numeric" value="12"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing" onchange="toggleCustomSpacing(this)">${createSpacingOptions('15 cm')}</select><input type="text" class="custom-stirrup-spacing spacing-custom-input hidden mt-2" placeholder="自訂間距(cm)，例: 12 或 10/15" inputmode="decimal"></div> <div class="input-group"><label>續接器</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
+                    specificFields = `<div class="input-group"><label>柱編號</label><input type="text" class="form-component-id" placeholder="例如: C1" value="C1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>柱斷面形狀</label><select class="form-column-shape" onchange="toggleColumnShape(this)"><option value="rect" selected>矩形柱 (長x寬)</option><option value="circle">圓形柱 (直徑 D)</option></select></div> <div class="input-group"><label class="label-section-a">柱長 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group group-section-b"><label class="label-section-b">柱寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group"><label>構件高 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.2" inputmode="decimal" value="3.2"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>柱頂/基腳錨定型式</label><select class="form-column-top-mode" onchange="toggleColumnTopMode(this)"><option value="lap" selected>一般續接層 (向上伸出搭接+錯開60cm)</option><option value="top_anchor">頂層/獨立收頭柱 (柱頂 90° 彎鉤錨定)</option><option value="pedestal_anchor">基礎短柱/基腳墩柱 (上下90°彎鉤+基腳埋深)</option></select></div> <div class="input-group col-pedestal-field hidden"><label class="text-amber-300 font-semibold" title="基腳厚度扣除底部保護層與底層鋼筋之埋入深度">伸入基腳埋深 (cm)</label><input type="text" class="form-pedestal-embed" placeholder="基腳厚扣保護層，例: 43" inputmode="decimal" value="43" oninput="updateFormIdentifier(this.closest('.rebar-input-container'))"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 12" inputmode="numeric" value="12"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing" onchange="toggleCustomSpacing(this)">${createSpacingOptions('15 cm')}</select><input type="text" class="custom-stirrup-spacing spacing-custom-input hidden mt-2" placeholder="自訂間距(cm)，例: 12 或 10/15" inputmode="decimal"></div> <div class="input-group"><label>續接器</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
 
                 case 'beam':
                     specificFields = `<div class="input-group"><label>樑編號</label><input type="text" class="form-component-id" placeholder="例如: B1" value="B1"></div> <div class="input-group"><label>樑構造/底模位置</label><select class="form-beam-category" onchange="toggleBeamCategory(this)"><option value="FLOOR" selected>一般懸空樓層樑 (計梁底+雙側模)</option><option value="GROUND">基礎地樑/連樑 (貼地免底模，僅計雙側模)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>跨別型式</label><select class="form-beam-span-type"><option value="exterior" selected>邊跨 (外端錨定 90° 彎鉤 + 內端直通搭接)</option><option value="interior">內跨 / 連續跨 (兩端直通搭接，無端部彎鉤)</option><option value="simple">單跨 / 獨立樑 (兩端 90° 耐震錨定彎鉤)</option><option value="cantilever">懸臂跨 / 挑樑 (柱端充分錨定 + 挑出端向下彎折)</option></select></div> <div class="input-group"><label>頂筋配筋形式</label><select class="form-top-rebar-mode"><option value="continuous" selected>全跨貫通/搭接 (標準)</option><option value="cutoff">耐震截斷 (2支通長+餘支端部截斷Ln/3)</option></select></div> <div class="input-group"><label>構件長 (m)</label><input type="text" class="form-component-length" placeholder="例如: 6.0" inputmode="decimal" value="6.0"></div> <div class="input-group"><label>斷面高 H (cm)</label><input type="text" class="form-section-a" placeholder="例如: 70" inputmode="numeric" value="70"></div> <div class="input-group"><label>斷面寬 B (cm)</label><input type="text" class="form-section-b" placeholder="例如: 40" inputmode="numeric" value="40"></div> <div class="input-group"><label>支承柱寬 (cm)</label><input type="text" class="form-support-width" placeholder="例如: 60" inputmode="numeric" value="60"></div> <div class="input-group"><label class="text-cyan-300" title="現場叫料對帳時可扣除與樓版重疊之版厚；填0為全樑深計算">扣版厚重疊 (cm)</label><input type="text" class="form-beam-deduct-slab" placeholder="例: 15 (填0為全深)" inputmode="decimal" value="0" oninput="updateFormIdentifier(this.closest('.rebar-input-container'))"></div> ${concreteField} ${finishFields} <div class="input-group beam-pc-field hidden"><label class="text-emerald-300 font-semibold">底部PC打底厚 (cm)</label><input type="text" class="form-pc-thickness" placeholder="例: 10 (140kg/cm²，無填0)" inputmode="decimal" value="0" oninput="updateFormIdentifier(this.closest('.rebar-input-container'))"></div> <div class="input-group beam-pc-field hidden"><label class="text-emerald-300 font-semibold">PC兩側外放 (cm)</label><input type="text" class="form-pc-margin" placeholder="每側外放cm，例: 10" inputmode="decimal" value="10"></div> <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>頂筋號數</label><select class="form-top-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>頂筋數量</label><input type="text" class="form-top-rebar-count" placeholder="例如: 4" inputmode="numeric" value="4"></div> <div class="input-group"><label>底筋號數</label><select class="form-bottom-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>底筋數量</label><input type="text" class="form-bottom-rebar-count" placeholder="例如: 3" inputmode="numeric" value="3"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing" onchange="toggleCustomSpacing(this)">${createSpacingOptions('耐震標準: 端部@10cm / 中央@15cm')}</select><input type="text" class="custom-stirrup-spacing spacing-custom-input hidden mt-2" placeholder="自訂間距(cm)，例: 12 或 10/15" inputmode="decimal"></div> <div class="input-group"><label>腰筋號數</label><select class="form-waist-rebar-size"><option value="無">無</option>${createRebarOptions('#4 (13mm)')}</select></div><div class="rebar-spacing-alert-container col-span-full"></div>`; break;
@@ -2033,6 +2070,9 @@
                     identifierSpan.textContent = `${baseId} [RC樓梯(斜版+踏步)]`;
                 } else if (beamCat === 'GROUND') {
                     identifierSpan.textContent = `${baseId} [基礎地樑免底模${pcTag}]`;
+                } else if (colTopMode === 'pedestal_anchor') {
+                    const emb = parseFloat(formContainer.querySelector('.form-pedestal-embed')?.value) || 43;
+                    identifierSpan.textContent = `${baseId} [基礎短柱+基腳埋深${emb}cm]`;
                 } else if (colTopMode === 'top_anchor') {
                     identifierSpan.textContent = `${baseId} [柱頂錨定收頭]`;
                 } else if (miscCat === 'DOWEL_WITH_BAR') {
@@ -3464,11 +3504,24 @@
             }
 
             if (type === 'column') {
-                if (/(?:收頭|柱頂錨定|頂層柱)/i.test(cmd)) {
+                if (/(?:基礎短柱|基腳短柱|墩柱|^C0\b)/i.test(cmd)) {
+                    const topModeSel = newForm.querySelector('.form-column-top-mode');
+                    if (topModeSel) {
+                        topModeSel.value = 'pedestal_anchor';
+                        topModeSel.dispatchEvent(new Event('change', { bubbles: true }));
+                        if (typeof toggleColumnTopMode === 'function') toggleColumnTopMode(topModeSel);
+                    }
+                    const mEmb = cmd.match(/(?:埋深|基腳埋深|錨入)[=:：\s]*(\d+(?:\.\d+)?)/i);
+                    if (mEmb) {
+                        const embInput = newForm.querySelector('.form-pedestal-embed');
+                        if (embInput) embInput.value = mEmb[1];
+                    }
+                } else if (/(?:收頭|柱頂錨定|頂層柱)/i.test(cmd)) {
                     const topModeSel = newForm.querySelector('.form-column-top-mode');
                     if (topModeSel) {
                         topModeSel.value = 'top_anchor';
                         topModeSel.dispatchEvent(new Event('change', { bubbles: true }));
+                        if (typeof toggleColumnTopMode === 'function') toggleColumnTopMode(topModeSel);
                     }
                 }
                 const shapeSelect = newForm.querySelector('.form-column-shape');
@@ -3933,15 +3986,16 @@
 
             const columnTopMode = form.querySelector('.form-column-top-mode')?.value || 'lap';
             if (mainRebarCountC > 0) {
-                if (columnTopMode === 'top_anchor') {
+                if (columnTopMode === 'top_anchor' || columnTopMode === 'pedestal_anchor') {
                     const hook90Col = Math.max(Math.ceil(12 * mainRebarPropsC.diameter), 15);
                     const straightHeightCm = Math.max(20, Math.ceil(totalHeightInCm - cover));
-                    const isPedestalCol = /基礎短柱|基腳短柱|1C1/.test(componentId);
+                    const isPedestalCol = (columnTopMode === 'pedestal_anchor') || /基礎短柱|基腳短柱|墩柱|^C0$/i.test(componentId);
                     if (isPedestalCol) {
-                        const footingEmbedCm = 43;
+                        const rawEmbed = parseFloat(form.querySelector('.form-pedestal-embed')?.value);
+                        const footingEmbedCm = !isNaN(rawEmbed) && rawEmbed >= 0 ? Math.round(rawEmbed) : 43;
                         const vertLenCm = straightHeightCm + footingEmbedCm;
                         const anchorBarLen = vertLenCm + 2 * hook90Col;
-                        result.calculationSteps.push(`  - 基礎短柱錨定模式: 柱底伸入獨立基腳 F1 埋深 ${footingEmbedCm}cm + 底端 90° 彎鉤 (${hook90Col}cm)，柱頂採用 90° 彎鉤收頭 (${hook90Col}cm)`);
+                        result.calculationSteps.push(`  - 基礎短柱錨定模式: 柱底伸入基礎基腳埋深 ${footingEmbedCm}cm + 底端 90° 彎鉤 (${hook90Col}cm)，柱頂採用 90° 彎鉤收頭 (${hook90Col}cm)`);
                         result.calculationSteps.push(`  - 主筋(基礎短柱): 底鉤 ${hook90Col}cm + 垂直段 ${vertLenCm}cm(含基腳埋深${footingEmbedCm}cm) + 頂鉤 ${hook90Col}cm = ${anchorBarLen} cm (${mainRebarCountC}根)`);
                         result.rebars.push({
                             componentId, componentFloor, rebarGrade, rebarSize: mainRebarSizeC,
@@ -5485,15 +5539,7 @@
             });
 
             // 建立《各樓層分批澆置叫料與請款矩陣》 (升級 1)
-            const standardFloorsOrder = ['B3', 'B2', 'B1', '1F', '2F', '3F', '4F', '5F', '6F', 'R1F', 'R2F', 'RF'];
-            const sortedFloorKeys = Object.keys(dataByFloor).sort((a, b) => {
-                const ia = standardFloorsOrder.indexOf(a);
-                const ib = standardFloorsOrder.indexOf(b);
-                if (ia !== -1 && ib !== -1) return ia - ib;
-                if (ia !== -1) return -1;
-                if (ib !== -1) return 1;
-                return a.localeCompare(b);
-            });
+            const sortedFloorKeys = sortFloorNamesSmart(Object.keys(dataByFloor));
             const floorCalloutMatrix = sortedFloorKeys.map(flr => {
                 const comps = dataByFloor[flr] || [];
                 let vertConc = 0, horizConc = 0, pcConc = 0;
@@ -6181,15 +6227,7 @@
         function updateFloorFilterPillsUI(floorFormCounts, totalFormsCount) {
             const container = document.getElementById('floor-filter-pills');
             if (!container) return;
-            const standardFloorsOrder = ['B3', 'B2', 'B1', '1F', '2F', '3F', '4F', '5F', '6F', 'R1F', 'R2F', 'RF'];
-            const floorsPresent = Object.keys(floorFormCounts).sort((a, b) => {
-                const ia = standardFloorsOrder.indexOf(a);
-                const ib = standardFloorsOrder.indexOf(b);
-                if (ia !== -1 && ib !== -1) return ia - ib;
-                if (ia !== -1) return -1;
-                if (ib !== -1) return 1;
-                return a.localeCompare(b);
-            });
+            const floorsPresent = sortFloorNamesSmart(Object.keys(floorFormCounts));
             if (activeFloorFilter !== 'ALL' && !floorFormCounts[activeFloorFilter]) {
                 activeFloorFilter = 'ALL';
             }
@@ -7358,15 +7396,7 @@
             // -------------------------------------------------------------
             // 【工作表 3, 5 等】鋼筋撿料單 (${floor}) & 【工作表 4, 6 等】其他材料單 (${floor})
             // -------------------------------------------------------------
-            const standardFloorsOrder = ['B4', 'B3', 'B2', 'B1', '1F', '2F', '3F', '4F', '5F', '6F', '7F', '8F', '9F', '10F', 'RF', 'R1F', 'R2F', 'PRF'];
-            let sortedFloors = Object.keys(dataByFloor || {}).sort((a, b) => {
-                const aIndex = standardFloorsOrder.indexOf(a);
-                const bIndex = standardFloorsOrder.indexOf(b);
-                if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-                if (aIndex !== -1) return -1;
-                if (bIndex !== -1) return 1;
-                return a.localeCompare(b);
-            });
+            let sortedFloors = sortFloorNamesSmart(Object.keys(dataByFloor || {}));
             // 確保至少包含 1F 與 2F，完全吻合原始表單 8 工作表架構
             if (!sortedFloors.includes('1F')) sortedFloors.unshift('1F');
             if (!sortedFloors.includes('2F')) {
@@ -8008,15 +8038,7 @@
             // ==========================================
             // 【工作表 3..N】分樓層鋼筋撿料單與其他材料單 (完全還原 20 欄位原始架構)
             // ==========================================
-            const standardFloorsOrder = ['B4', 'B3', 'B2', 'B1', '1F', '2F', '3F', '4F', '5F', '6F', '7F', '8F', '9F', '10F', 'R1F', 'R2F', 'PRF'];
-            let sortedFloors = Object.keys(dataByFloor).sort((a, b) => {
-                const aIndex = standardFloorsOrder.indexOf(a);
-                const bIndex = standardFloorsOrder.indexOf(b);
-                if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-                if (aIndex !== -1) return -1;
-                if (bIndex !== -1) return 1;
-                return a.localeCompare(b);
-            });
+            let sortedFloors = sortFloorNamesSmart(Object.keys(dataByFloor));
 
             // 確保至少包含 1F 與 2F，完全吻合原始表單 8 工作表架構
             if (!sortedFloors.includes('1F')) sortedFloors.unshift('1F');
