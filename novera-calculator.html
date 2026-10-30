@@ -1552,9 +1552,11 @@
             if (!form) return;
             const category = select.value || 'RC';
             const isBrick = (category === 'BRICK_HALF' || category === 'BRICK_FULL');
+            const isExistingWall = (category === 'EXISTING_WALL');
+            const isNonRC = isBrick || isExistingWall;
             const rcFields = form.querySelectorAll('.wall-rc-only-field');
             rcFields.forEach(el => {
-                if (isBrick) {
+                if (isNonRC) {
                     el.classList.add('hidden');
                 } else {
                     if (el.classList.contains('custom-max-length-group')) {
@@ -1567,13 +1569,21 @@
             });
             const brickBanner = form.querySelector('.wall-brick-info-banner');
             if (brickBanner) {
-                if (isBrick) {
+                if (isNonRC) {
                     brickBanner.classList.remove('hidden');
-                    const specText = category === 'BRICK_HALF'
-                        ? '【1/2B 半磚牆 (12cm) 標準】CNS 382 紅磚：64 塊/m²（約 212 塊/坪）｜1:3 水泥砂漿：水泥 0.22 包/m²、砂 0.026 m³/m²（免計 RC 鋼筋、混凝土與模板）'
-                        : '【1B 一磚牆 (24cm) 標準】CNS 382 紅磚：128 塊/m²（約 423 塊/坪）｜1:3 水泥砂漿：水泥 0.47 包/m²、砂 0.056 m³/m²（免計 RC 鋼筋、混凝土與模板）';
+                    const specText = isExistingWall
+                        ? '【既有保留舊牆翻新模式】免計結構鋼筋、混凝土、模板與紅磚塊數，專計扣除門窗開口後之內外牆泥作打底粉光、磁磚與油漆面積（若僅單面翻新，另一側面材請選「無」）'
+                        : (category === 'BRICK_HALF'
+                            ? '【1/2B 半磚牆 (12cm) 標準】CNS 382 紅磚：64 塊/m²（約 212 塊/坪）｜1:3 水泥砂漿：水泥 0.22 包/m²、砂 0.026 m³/m²（免計 RC 鋼筋、混凝土與模板）'
+                            : '【1B 一磚牆 (24cm) 標準】CNS 382 紅磚：128 塊/m²（約 423 塊/坪）｜1:3 水泥砂漿：水泥 0.47 包/m²、砂 0.056 m³/m²（免計 RC 鋼筋、混凝土與模板）');
                     const spanEl = brickBanner.querySelector('.brick-spec-detail');
                     if (spanEl) spanEl.textContent = specText;
+                    const badgeEl = brickBanner.querySelector('.brick-spec-badge');
+                    if (badgeEl) {
+                        badgeEl.textContent = isExistingWall
+                            ? '專計舊牆泥作粉光、磁磚與油漆'
+                            : '自動核算紅磚、水泥與用砂';
+                    }
                 } else {
                     brickBanner.classList.add('hidden');
                 }
@@ -1585,6 +1595,8 @@
                     thickInput.value = '12';
                 } else if (category === 'BRICK_FULL' && (curVal === '' || curVal === '30' || curVal === '12' || curVal === '15' || curVal === '20')) {
                     thickInput.value = '24';
+                } else if (category === 'EXISTING_WALL' && curVal === '') {
+                    thickInput.value = '12';
                 }
             }
             if (typeof updateFormIdentifier === 'function') {
@@ -1613,9 +1625,59 @@
 
         const generalFinishes = ['無', '水泥粉光', '油漆', '其他'];
 
-        const generalWallFinishes = ['無', '水泥粉光', '油漆', '其他'];
+        const generalWallFinishes = ['無', '水泥粉光', '油漆', '磁磚', '其他'];
 
         const exteriorWallFinishes = ['無', '水泥粉光', '油漆', '磁磚', '石頭漆', '其他'];
+
+        // 【面材工序自動累加上底層泥作粉光】
+        // 1. 選「無」 -> 0 面材
+        // 2. 選「水泥粉光」 -> 僅計「水泥粉光」(1道)
+        // 3. 選「油漆 / 磁磚 / 地磚 / 木地板 / 石頭漆」 -> 自動同時計入「水泥粉光 (底層泥作打底粉光)」+「該完成面材 (面層)」(2道累加)
+        function doesFinishRequirePlasterBase(finishType) {
+            if (!finishType || finishType === '無' || finishType === '水泥粉光') return false;
+            const s = String(finishType).trim();
+            if (/(?:免打底|免粉光|清水|直刷|不粉光)/.test(s)) return false;
+            if (['油漆', '磁磚', '地磚', '壁磚', '木地板', '石頭漆'].includes(s)) return true;
+            if (/(?:漆|磚|塗料|木地板|地毯|石材|批土)/.test(s)) return true;
+            return false;
+        }
+
+        function expandFinishWithBaseCoat(finishType, area, baseCalcStr = '', surfaceTag = '') {
+            if (!finishType || finishType === '無' || !(area > 0)) return [];
+            const cleanType = String(finishType).trim();
+            const tagPrefix = surfaceTag ? `${surfaceTag}` : '';
+            if (doesFinishRequirePlasterBase(cleanType)) {
+                const baseNote = tagPrefix ? `[${tagPrefix}-${cleanType}底層泥作打底粉光]` : `[${cleanType}底層泥作打底粉光]`;
+                const topNote = tagPrefix ? `[${tagPrefix}-${cleanType}完成面]` : `[${cleanType}完成面]`;
+                return [
+                    {
+                        type: '水泥粉光',
+                        area: area,
+                        calc: baseCalcStr ? `${baseCalcStr} ${baseNote}` : baseNote,
+                        isBaseCoat: true,
+                        sourceFinish: cleanType
+                    },
+                    {
+                        type: cleanType,
+                        area: area,
+                        calc: baseCalcStr ? `${baseCalcStr} ${topNote}` : topNote,
+                        isTopCoat: true,
+                        sourceFinish: cleanType
+                    }
+                ];
+            }
+            const singleNote = tagPrefix ? `[${tagPrefix}]` : '';
+            return [
+                {
+                    type: cleanType,
+                    area: area,
+                    calc: (baseCalcStr && singleNote) ? `${baseCalcStr} ${singleNote}` : (baseCalcStr || singleNote),
+                    isBaseCoat: false,
+                    isTopCoat: true,
+                    sourceFinish: cleanType
+                }
+            ];
+        }
 
         let formToCopy = null;
 
@@ -2031,13 +2093,13 @@
                 case 'column':
                 case 'beam':
                 case 'pile':
-                     finishFields = `<div class="input-group"><label>面材</label><select class="form-finish-material" onchange="toggleCustomFinish(this)">${createOptions(generalFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
+                     finishFields = `<div class="input-group"><label title="選「油漆」時自動包含底層「水泥粉光」；選「水泥粉光」則僅計粉光">面材 (含底層粉光)</label><select class="form-finish-material" onchange="toggleCustomFinish(this)">${createOptions(generalFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
                 case 'slab':
-                     finishFields = `<div class="input-group"><label>版上(地坪)</label><select class="form-floor-finish" onchange="toggleCustomFinish(this)">${createOptions(floorFinishes)}</select><input type="text" class="custom-finish custom-floor-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
-                                     <div class="input-group"><label>版下(坪頂)</label><select class="form-ceiling-finish" onchange="toggleCustomFinish(this)">${createOptions(ceilingFinishes)}</select><input type="text" class="custom-finish custom-ceiling-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
+                     finishFields = `<div class="input-group"><label title="選「地磚/木地板」時自動包含底層「水泥粉光」；選「水泥粉光」則僅計粉光">版上(地坪)</label><select class="form-floor-finish" onchange="toggleCustomFinish(this)">${createOptions(floorFinishes)}</select><input type="text" class="custom-finish custom-floor-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
+                                     <div class="input-group"><label title="選「油漆」時自動包含底層「水泥粉光」；選「水泥粉光」則僅計粉光">版下(坪頂)</label><select class="form-ceiling-finish" onchange="toggleCustomFinish(this)">${createOptions(ceilingFinishes)}</select><input type="text" class="custom-finish custom-ceiling-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
                 case 'wall':
-                     finishFields = `<div class="input-group"><label>內牆面材</label><select class="form-interior-finish" onchange="toggleCustomFinish(this)">${createOptions(generalWallFinishes)}</select><input type="text" class="custom-finish custom-interior-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
-                                     <div class="input-group"><label>外牆面材</label><select class="form-exterior-finish" onchange="toggleCustomFinish(this)">${createOptions(exteriorWallFinishes)}</select><input type="text" class="custom-finish custom-exterior-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
+                     finishFields = `<div class="input-group"><label title="選「油漆/磁磚」時自動包含底層「水泥粉光」；選「水泥粉光」則僅計粉光">內牆面材</label><select class="form-interior-finish" onchange="toggleCustomFinish(this)">${createOptions(generalWallFinishes)}</select><input type="text" class="custom-finish custom-interior-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
+                                     <div class="input-group"><label title="選「油漆/磁磚/石頭漆」時自動包含底層「水泥粉光」；選「水泥粉光」則僅計粉光">外牆面材</label><select class="form-exterior-finish" onchange="toggleCustomFinish(this)">${createOptions(exteriorWallFinishes)}</select><input type="text" class="custom-finish custom-exterior-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
             }
 
             let specificFields = '';
@@ -2053,7 +2115,7 @@
 
                 case 'wall':
                     const wallConcreteField = `<div class="input-group wall-rc-only-field"><label>混凝土強度</label><select class="form-concrete-strength" onchange="toggleCustomConcreteStrength(this)">${createOptions(concreteStrengths, '280 kg/cm²')}</select><input type="text" class="custom-concrete-strength hidden mt-2" placeholder="請輸入自訂強度，例: 315 kg/cm²"></div>`;
-                    specificFields = `<div class="input-group"><label>牆編號</label><input type="text" class="form-component-id" placeholder="例如: W1 或 BW1"></div> <div class="input-group"><label>牆體材質/構造</label><select class="form-wall-category" onchange="toggleWallCategory(this)"><option value="RC" selected>RC 鋼筋混凝土牆</option><option value="BRICK_HALF">1/2B 紅磚牆 (半磚 12cm)</option><option value="BRICK_FULL">1B 紅磚牆 (一磚 24cm)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group wall-rc-only-field"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 5.0" inputmode="decimal"></div> <div class="input-group"><label>高度 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.5" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="RC例:20 / 半磚:12 / 一磚:24" inputmode="decimal"></div> <div class="input-group"><label>扣除門窗開口 (m²/處)</label><input type="text" class="form-wall-opening-area" placeholder="例如: 1.8 (無則填 0)" inputmode="decimal" value="0"></div> <div class="input-group wall-rc-only-field"><label class="text-cyan-300">開口四周與八字斜筋</label><select class="form-opening-rebar-mode"><option value="AUTO" selected>自動加計框邊筋+四角45°八字斜筋</option><option value="NONE">僅扣面積不加補強筋</option></select></div> ${wallConcreteField} ${finishFields} <div class="wall-brick-info-banner hidden col-span-full p-3 my-2 rounded-lg bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-center justify-between flex-wrap gap-2"><span class="brick-spec-detail font-mono">【1/2B 半磚牆 (12cm) 標準】CNS 382 紅磚：64 塊/m²（約 212 塊/坪）｜1:3 水泥砂漿：水泥 0.22 包/m²、砂 0.026 m³/m²</span><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">自動核算紅磚、水泥與用砂</span></div> <div class="col-span-full border-t border-dashed border-gray-600 my-2 wall-rc-only-field"></div> <div class="input-group wall-rc-only-field"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group wall-rc-only-field"><label>水平筋尺寸 (X)</label><select class="form-main-rebar-size-x">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>水平筋間距 (X)</label><select class="form-rebar-spacing-x" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-rebar-spacing-x spacing-custom-input hidden mt-2" placeholder="自訂水平筋間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group wall-rc-only-field"><label>垂直筋尺寸 (Y)</label><select class="form-main-rebar-size-y">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>垂直筋間距 (Y)</label><select class="form-rebar-spacing-y" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-rebar-spacing-y spacing-custom-input hidden mt-2" placeholder="自訂垂直筋間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group md:col-span-2 wall-rc-only-field"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2 wall-rc-only-field"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
+                    specificFields = `<div class="input-group"><label>牆編號</label><input type="text" class="form-component-id" placeholder="例如: W1、BW1 或 EW1"></div> <div class="input-group"><label>牆體材質/構造</label><select class="form-wall-category" onchange="toggleWallCategory(this)"><option value="RC" selected>RC 鋼筋混凝土牆</option><option value="BRICK_HALF">1/2B 紅磚牆 (半磚 12cm)</option><option value="BRICK_FULL">1B 紅磚牆 (一磚 24cm)</option><option value="EXISTING_WALL">既有保留舊牆翻新 (免計RC/紅磚，專計泥作粉光與面材)</option></select></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group wall-rc-only-field"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 5.0" inputmode="decimal"></div> <div class="input-group"><label>高度 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.5" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="RC例:20 / 半磚:12 / 一磚:24 / 舊牆可免填" inputmode="decimal"></div> <div class="input-group"><label>扣除門窗開口 (m²/處)</label><input type="text" class="form-wall-opening-area" placeholder="例如: 1.8 (無則填 0)" inputmode="decimal" value="0"></div> <div class="input-group wall-rc-only-field"><label class="text-cyan-300">開口四周與八字斜筋</label><select class="form-opening-rebar-mode"><option value="AUTO" selected>自動加計框邊筋+四角45°八字斜筋</option><option value="NONE">僅扣面積不加補強筋</option></select></div> ${wallConcreteField} ${finishFields} <div class="wall-brick-info-banner hidden col-span-full p-3 my-2 rounded-lg bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 flex items-center justify-between flex-wrap gap-2"><span class="brick-spec-detail font-mono">【1/2B 半磚牆 (12cm) 標準】CNS 382 紅磚：64 塊/m²（約 212 塊/坪）｜1:3 水泥砂漿：水泥 0.22 包/m²、砂 0.026 m³/m²</span><span class="brick-spec-badge px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">自動核算紅磚、水泥與用砂</span></div> <div class="col-span-full border-t border-dashed border-gray-600 my-2 wall-rc-only-field"></div> <div class="input-group wall-rc-only-field"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group wall-rc-only-field"><label>水平筋尺寸 (X)</label><select class="form-main-rebar-size-x">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>水平筋間距 (X)</label><select class="form-rebar-spacing-x" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-rebar-spacing-x spacing-custom-input hidden mt-2" placeholder="自訂水平筋間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group wall-rc-only-field"><label>垂直筋尺寸 (Y)</label><select class="form-main-rebar-size-y">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group wall-rc-only-field"><label>垂直筋間距 (Y)</label><select class="form-rebar-spacing-y" onchange="toggleCustomSpacing(this)">${createSpacingOptions('20 cm')}</select><input type="text" class="custom-rebar-spacing-y spacing-custom-input hidden mt-2" placeholder="自訂垂直筋間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group md:col-span-2 wall-rc-only-field"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2 wall-rc-only-field"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
 
                 case 'pile':
                     specificFields = `<div class="input-group"><label>樁編號</label><input type="text" class="form-component-id" placeholder="例如: P1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('B1')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: B2F"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>樁直徑 (m)</label><input type="text" class="form-component-diameter" placeholder="例如: 1.5" inputmode="decimal"></div> <div class="input-group"><label>樁長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 30" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 16" inputmode="numeric"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距 (cm)</label><select class="form-stirrup-spacing" onchange="toggleCustomSpacing(this)">${createSpacingOptions('15 cm')}</select><input type="text" class="custom-stirrup-spacing spacing-custom-input hidden mt-2" placeholder="自訂箍筋間距 (cm)，例: 12" inputmode="decimal"></div> <div class="input-group"><label>續接器類型</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>`; break;
@@ -2123,6 +2185,8 @@
                     identifierSpan.textContent = `${baseId} [1/2B紅磚牆]`;
                 } else if (wallCat === 'BRICK_FULL') {
                     identifierSpan.textContent = `${baseId} [1B紅磚牆]`;
+                } else if (wallCat === 'EXISTING_WALL') {
+                    identifierSpan.textContent = `${baseId} [既有舊牆翻新]`;
                 } else if (slabCat === 'DECK') {
                     identifierSpan.textContent = `${baseId} [鋼承鈑免底模]`;
                 } else if (slabCat === 'SOG') {
@@ -3325,7 +3389,7 @@
             const rawTokens = cmd.split(/[\s,，\t]+/).filter(Boolean);
             let preDetectedFloor = null;
             const secondTok = rawTokens[1] || '';
-            const isSecondCompId = /^(?:(?:B\d+F?|R\d*F?|GF|\d+F?)[-_]?)?(?:CS|DS|FS|ST|SLAB|DECK|FOOTING|CW|BW|SW|RW|WALL|BRICK|PARAPET|CG|FG|FB|TB|TG|WB|CB|BEAM|COL|PILE|S|F|W|B|G|C|P|板|版|基腳|獨立基腳|樓梯|牆|磚牆|紅磚牆|女兒牆|RC牆|剪力牆|樑|梁|地樑|地梁|懸臂樑|懸臂梁|柱|短柱|基礎短柱|基樁|排樁|場鑄樁)(?:\d+[A-Z0-9_-]*|[-_][A-Z0-9_-]+)?$/i.test(secondTok);
+            const isSecondCompId = /^(?:(?:B\d+F?|R\d*F?|GF|\d+F?)[-_]?)?(?:CS|DS|FS|ST|SLAB|DECK|FOOTING|CW|BW|EW|SW|RW|WALL|BRICK|PARAPET|CG|FG|FB|TB|TG|WB|CB|BEAM|COL|PILE|S|F|W|B|G|C|P|板|版|基腳|獨立基腳|樓梯|牆|舊牆|既有牆|保留牆|磚牆|紅磚牆|女兒牆|RC牆|剪力牆|樑|梁|地樑|地梁|懸臂樑|懸臂梁|柱|短柱|基礎短柱|基樁|排樁|場鑄樁)(?:\d+[A-Z0-9_-]*|[-_][A-Z0-9_-]+)?$/i.test(secondTok);
             if (rawTokens.length >= 2 && /^(?:基礎|B\d+F?|BF|GF|\d+F|RF|R\d+F?|PRF)$/i.test(rawTokens[0]) && isSecondCompId) {
                 preDetectedFloor = rawTokens[0].toUpperCase();
                 if (/^B\d+F$/i.test(preDetectedFloor)) preDetectedFloor = preDetectedFloor.slice(0, -1);
@@ -3344,7 +3408,7 @@
             const idTailReq = '(?:\\d+(?![CSWGF]\\d)[A-Z0-9_-]*|[-_][A-Z0-9_-]+)';
             if (new RegExp('^' + flrPrefixPat + '(?:(?:CS|DS|FS|ST|SLAB|DECK|FOOTING|板|版|基腳|獨立基腳|樓梯)' + idTailOpt + '|(?:S|F)' + idTailReq + ')$', 'i').test(firstUpper)) {
                 type = 'slab';
-            } else if (new RegExp('^' + flrPrefixPat + '(?:(?:CW|BW|SW|RW|WALL|BRICK|PARAPET|牆|磚牆|紅磚牆|女兒牆|RC牆|剪力牆)' + idTailOpt + '|W' + idTailReq + ')$', 'i').test(firstUpper)) {
+            } else if (new RegExp('^' + flrPrefixPat + '(?:(?:CW|BW|EW|SW|RW|WALL|BRICK|PARAPET|牆|舊牆|既有牆|保留牆|磚牆|紅磚牆|女兒牆|RC牆|剪力牆)' + idTailOpt + '|W' + idTailReq + ')$', 'i').test(firstUpper)) {
                 type = 'wall';
             } else if (new RegExp('^' + flrPrefixPat + '(?:(?:CG|FG|FB|TB|TG|WB|CB|BEAM|樑|梁|地樑|地梁|懸臂樑|懸臂梁)' + idTailOpt + '|(?:B|G)' + idTailReq + ')$', 'i').test(firstUpper)) {
                 type = 'beam';
@@ -3358,7 +3422,7 @@
                     type = 'pile';
                 } else if (/[TB頂底]\d+/i.test(cmd)) {
                     type = 'beam';
-                } else if (/(?:剪力牆|女兒牆|紅磚|磚牆|半磚|一磚|1\/2B|0\.5B|1B|牆|WALL|PARAPET|(?:^|\s)[hH高]\s*[=:]\s*\d)/i.test(cmd)) {
+                } else if (/(?:剪力牆|女兒牆|舊牆|既有牆|保留牆|紅磚|磚牆|半磚|一磚|1\/2B|0\.5B|1B|牆|WALL|PARAPET|(?:^|\s)[hH高]\s*[=:]\s*\d)/i.test(cmd)) {
                     type = 'wall';
                 } else if (/(?:雙向|雙層|單層|厚度|t=\d+|T\d+|版|板|(?:^|\s)[wW寬]\s*[=:]\s*\d)/i.test(cmd)) {
                     type = 'slab';
@@ -3920,9 +3984,12 @@
                     if (elC) { elC.value = compCount; elC.dispatchEvent(new Event('input', { bubbles: true })); }
                 }
             } else if (type === 'wall') {
-                // 識別是否為紅磚牆 (1/2B 或 1B)
+                // 識別是否為既有保留舊牆翻新、紅磚牆 (1/2B 或 1B) 或 RC 牆
                 let wallCat = 'RC';
-                if (/(?:1\/2B|0\.5B|半磚|12cm磚)/i.test(cmd) || (/(?:紅磚|磚牆|BW)/i.test(cmd) && !/(?:1B|一磚|24cm)/i.test(cmd))) {
+                if (/(?:舊牆|既有牆|保留牆|舊磚牆|^EW\d*)/i.test(cmd) || /^EW\d*/i.test(firstUpper)) {
+                    wallCat = 'EXISTING_WALL';
+                    if (thickness === null) thickness = 12;
+                } else if (/(?:1\/2B|0\.5B|半磚|12cm磚)/i.test(cmd) || (/(?:紅磚|磚牆|BW)/i.test(cmd) && !/(?:1B|一磚|24cm)/i.test(cmd))) {
                     wallCat = 'BRICK_HALF';
                     if (thickness === null) thickness = 12;
                 } else if (/(?:1B|一磚|24cm磚)/i.test(cmd)) {
@@ -3935,6 +4002,26 @@
                     elCat.dispatchEvent(new Event('change', { bubbles: true }));
                     if (typeof toggleWallCategory === 'function') toggleWallCategory(elCat);
                 }
+                // 支援快速指令直接指定內外牆面材 (例如: 內磁磚 外油漆 / 雙面油漆 / 內粉光 外無)
+                const intSelW = newForm.querySelector('.form-interior-finish');
+                const extSelW = newForm.querySelector('.form-exterior-finish');
+                const applyFinishSel = (selEl, valStr) => {
+                    if (!selEl || !valStr) return;
+                    selEl.value = valStr;
+                    selEl.dispatchEvent(new Event('change', { bubbles: true }));
+                };
+                if (/雙面磁磚/.test(cmd)) { applyFinishSel(intSelW, '磁磚'); applyFinishSel(extSelW, '磁磚'); }
+                else if (/雙面油漆/.test(cmd)) { applyFinishSel(intSelW, '油漆'); applyFinishSel(extSelW, '油漆'); }
+                else if (/雙面(?:水泥)?粉光/.test(cmd)) { applyFinishSel(intSelW, '水泥粉光'); applyFinishSel(extSelW, '水泥粉光'); }
+                if (/內(?:側|牆)?[=:]?磁磚/.test(cmd)) applyFinishSel(intSelW, '磁磚');
+                else if (/內(?:側|牆)?[=:]?油漆/.test(cmd)) applyFinishSel(intSelW, '油漆');
+                else if (/內(?:側|牆)?[=:]?(?:水泥)?粉光/.test(cmd)) applyFinishSel(intSelW, '水泥粉光');
+                else if (/內(?:側|牆)?[=:]?無/.test(cmd)) applyFinishSel(intSelW, '無');
+                if (/外(?:側|牆)?[=:]?磁磚/.test(cmd)) applyFinishSel(extSelW, '磁磚');
+                else if (/外(?:側|牆)?[=:]?石頭漆/.test(cmd)) applyFinishSel(extSelW, '石頭漆');
+                else if (/外(?:側|牆)?[=:]?油漆/.test(cmd)) applyFinishSel(extSelW, '油漆');
+                else if (/外(?:側|牆)?[=:]?(?:水泥)?粉光/.test(cmd)) applyFinishSel(extSelW, '水泥粉光');
+                else if (/外(?:側|牆)?[=:]?無/.test(cmd)) applyFinishSel(extSelW, '無');
                 const mOpen = workStr.match(/(?:扣|開口|門窗)[=:]?\s*(\d+(?:\.\d+)?)/i);
                 if (mOpen) {
                     const elOpen = newForm.querySelector('.form-wall-opening-area');
@@ -5025,7 +5112,8 @@
             const widthOrHeight = parseFloat(form.querySelector(isSlab ? '.form-component-width' : '.form-component-height')?.value) || 0;
             const wallCategory = (!isSlab && form.querySelector('.form-wall-category')?.value) ? form.querySelector('.form-wall-category').value : 'RC';
             const isBrickWall = !isSlab && (wallCategory === 'BRICK_HALF' || wallCategory === 'BRICK_FULL');
-            const defaultBrickThick = wallCategory === 'BRICK_HALF' ? 12 : (wallCategory === 'BRICK_FULL' ? 24 : 0);
+            const isExistingWall = !isSlab && (wallCategory === 'EXISTING_WALL');
+            const defaultBrickThick = wallCategory === 'BRICK_HALF' ? 12 : (wallCategory === 'BRICK_FULL' ? 24 : (wallCategory === 'EXISTING_WALL' ? 12 : 0));
             const thickness = parseFloat(form.querySelector('.form-component-thickness')?.value) || defaultBrickThick;
             const openingArea = (isSlab
                 ? parseFloat(form.querySelector('.form-slab-opening-area')?.value)
@@ -5117,10 +5205,78 @@
                 result.calculationSteps.push(`  - 紅磚數量 (CNS 382 標準磚 ${bricksPerM2} 塊/m²): ceil(${totalBrickArea.toFixed(2)} * ${bricksPerM2}) = ${brickCount.toLocaleString()} 塊 (採購含5%損耗: ${Math.ceil(brickCount * 1.05).toLocaleString()} 塊)`);
                 result.calculationSteps.push(`  - 1:3 砌磚水泥砂漿: 50kg袋裝水泥 ${mortarCementBags.toFixed(2)} 包 ｜ 砌磚用砂 ${mortarSandM3.toFixed(3)} m³`);
                 if (interiorFinishType !== '無') {
-                    result.calculationSteps.push(`  - 內牆面材 (${interiorFinishType}): ${totalBrickArea.toFixed(2)} m²`);
+                    const baseNoteI = doesFinishRequirePlasterBase(interiorFinishType) ? ` (自動含底層水泥粉光 ${totalBrickArea.toFixed(2)} m² + ${interiorFinishType} ${totalBrickArea.toFixed(2)} m²)` : '';
+                    result.calculationSteps.push(`  - 內牆面材 (${interiorFinishType}): ${totalBrickArea.toFixed(2)} m²${baseNoteI}`);
                 }
                 if (exteriorFinishType !== '無') {
-                    result.calculationSteps.push(`  - 外牆面材 (${exteriorFinishType}): ${totalBrickArea.toFixed(2)} m²`);
+                    const baseNoteE = doesFinishRequirePlasterBase(exteriorFinishType) ? ` (自動含底層水泥粉光 ${totalBrickArea.toFixed(2)} m² + ${exteriorFinishType} ${totalBrickArea.toFixed(2)} m²)` : '';
+                    result.calculationSteps.push(`  - 外牆面材 (${exteriorFinishType}): ${totalBrickArea.toFixed(2)} m²${baseNoteE}`);
+                }
+                return result;
+            }
+
+            // 【既有保留舊牆翻新專屬算料分支 (免計RC/紅磚，專計泥作打底粉光、磁磚與油漆面積)】
+            if (isExistingWall) {
+                if (length <= 0 || widthOrHeight <= 0) {
+                    result.calculationSteps.push(`${componentId} (樓層: ${componentFloor}) - 既有保留舊牆長度或高度輸入不足，無法計算面材面積。`);
+                    return result;
+                }
+                const rawSingleArea = length * widthOrHeight;
+                const netSingleArea = Math.max(rawSingleArea - openingArea, 0);
+                const totalWallArea = netSingleArea * componentCount;
+                const totalWallPing = totalWallArea * 0.3025;
+
+                const intFinishSelect = form.querySelector('.form-interior-finish');
+                const extFinishSelect = form.querySelector('.form-exterior-finish');
+                const interiorFinishType = getFinishValue(intFinishSelect);
+                const exteriorFinishType = getFinishValue(extFinishSelect);
+
+                const baseFormula = openingArea > 0
+                    ? `(${length}m x ${widthOrHeight}m - 扣開口${openingArea}m²)`
+                    : `${length}m x ${widthOrHeight}m`;
+                const countSuffix = componentCount > 1 ? ` x ${componentCount}處` : '';
+
+                const calcStrings = {
+                    concrete: '0 m³ (既有保留舊牆免計混凝土)',
+                    formwork: '0 m² (既有保留舊牆免計模板)',
+                    brick: '0 塊 (既有保留舊牆免計新砌紅磚)',
+                    interiorFinish: `${baseFormula}${countSuffix}`,
+                    exteriorFinish: `${baseFormula}${countSuffix}`,
+                };
+
+                result.materials = {
+                    componentId,
+                    componentFloor,
+                    componentType: '牆 (既有舊牆翻新)',
+                    isBrickWall: false,
+                    isExistingWall: true,
+                    wallCategory,
+                    existingWallArea: totalWallArea,
+                    existingWallPing: totalWallPing,
+                    openingArea: openingArea * componentCount,
+                    brickCount: 0,
+                    mortarCementBags: 0,
+                    mortarSandM3: 0,
+                    concreteStrength: '無 (既有保留舊牆)',
+                    concreteVolume: 0,
+                    formworkType: '無 (既有保留舊牆)',
+                    formworkArea: 0,
+                    interiorFinishType,
+                    interiorFinishArea: (interiorFinishType !== '無') ? totalWallArea : 0,
+                    exteriorFinishType,
+                    exteriorFinishArea: (exteriorFinishType !== '無') ? totalWallArea : 0,
+                    calculationStrings: calcStrings,
+                };
+
+                result.calculationSteps.push(`--- 構件 (既有保留舊牆翻新) 編號: ${componentId}, 樓層: ${componentFloor}, 數量: ${componentCount} ---`);
+                result.calculationSteps.push(`  - 單面牆體淨面積 (免計RC與紅磚): ${baseFormula}${countSuffix} = ${totalWallArea.toFixed(2)} m² (折合 ${totalWallPing.toFixed(2)} 坪)`);
+                if (interiorFinishType !== '無') {
+                    const baseNoteI = doesFinishRequirePlasterBase(interiorFinishType) ? ` (自動含底層水泥粉光 ${totalWallArea.toFixed(2)} m² + ${interiorFinishType} ${totalWallArea.toFixed(2)} m²)` : '';
+                    result.calculationSteps.push(`  - 內牆翻新面材 (${interiorFinishType}): ${totalWallArea.toFixed(2)} m²${baseNoteI}`);
+                }
+                if (exteriorFinishType !== '無') {
+                    const baseNoteE = doesFinishRequirePlasterBase(exteriorFinishType) ? ` (自動含底層水泥粉光 ${totalWallArea.toFixed(2)} m² + ${exteriorFinishType} ${totalWallArea.toFixed(2)} m²)` : '';
+                    result.calculationSteps.push(`  - 外牆翻新面材 (${exteriorFinishType}): ${totalWallArea.toFixed(2)} m²${baseNoteE}`);
                 }
                 return result;
             }
@@ -5898,10 +6054,10 @@
                     { type: component.exteriorFinishType, area: component.exteriorFinishArea },
                 ];
                 finishTypes.forEach(finish => {
-                    if (finish.type && finish.type !== '無' && finish.area > 0) {
-                        if (!materialSummary.finishes[finish.type]) materialSummary.finishes[finish.type] = 0;
-                        materialSummary.finishes[finish.type] += finish.area;
-                    }
+                    expandFinishWithBaseCoat(finish.type, finish.area).forEach(exp => {
+                        if (!materialSummary.finishes[exp.type]) materialSummary.finishes[exp.type] = 0;
+                        materialSummary.finishes[exp.type] += exp.area;
+                    });
                 });
                 (component.rebars || []).forEach(rebar => {
                     if (rebar.itemType === 'accessory') {
@@ -6429,11 +6585,23 @@
                                     <span class="text-xs text-amber-200/90">砌磚水泥 / 砂漿用砂</span>
                                     <span class="font-mono text-amber-300 font-bold text-xs">${totalBrickCementBags.toFixed(1)} <span class="text-muted">包</span> / ${totalBrickSandM3.toFixed(2)} <span class="text-muted">m³</span></span>
                                 </div>
+                                ${Object.entries(calcData.materialSummary?.finishes || {}).map(([fName, fAreaNet]) => {
+                                    const fAreaDisp = isProcurement ? (fAreaNet * 1.05) : fAreaNet;
+                                    const fPingDisp = fAreaDisp * 0.3025;
+                                    return `
+                                <div class="flex justify-between items-center p-2.5 rounded bg-emerald-950/25 border border-emerald-500/30">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-emerald-200 font-semibold">${fName}${fName === '水泥粉光' ? ' (含磁磚/油漆底層粉光)' : ''}</span>
+                                        <span class="text-[11px] text-gray-400 font-mono">折合 ${fPingDisp.toFixed(2)} 坪${isProcurement ? ' (含+5%損耗)' : ' (設計淨量)'}</span>
+                                    </div>
+                                    <span class="font-mono text-emerald-300 font-bold text-sm">${fAreaDisp.toFixed(2)} <span class="text-xs text-muted">m²</span></span>
+                                </div>`;
+                                }).join('')}
                             </div>
                         </div>
 
                         <div class="mt-4 pt-3 border-t border-[var(--border-plasma)]/40 text-[11px] text-gray-400 leading-relaxed">
-                            提示：紅磚依 CNS 382 標準磚 (1/2B=64塊/m², 1B=128塊/m²) 暨 1:3 水泥砂漿自動折算。
+                            提示：紅磚依 CNS 382 標準磚 (1/2B=64塊/m², 1B=128塊/m²) 暨 1:3 水泥砂漿折算；面材選「油漆/磁磚/地磚」時自動累加底層「水泥粉光」。
                         </div>
                     </div>
                 </div>
@@ -6562,7 +6730,10 @@
                 const l = parseFloat(form.querySelector('.form-component-length')?.value) || 0;
                 const h = parseFloat(form.querySelector('.form-component-height')?.value) || 0;
                 const t = parseFloat(form.querySelector('.form-component-thickness')?.value) || 0;
-                dimText = `L=${l}×H=${h}m t=${t}cm ×${cnt}處`;
+                const wCat = form.querySelector('.form-wall-category')?.value || 'RC';
+                dimText = wCat === 'EXISTING_WALL'
+                    ? `L=${l}×H=${h}m ×${cnt}處`
+                    : `L=${l}×H=${h}m t=${t}cm ×${cnt}處`;
                 if (h > 15 || l > 100) anomalyReasons.push(`牆尺寸 ${l}×${h}m 疑似誤填 cm`);
             } else if (type === 'pile') {
                 const d = parseFloat(form.querySelector('.form-component-diameter')?.value) || 0;
@@ -6604,6 +6775,25 @@
                 if (formArea > 0) parts.push(`模 ${formArea.toFixed(1)}m²`);
                 if (brickCnt > 0) parts.push(`紅磚 ${brickCnt.toLocaleString()}塊`);
                 if (dowelCnt > 0) parts.push(`植筋 ${dowelCnt}孔`);
+                if (parts.length === 0 && result.materials) {
+                    const m = result.materials;
+                    const finishSummary = {};
+                    const rawFinishes = [
+                        { type: m.generalFinishType, area: m.generalFinishArea },
+                        { type: m.floorFinishType, area: m.floorFinishArea },
+                        { type: m.ceilingFinishType, area: m.ceilingFinishArea },
+                        { type: m.interiorFinishType, area: m.interiorFinishArea },
+                        { type: m.exteriorFinishType, area: m.exteriorFinishArea },
+                    ];
+                    rawFinishes.forEach(rf => {
+                        expandFinishWithBaseCoat(rf.type, rf.area).forEach(ef => {
+                            finishSummary[ef.type] = (finishSummary[ef.type] || 0) + ef.area;
+                        });
+                    });
+                    Object.entries(finishSummary).forEach(([fType, fArea]) => {
+                        parts.push(`${fType} ${fArea.toFixed(1)}m²`);
+                    });
+                }
                 resPill.textContent = parts.join(' ｜ ') || '尚無數量';
             }
 
@@ -7708,28 +7898,28 @@
                 });
             }
 
-            // 各面材明細
+            // 各面材明細 (選油漆/磁磚/地磚時，自動同步列計底層水泥粉光與完成面明細)
             const finishBreakdowns = {};
             sortedComponents.forEach(component => {
                 const calcStrings = component.calculationStrings || {};
                 const componentFinishes = [
-                    { type: component.generalFinishType, area: component.generalFinishArea, calc: calcStrings.finish ? `${calcStrings.finish} [柱/樑粉刷面]` : '[柱/樑粉刷面]' },
-                    { type: component.floorFinishType, area: component.floorFinishArea, calc: calcStrings.floorFinish ? `${calcStrings.floorFinish} [版上地坪面]` : '[版上地坪面]' },
-                    { type: component.ceilingFinishType, area: component.ceilingFinishArea, calc: calcStrings.ceilingFinish ? `${calcStrings.ceilingFinish} [版下平頂面]` : '[版下平頂面]' },
-                    { type: component.interiorFinishType, area: component.interiorFinishArea, calc: calcStrings.interiorFinish ? `${calcStrings.interiorFinish} [內側牆面]` : '[內側牆面]' },
-                    { type: component.exteriorFinishType, area: component.exteriorFinishArea, calc: calcStrings.exteriorFinish ? `${calcStrings.exteriorFinish} [外側牆面]` : '[外側牆面]' },
+                    { type: component.generalFinishType, area: component.generalFinishArea, rawCalc: calcStrings.finish || '', surfaceTag: '柱/樑粉刷面' },
+                    { type: component.floorFinishType, area: component.floorFinishArea, rawCalc: calcStrings.floorFinish || '', surfaceTag: '版上地坪面' },
+                    { type: component.ceilingFinishType, area: component.ceilingFinishArea, rawCalc: calcStrings.ceilingFinish || '', surfaceTag: '版下平頂面' },
+                    { type: component.interiorFinishType, area: component.interiorFinishArea, rawCalc: calcStrings.interiorFinish || '', surfaceTag: '內側牆面' },
+                    { type: component.exteriorFinishType, area: component.exteriorFinishArea, rawCalc: calcStrings.exteriorFinish || '', surfaceTag: '外側牆面' },
                 ];
                 componentFinishes.forEach(finish => {
-                    if (finish.type && finish.type !== '無' && (finish.area || 0) > 0) {
-                        if (!finishBreakdowns[finish.type]) finishBreakdowns[finish.type] = [];
-                        finishBreakdowns[finish.type].push({
+                    expandFinishWithBaseCoat(finish.type, finish.area, finish.rawCalc, finish.surfaceTag).forEach(exp => {
+                        if (!finishBreakdowns[exp.type]) finishBreakdowns[exp.type] = [];
+                        finishBreakdowns[exp.type].push({
                             floor: component.componentFloor,
                             type: component.componentType,
                             id: component.componentId,
-                            calc: finish.calc || '',
-                            area: finish.area
+                            calc: exp.calc || '',
+                            area: exp.area
                         });
-                    }
+                    });
                 });
             });
 
@@ -8029,15 +8219,15 @@
                     };
 
                     finishTypes.forEach(f => {
-                        if (f.type && f.type !== '無' && (f.area || 0) > 0) {
-                            const header = `${f.header} (${f.type})`;
+                        expandFinishWithBaseCoat(f.type, f.area, f.calc || '', '').forEach(exp => {
+                            const header = `${f.header} (${exp.type})`;
                             const qtyHeader = `${header} 數量 (m²)`;
                             const calcHeader = `${header} 計算式`;
-                            rowObj.finishes[qtyHeader] = f.area;
-                            rowObj.finishes[calcHeader] = f.calc || '';
+                            rowObj.finishes[qtyHeader] = exp.area;
+                            rowObj.finishes[calcHeader] = exp.calc || '';
                             usedFinishHeaders.add(qtyHeader);
                             usedFinishHeaders.add(calcHeader);
-                        }
+                        });
                     });
 
                     if (rowObj.concVol > 0 || rowObj.formArea > 0 || rowObj.brickCount > 0 || Object.keys(rowObj.finishes).length > 0) {
@@ -8516,30 +8706,30 @@
                 ]);
             }
 
-            // 各面材明細
+            // 各面材明細 (選油漆/磁磚/地磚時，自動同步列計底層水泥粉光與完成面明細)
             const finishBreakdowns = {};
             sortedComponents.forEach(component => {
                 const calcStrings = component.calculationStrings || {};
                 const componentFinishes = [
-                    { type: component.generalFinishType, area: component.generalFinishArea, calc: calcStrings.finish ? `${calcStrings.finish} [柱/樑粉刷面]` : '[柱/樑粉刷面]' },
-                    { type: component.floorFinishType, area: component.floorFinishArea, calc: calcStrings.floorFinish ? `${calcStrings.floorFinish} [版上地坪面]` : '[版上地坪面]' },
-                    { type: component.ceilingFinishType, area: component.ceilingFinishArea, calc: calcStrings.ceilingFinish ? `${calcStrings.ceilingFinish} [版下平頂面]` : '[版下平頂面]' },
-                    { type: component.interiorFinishType, area: component.interiorFinishArea, calc: calcStrings.interiorFinish ? `${calcStrings.interiorFinish} [內側牆面]` : '[內側牆面]' },
-                    { type: component.exteriorFinishType, area: component.exteriorFinishArea, calc: calcStrings.exteriorFinish ? `${calcStrings.exteriorFinish} [外側牆面]` : '[外側牆面]' },
+                    { type: component.generalFinishType, area: component.generalFinishArea, rawCalc: calcStrings.finish || '', surfaceTag: '柱/樑粉刷面' },
+                    { type: component.floorFinishType, area: component.floorFinishArea, rawCalc: calcStrings.floorFinish || '', surfaceTag: '版上地坪面' },
+                    { type: component.ceilingFinishType, area: component.ceilingFinishArea, rawCalc: calcStrings.ceilingFinish || '', surfaceTag: '版下平頂面' },
+                    { type: component.interiorFinishType, area: component.interiorFinishArea, rawCalc: calcStrings.interiorFinish || '', surfaceTag: '內側牆面' },
+                    { type: component.exteriorFinishType, area: component.exteriorFinishArea, rawCalc: calcStrings.exteriorFinish || '', surfaceTag: '外側牆面' },
                 ];
                 componentFinishes.forEach(f => {
-                    if (f.type && f.type !== '無' && (f.area || 0) > 0) {
-                        if (!finishBreakdowns[f.type]) {
-                            finishBreakdowns[f.type] = [];
+                    expandFinishWithBaseCoat(f.type, f.area, f.rawCalc, f.surfaceTag).forEach(exp => {
+                        if (!finishBreakdowns[exp.type]) {
+                            finishBreakdowns[exp.type] = [];
                         }
-                        finishBreakdowns[f.type].push({
+                        finishBreakdowns[exp.type].push({
                             floor: component.componentFloor,
                             type: component.componentType,
                             id: component.componentId,
-                            calc: f.calc || '',
-                            area: f.area
+                            calc: exp.calc || '',
+                            area: exp.area
                         });
-                    }
+                    });
                 });
             });
 
@@ -8804,15 +8994,15 @@
                     };
 
                     finishTypes.forEach(f => {
-                        if (f.type && f.type !== '無' && (f.area || 0) > 0) {
-                            const header = `${f.header} (${f.type})`;
+                        expandFinishWithBaseCoat(f.type, f.area, f.calc || '', '').forEach(exp => {
+                            const header = `${f.header} (${exp.type})`;
                             const qtyHeader = `${header} 數量 (m²)`;
                             const calcHeader = `${header} 計算式`;
-                            rowObj.finishes[qtyHeader] = f.area;
-                            rowObj.finishes[calcHeader] = f.calc || '';
+                            rowObj.finishes[qtyHeader] = exp.area;
+                            rowObj.finishes[calcHeader] = exp.calc || '';
                             usedFinishHeaders.add(qtyHeader);
                             usedFinishHeaders.add(calcHeader);
-                        }
+                        });
                     });
 
                     if (rowObj.concVol > 0 || rowObj.formArea > 0 || rowObj.brickCount > 0 || Object.keys(rowObj.finishes).length > 0) {
