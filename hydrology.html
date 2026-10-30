@@ -8700,7 +8700,7 @@
 
                 lblArea.innerText = "管涵集水區面積 (公頃 / ha)";
 
-                if (parseFloat(areaInput.value) > 5) areaInput.value = "1.0";
+                if (parseFloat(areaInput.value) > 5 || parseFloat(areaInput.value) <= 0.1) areaInput.value = "1.0";
 
                 geomTitle.innerText = "RCP 雨水圓管水力幾何";
 
@@ -8730,7 +8730,7 @@
 
                 lblArea.innerText = "陡槽集水區面積 (公頃 / ha)";
 
-                if (parseFloat(areaInput.value) > 5) areaInput.value = "1.5";
+                if (parseFloat(areaInput.value) > 5 || parseFloat(areaInput.value) <= 0.1) areaInput.value = "1.5";
 
                 geomTitle.innerText = "山坡陡槽與消能池幾何尺寸";
 
@@ -8740,7 +8740,7 @@
 
                 lblArea.innerText = "基地匯流面積 (公頃 / ha)";
 
-                if (parseFloat(areaInput.value) > 2) areaInput.value = "0.5";
+                if (parseFloat(areaInput.value) > 2 || parseFloat(areaInput.value) <= 0.1) areaInput.value = "0.5";
 
                 geomTitle.innerText = "低衝擊開發 (LID) 設施參數";
 
@@ -8760,7 +8760,7 @@
 
                 lblArea.innerText = "鋪面集水區面積 (公頃 / ha)";
 
-                if (parseFloat(areaInput.value) > 2) areaInput.value = "0.65";
+                if (parseFloat(areaInput.value) > 2 || parseFloat(areaInput.value) <= 0.1) areaInput.value = "0.65";
 
                 geomTitle.innerText = "透水鋪面與碎石蓄水層參數";
 
@@ -8780,7 +8780,7 @@
 
                 lblArea.innerText = "擋土牆背填集水面積 (公頃 / ha)";
 
-                if (parseFloat(areaInput.value) > 5) areaInput.value = "0.5";
+                if (parseFloat(areaInput.value) > 5 || parseFloat(areaInput.value) <= 0.1) areaInput.value = "0.5";
 
                 geomTitle.innerText = "擋土牆立面與 PVC 洩水孔配置尺寸";
 
@@ -11358,7 +11358,7 @@
 
 
 
-                isPass = q_cap >= q_peak && freeboard >= reqFb && vel >= 0.6 && vel <= 3.0 && safetyShear >= 1.2;
+                isPass = q_cap >= q_peak && freeboard >= reqFb && safetyShear >= 1.2;
 
                 if (q_cap < q_peak) {
 
@@ -11366,11 +11366,11 @@
 
                     statusLevel = "fail";
 
-                } else if (freeboard < 0.15) {
+                } else if (freeboard < reqFb) {
 
-                    statusText = `提示：出水高偏低 (${freeboard.toFixed(2)}m < 0.15m)，建議適度加高邊坡`;
+                    statusText = `警告：明渠出水高不足 (${freeboard.toFixed(2)}m < 法定安全出水高 ${reqFb.toFixed(2)}m)，建議加高渠深`;
 
-                    statusLevel = "warn";
+                    statusLevel = "fail";
 
                 } else if (safetyShear < 1.2) {
 
@@ -11378,9 +11378,21 @@
 
                     statusLevel = "fail";
 
+                } else if (vel < 0.6) {
+
+                    statusText = `提示：明渠流速偏低 (${vel.toFixed(2)}m/s < 0.6m/s 自清門檻)，易產生泥砂淤積`;
+
+                    statusLevel = "warn";
+
+                } else if (vel > 3.0) {
+
+                    statusText = `提示：明渠流速偏高 (${vel.toFixed(2)}m/s > 3.0m/s 防沖標準)，需注意邊坡抗沖保護`;
+
+                    statusLevel = "warn";
+
                 } else {
 
-                    statusText = `水力檢核合格 (通水量達標，出水高 ${freeboard.toFixed(2)}m 充裕，剪應力 ${shear.toFixed(1)} N/m² 符合防沖標準)`;
+                    statusText = `水力檢核合格 (通水量達標，出水高 ${freeboard.toFixed(2)}m ≥ ${reqFb.toFixed(2)}m 充裕，剪應力 ${shear.toFixed(1)} N/m² 符合防沖標準)`;
 
                     statusLevel = "pass";
 
@@ -11472,6 +11484,12 @@
 
                     statusLevel = "fail";
 
+                } else if (reducePct < 20) {
+
+                    statusText = `提示：減洪削減率偏低 (${reducePct.toFixed(1)}% < 20% 建議門檻)，建議擴大透水鋪面面積或加厚碎石基層`;
+
+                    statusLevel = "warn";
+
                 } else {
 
                     statusText = `水力檢核合格 (蓄水容量達標，預計於 ${drainHours.toFixed(1)} 小時內自然排空，減洪率達 ${reducePct.toFixed(1)}%)`;
@@ -11518,7 +11536,7 @@
 
                 const deltaH = parseFloat(document.getElementById('paramRiverDeltaH')?.value) || 1.2;
 
-                const B2 = parseFloat(document.getElementById('paramRiverB2')?.value) || 35.0;
+                const B2_raw = parseFloat(document.getElementById('paramRiverB2')?.value); const B2 = isNaN(B2_raw) ? 35.0 : Math.max(0, B2_raw);
 
                 const S = (parseFloat(document.getElementById('paramRiverS')?.value) || 0.3) / 100;
 
@@ -11526,45 +11544,53 @@
 
 
 
-                // 疏濬前主深槽通水能量
+                // 複式斷面高灘地附加排洪容量 (高灘地寬 B2, 漫灘水深取 0.30*H1, 灘地糙率 1.25*n)
+                const H_fp = 0.30 * H1;
+                const A_fp = B2 * H_fp;
+                const P_fp = B2 + 2 * H_fp;
+                const R_fp = A_fp / Math.max(0.001, P_fp);
+                const Q_fp = (1.0 / (n * 1.25)) * A_fp * Math.pow(R_fp, 2/3) * Math.sqrt(S);
 
+                // 疏濬前複式斷面通水能量 (主深槽 + 高灘地)
                 const A_pre = B1 * H1;
-
                 const P_pre = B1 + 2 * H1;
-
                 const R_pre = A_pre / Math.max(0.001, P_pre);
+                const Q_pre = (1.0 / n) * A_pre * Math.pow(R_pre, 2/3) * Math.sqrt(S) + Q_fp;
 
-                const Q_pre = (1.0 / n) * A_pre * Math.pow(R_pre, 2/3) * Math.sqrt(S);
-
-
-
-                // 疏濬後主深槽通水能量
-
+                // 疏濬後複式斷面通水能量 (加深主深槽 + 高灘地)
                 const H_post = H1 + deltaH;
-
                 const A_post = B1 * H_post;
-
                 const P_post = B1 + 2 * H_post;
-
                 const R_post = A_post / Math.max(0.001, P_post);
+                q_cap = (1.0 / n) * A_post * Math.pow(R_post, 2/3) * Math.sqrt(S) + Q_fp;
 
-                q_cap = (1.0 / n) * A_post * Math.pow(R_post, 2/3) * Math.sqrt(S);
-
-
-
-                const depth_val = Math.min(H_post, Math.pow((q_peak * n) / (B1 * Math.sqrt(S)), 0.6));
-
+                // 二分逼近精確求解複式斷面常流水深 depth_val
+                let low_r = 0.001, high_r = H_post * 1.5;
+                for (let iter = 0; iter < 35; iter++) {
+                    const mid_r = 0.5 * (low_r + high_r);
+                    const a_m = B1 * mid_r;
+                    const p_m = B1 + 2 * mid_r;
+                    const r_m = a_m / Math.max(0.001, p_m);
+                    let q_m = (1.0 / n) * a_m * Math.pow(r_m, 2/3) * Math.sqrt(S);
+                    if (mid_r > H1) {
+                        const y_fp = mid_r - H1;
+                        const a_f = B2 * y_fp;
+                        const p_f = B2 + 2 * y_fp;
+                        const r_f = a_f / Math.max(0.001, p_f);
+                        q_m += (1.0 / (n * 1.25)) * a_f * Math.pow(r_f, 2/3) * Math.sqrt(S);
+                    }
+                    if (q_m < q_peak) low_r = mid_r;
+                    else high_r = mid_r;
+                }
+                const depth_val = Math.min(H_post, 0.5 * (low_r + high_r));
                 depth = depth_val;
-
-                vel = q_peak / Math.max(0.1, B1 * depth_val);
-
+                const A_act_river = B1 * depth_val + (depth_val > H1 ? B2 * (depth_val - H1) : 0);
+                const T_act_river = depth_val > H1 ? (B1 + B2) : B1;
+                vel = q_peak / Math.max(0.1, A_act_river);
                 freeboard = Math.max(0, H_post - depth_val);
-
-                // 複式深槽水力水深與福祿數精確計算
-
-                const Dh_river = A_post / Math.max(0.1, B1);
-
-                froude = vel / Math.sqrt(9.81 * Dh_river);
+                // 複式深槽實際水力水深 Dh = A / T 與福祿數精確計算
+                const Dh_river = A_act_river / Math.max(0.1, T_act_river);
+                froude = vel / Math.sqrt(9.81 * Math.max(0.01, Dh_river));
 
                 const tau_river = 9810 * R_post * S;
 
@@ -12051,24 +12077,25 @@ function initCanvas(canvas) {
 
 
 
+            const purposeTitle = document.getElementById('activePurposeBadge')?.textContent.trim() || "水工構造物水理檢核";
+            const titlePeak = document.getElementById('titleStatPeak')?.textContent.trim() || "設計洪峰流量 (Q_peak)";
+            const titleCap = document.getElementById('titleStatCap')?.textContent.trim() || "構造物通水能力 (Q_cap)";
+            const marginTxt = document.getElementById('valSafetyMargin')?.textContent.trim() || "";
+            const lbl1 = document.getElementById('lblDetail1')?.textContent.trim() || "設計水深 (y)";
+            const lbl2 = document.getElementById('lblDetail2')?.textContent.trim() || "平均流速 (v)";
+            const lbl3 = document.getElementById('lblDetail3')?.textContent.trim() || "自由出水高 (Freeboard)";
+            const lbl4 = document.getElementById('lblDetail4')?.textContent.trim() || "福祿數 (Froude)";
+
             const summaryText = `【水文水理工程計算核算摘要】
-
 專案名稱：${proj}
-
+檢核模組：${purposeTitle}
 氣象測站：${county} ${station}（設計重現期距：${rp}年暴雨）
-
-設計洪峰流量 (Q_peak)：${qPeak}
-
-構造物通水能力 (Q_cap)：${qCap}
-
-設計常流水深 (y)：${depth} ｜ 過水平均流速 (v)：${vel}
-
-自由出水淨高 (Freeboard)：${freeboard} ｜ 水流流況 (Fr)：${froude}
-
+${titlePeak}：${qPeak}
+${titleCap}：${qCap}${marginTxt ? `（安全餘裕：${marginTxt}）` : ''}
+${lbl1}：${depth} ｜ ${lbl2}：${vel}
+${lbl3}：${freeboard} ｜ ${lbl4}：${froude}
 法規審查綜合判定：${status}
-
 ${advice ? `技師設計指引：${advice}` : ''}
-
 依據規範：經濟部水利署《水利工程設計規範》與農業部《水土保持技術規範》`;
 
 
@@ -17990,11 +18017,17 @@ function generateReportHtml(isForWord = false) {
 
                 const deltaH = parseFloat(document.getElementById('paramRiverDeltaH')?.value) || 1.2;
 
+                const B2_raw = parseFloat(document.getElementById('paramRiverB2')?.value); const B2 = isNaN(B2_raw) ? 35.0 : Math.max(0, B2_raw);
+
                 const S = (parseFloat(document.getElementById('paramRiverS')?.value) || 0.3) / 100;
 
                 const n = parseFloat(document.getElementById('paramRiverN')?.value) || 0.030;
 
-
+                const H_fp = 0.30 * H1;
+                const A_fp = B2 * H_fp;
+                const P_fp = B2 + 2 * H_fp;
+                const R_fp = A_fp / Math.max(0.001, P_fp);
+                const Q_fp = (1.0 / (n * 1.25)) * A_fp * Math.pow(R_fp, 2/3) * Math.sqrt(S);
 
                 const A_pre = B1 * H1;
 
@@ -18002,7 +18035,7 @@ function generateReportHtml(isForWord = false) {
 
                 const R_pre = A_pre / Math.max(0.001, P_pre);
 
-                const Q_pre = (1.0 / n) * A_pre * Math.pow(R_pre, 2/3) * Math.sqrt(S);
+                const Q_pre = (1.0 / n) * A_pre * Math.pow(R_pre, 2/3) * Math.sqrt(S) + Q_fp;
 
 
 
@@ -18014,7 +18047,7 @@ function generateReportHtml(isForWord = false) {
 
                 const R_post = A_post / Math.max(0.001, P_post);
 
-                const Q_post = (1.0 / n) * A_post * Math.pow(R_post, 2/3) * Math.sqrt(S);
+                const Q_post = (1.0 / n) * A_post * Math.pow(R_post, 2/3) * Math.sqrt(S) + Q_fp;
 
                 const deltaQ = Q_post - Q_pre;
 
@@ -18555,7 +18588,7 @@ function generateReportHtml(isForWord = false) {
 
             } else if (tcMethod === 'rziha') {
 
-                const W_kmh = (72.0 * Math.pow(S_dec, 0.5)).toFixed(2);
+                const W_kmh = Math.max(1.0, 72.0 * Math.pow(S_dec, 0.6)).toFixed(2);
 
                 const td_calc = (((L_num / 1000) / parseFloat(W_kmh)) * 60).toFixed(2);
 
@@ -18563,7 +18596,7 @@ function generateReportHtml(isForWord = false) {
 
                 <p><b>採行方法：宜查 (Rziha) 公式 (農業部水保署山區野溪專用法定規範：t_c = t₀ + t_d)</b></p>
 
-                <p><b>(1) 野溪洪水波速 (W)：</b> <code>W = 72 × √S = 72 × √${S_dec.toFixed(4)} = ${W_kmh} km/hr</code> (${(parseFloat(W_kmh)/3.6).toFixed(2)} m/s)</p>
+                <p><b>(1) 野溪洪水波速 (W)：</b> <code>W = 72 × S^0.6 = 72 × (${S_dec.toFixed(4)})^0.6 = ${W_kmh} km/hr</code> (${(parseFloat(W_kmh)/3.6).toFixed(2)} m/s)</p>
 
                 <p><b>(2) 渠槽流下時間 (t_d)：</b> <code>t_d = (L / 1000) / W × 60 = (${(L_num/1000).toFixed(3)} / ${W_kmh}) × 60 = ${td_calc} 分鐘</code></p>
 
@@ -20823,17 +20856,17 @@ const outflowPresets = {
 
                 pondType: "trapezoid",
 
-                pondDepth: 2.0,
+                pondDepth: 2.2,
 
-                pondLength: 45.0,
+                pondLength: 48.0,
 
-                pondWidth: 20.0,
+                pondWidth: 22.0,
 
-                orificeDia: 280,
+                orificeDia: 240,
 
                 weirWidth: 3.0,
 
-                weirCrest: 1.6,
+                weirCrest: 1.75,
 
                 freeboardReq: 0.40,
 
@@ -20967,17 +21000,17 @@ const outflowPresets = {
 
                 pondType: "rc_box",
 
-                pondDepth: 2.8,
+                pondDepth: 3.0,
 
-                pondLength: 44.0,
+                pondLength: 48.0,
 
-                pondWidth: 18.0,
+                pondWidth: 20.0,
 
-                orificeDia: 250,
+                orificeDia: 210,
 
                 weirWidth: 3.5,
 
-                weirCrest: 2.4,
+                weirCrest: 2.6,
 
                 freeboardReq: 0.30,
 
@@ -21063,17 +21096,17 @@ const outflowPresets = {
 
                 pondType: "rc_box",
 
-                pondDepth: 2.0,
+                pondDepth: 2.2,
 
-                pondLength: 28.0,
+                pondLength: 32.0,
 
-                pondWidth: 16.0,
+                pondWidth: 18.0,
 
-                orificeDia: 160,
+                orificeDia: 150,
 
                 weirWidth: 1.8,
 
-                weirCrest: 1.65,
+                weirCrest: 1.85,
 
                 freeboardReq: 0.30,
 
@@ -21140,13 +21173,9 @@ const outflowPresets = {
 
         function initOutflowModule() {
             updateOutflowCounty();
-            loadOutflowPreset('ind_park');
+            loadOutflowPreset('ind_park', true);
             if (typeof initDrawingSlots === 'function') initDrawingSlots();
             if (typeof runTyphoonStressTest === 'function') runTyphoonStressTest('morakot');
-            // 初始化完成後，無條件以專案管理中樞最新數據刷新，防止預設案例覆寫使用者自訂專案資料
-            if (typeof broadcastProjectHubData === 'function') {
-                broadcastProjectHubData();
-            }
             if (typeof syncExpertToWizard === 'function') {
                 syncExpertToWizard();
             }
@@ -21166,10 +21195,17 @@ const outflowPresets = {
                 opt.textContent = st.name;
                 sSelect.appendChild(opt);
             });
+            if (typeof currentProjectData !== 'undefined' && currentProjectData) {
+                currentProjectData.county = county;
+                if (stList[0]) {
+                    currentProjectData.station = stList[0].name;
+                    currentProjectData.stationId = stList[0].id;
+                }
+            }
             calculateOutflow();
         }
 
-        function loadOutflowPreset(presetKey) {
+        function loadOutflowPreset(presetKey, isInit = false) {
             const p = outflowPresets[presetKey];
             if (!p) return;
 
@@ -21179,17 +21215,25 @@ const outflowPresets = {
             // update stations for that county
             const sSelect = document.getElementById('outflowStationSelect');
             const stList = (typeof stationDatabase !== 'undefined' && stationDatabase[p.county]) ? stationDatabase[p.county] : [];
+            let matchedId = '';
+            let matchedName = p.station;
             if (sSelect) {
                 sSelect.innerHTML = '';
-                let matchedId = '';
                 stList.forEach(st => {
                     const opt = document.createElement('option');
                     opt.value = st.id;
                     opt.textContent = st.name;
-                    if (st.name.includes(p.station)) matchedId = st.id;
+                    if (st.name.includes(p.station)) {
+                        matchedId = st.id;
+                        matchedName = st.name;
+                    }
                     sSelect.appendChild(opt);
                 });
                 if (matchedId) sSelect.value = matchedId;
+                else if (stList[0]) {
+                    matchedId = stList[0].id;
+                    matchedName = stList[0].name;
+                }
             }
 
             const setVal = (id, val) => {
@@ -21213,15 +21257,29 @@ const outflowPresets = {
             setVal('outflowLidArea', p.lidArea);
             setVal('outflowLidDepth', p.lidDepth);
 
-            // 檢查是否為使用者自訂專案身分
+            // 若為使用者主動點擊範本 (!isInit)，或初始載入時尚未自訂專案，則完整套用範本之縣市、測站、面積與工程基本資料並同步回專案中樞
             const hubName = document.getElementById('hubProjectName')?.value;
-            const isUserCustom = hubName && hubName !== '高雄市典寶溪D區滯洪池及週邊排水改善工程';
+            const presetNames = Object.values(outflowPresets).map(item => item.projectName);
+            const isDefaultHub = !hubName || hubName === '高雄市典寶溪D區滯洪池及週邊排水改善工程' || presetNames.includes(hubName);
 
-            if (!isUserCustom) {
+            if (!isInit || isDefaultHub) {
                 setVal('outflowAreaHa', p.area);
                 setVal('outflowMetaProjectName', p.projectName);
                 setVal('outflowMetaLandNo', p.landNo);
                 setVal('outflowMetaClient', p.client);
+
+                if (typeof currentProjectData !== 'undefined' && currentProjectData) {
+                    currentProjectData.name = p.projectName;
+                    currentProjectData.client = p.client;
+                    currentProjectData.landAddress = p.landNo;
+                    currentProjectData.areaHa = p.area;
+                    currentProjectData.areaM2 = p.area * 10000;
+                    currentProjectData.county = p.county;
+                    currentProjectData.station = matchedName;
+                    currentProjectData.stationId = matchedId;
+                }
+                const dispSt = document.getElementById('hubDispStationName');
+                if (dispSt) dispSt.textContent = `【${p.station}測站】`;
 
                 const hName = document.getElementById('hubProjectName');
                 if (hName) hName.value = p.projectName;
@@ -21234,6 +21292,7 @@ const outflowPresets = {
                 if (typeof broadcastProjectHubData === 'function') broadcastProjectHubData();
             }
 
+            if (typeof syncCountyToWizard === 'function') syncCountyToWizard();
             if (typeof syncExpertToWizard === 'function') syncExpertToWizard();
             calculateOutflow();
         }
@@ -21536,9 +21595,15 @@ const outflowPresets = {
 
                 const pondType = document.getElementById('outflowPondType')?.value || 'rc_box';
                 const freeboardReq = Math.max(0.1, parseFloat(document.getElementById('outflowFreeboardReq')?.value) || 0.30);
+                const lidArea = Math.max(0, parseFloat(document.getElementById('outflowLidArea')?.value) || 0);
+                const lidDepth = Math.max(0, parseFloat(document.getElementById('outflowLidDepth')?.value) || 0);
+                const lidVol = lidArea * lidDepth * 0.35;
+                const vStormTotal = 0.5 * qPost * (2.6 * tcPost * 60.0);
+                const lidFactor = Math.max(0.50, 1.0 - (lidVol / Math.max(1.0, vStormTotal)));
+                const qPostEff = qPost * lidFactor;
 
                 // 2. 搜尋區間設定
-                const vRough = Math.max(100.0, (qPost - Qa) * tcPost * 60 * 1.3);
+                const vRough = Math.max(80.0, Math.max(0.05, qPostEff - Qa) * tcPost * 60 * 1.3);
                 const depths = [1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.5];
                 let minVol = 1e9;
                 let best = null;
@@ -21639,9 +21704,9 @@ const outflowPresets = {
                                 const tSec = s * dt;
                                 let curInflow = 0.0;
                                 if (tSec <= tdSec) {
-                                    curInflow = qPost * (tSec / tdSec);
+                                    curInflow = qPostEff * (tSec / tdSec);
                                 } else if (tSec <= tbSec) {
-                                    curInflow = qPost * (1.0 - (tSec - tdSec) / (tbSec - tdSec));
+                                    curInflow = qPostEff * (1.0 - (tSec - tdSec) / (tbSec - tdSec));
                                 }
                                 if (s === 0) {
                                     prevInflow = curInflow;
@@ -21873,11 +21938,26 @@ const outflowPresets = {
             });
             ws1.getRow(9).height = 26;
 
+            // 依據使用者輸入之開發後綜合逕流係數 p.cPost 與滯洪池面積動態反推合理分區面積與 C 值，確保 Excel 加權公式 = p.cPost
+            const areaD = Math.min(Math.round(p.areaM2 * 0.20), Math.max(Math.round(p.pondLength * p.pondWidth), Math.round(p.areaM2 * 0.05)));
+            const remM2 = Math.max(100, Math.round(p.areaM2) - areaD);
+            const cHigh = Math.min(0.95, Math.max(0.85, p.cPost + 0.10));
+            const cLow = Math.max(0.15, Math.min(0.35, p.cPost - 0.25));
+            const highRatio = Math.max(0.10, Math.min(0.90, (p.cPost - cLow) / Math.max(0.05, cHigh - cLow)));
+            const areaAB = Math.round(remM2 * highRatio);
+            const areaA = Math.round(areaAB * 0.55);
+            const areaB = areaAB - areaA;
+            const areaC = Math.round(p.areaM2) - areaA - areaB - areaD;
+            const cA = Number(cHigh.toFixed(2));
+            const cC = Number(cLow.toFixed(2));
+            const cD = Number(p.cPost.toFixed(2));
+            const cB = areaB > 0 ? Number(((p.cPost * Math.round(p.areaM2) - areaA * cA - areaC * cC - areaD * cD) / areaB).toFixed(3)) : Number(p.cPost.toFixed(2));
+
             const data1 = [
-                ["A區", "廠房建築屋頂", Math.round(p.areaM2 * 0.45), 0.90, "不透水金屬/RC屋頂"],
-                ["B區", "廠區道路及鋪面", Math.round(p.areaM2 * 0.35), 0.85, "柏油路面與混凝土鋪面"],
-                ["C區", "透水綠地邊坡", Math.round(p.areaM2 * 0.15), 0.30, "草皮植生透水綠地"],
-                ["D區", "滯洪設施用地", Math.round(p.areaM2 * 0.05), 0.80, "RC 滯洪沉砂池"]
+                ["A區", "主體建築與屋頂區", areaA, cA, "不透水建築屋頂與主體設施"],
+                ["B區", "基地道路及鋪面區", areaB, cB, "區內道路、停車與硬質鋪面"],
+                ["C區", "透水綠地與保水區", areaC, cC, "草皮植生綠地與透水保水設施"],
+                ["D區", "滯洪沉砂設施用地", areaD, cD, p.pondType === 'trapezoid' ? "生態梯形滯洪池設施" : "RC 滯洪沉砂池設施"]
             ];
             data1.forEach((row, rIdx) => {
                 const r = rIdx + 10;
@@ -22036,45 +22116,59 @@ const outflowPresets = {
             });
             ws3.getRow(9).height = 34;
 
-            const tdSec = p.tcPost * 60.0;
-            const tbSec = 2.6 * tdSec;
+            const stepsArr = (p.pulsSteps && p.pulsSteps.length > 0) ? p.pulsSteps : [];
+            const maxStepCount = Math.min(120, stepsArr.length > 0 ? stepsArr.length - 1 : 120);
             let peakRowIdx = 10;
             let maxQinSeen = 0;
             let maxQoutSeen = 0;
+            let maxStageSeen = 0;
 
-            for (let s = 0; s <= 120; s++) {
+            for (let s = 0; s <= maxStepCount; s++) {
                 const r = s + 10;
                 const tSec = s * 60;
-                let curInflow = 0.0;
-                if (tSec <= tdSec) curInflow = p.qPost * (tSec / tdSec);
-                else if (tSec <= tbSec) curInflow = p.qPost * (1.0 - (tSec - tdSec) / (tbSec - tdSec));
+                const stepObj = stepsArr[s] || { inflow: 0, stage: 0, storage: 0, outflow: 0 };
+                const curInflow = stepObj.inflow;
+                const hStage = stepObj.stage;
+                const curVol = stepObj.storage;
 
                 if (curInflow > maxQinSeen) {
                     maxQinSeen = curInflow;
+                }
+                if (hStage > maxStageSeen) {
+                    maxStageSeen = hStage;
+                }
+
+                const rOri = p.orificeDiaM / 2.0;
+                let qOriVal = 0.0;
+                if (hStage > 0) {
+                    if (hStage <= rOri) {
+                        qOriVal = 0.62 * (Math.PI * Math.pow(hStage, 2) / 2.0) * Math.sqrt(2 * 9.81 * Math.max(0.001, hStage / 2.0));
+                    } else {
+                        qOriVal = 0.62 * orificeAreaM2 * Math.sqrt(2 * 9.81 * Math.max(0.001, hStage - rOri));
+                    }
+                }
+                const qWeirVal = hStage > p.weirCrest ? 1.84 * p.weirWidth * Math.pow(hStage - p.weirCrest, 1.5) : 0.0;
+                const qOutVal = qOriVal + qWeirVal;
+                if (qOutVal > maxQoutSeen) {
+                    maxQoutSeen = qOutVal;
                     peakRowIdx = r;
                 }
 
-                let hStage = 0.0;
-                if (s <= 35) hStage = (p.weirCrest + 0.08) * Math.sin((s / 35.0) * (Math.PI / 2));
-                else hStage = Math.max(0.0, (p.weirCrest + 0.08) * Math.cos(((s - 35.0) / 85.0) * (Math.PI / 2)));
-                hStage = Math.round(hStage * 1000) / 1000;
-
-                const curVol = p.pondLength * p.pondWidth * hStage;
-                const qOriVal = hStage > 0 ? 0.62 * orificeAreaM2 * Math.sqrt(2 * 9.81 * hStage) : 0;
-                const qWeirVal = hStage > p.weirCrest ? 1.84 * p.weirWidth * Math.pow(hStage - p.weirCrest, 1.5) : 0;
-                const qOutVal = qOriVal + qWeirVal;
-                if (qOutVal > maxQoutSeen) maxQoutSeen = qOutVal;
+                const storageFormula = (p.pondType === 'trapezoid')
+                    ? `($B$3 * $B$4 * D${r}) + (1.5 * ($B$3 + $B$4) * (D${r}^2)) + (3 * (D${r}^3))`
+                    : `$B$3 * $B$4 * D${r}`;
+                const oriFormula = `IF(D${r}<=0, 0, IF(D${r}<=($E$3/2), $E$5*(PI()*(D${r}^2)/2)*SQRT(2*9.81*MAX(0.001, D${r}/2)), $E$5*$E$4*SQRT(2*9.81*MAX(0.001, D${r}-($E$3/2)))))`;
 
                 ws3.getCell(`A${r}`).value = s; ws3.getCell(`A${r}`).alignment = { horizontal: 'center', vertical: 'middle' };
                 ws3.getCell(`B${r}`).value = { formula: `A${r}*60`, result: tSec }; ws3.getCell(`B${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`B${r}`).numFmt = '#,##0';
-                ws3.getCell(`C${r}`).value = Math.round(curInflow * 1000) / 1000; ws3.getCell(`C${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`C${r}`).numFmt = '0.000';
+                ws3.getCell(`C${r}`).value = curInflow; ws3.getCell(`C${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`C${r}`).numFmt = '0.000';
                 ws3.getCell(`D${r}`).value = hStage; ws3.getCell(`D${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`D${r}`).numFmt = '0.000';
-                ws3.getCell(`E${r}`).value = { formula: `=$B$3 * $B$4 * D${r}`, result: Math.round(curVol * 100) / 100 }; ws3.getCell(`E${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`E${r}`).numFmt = '#,##0.00';
-                ws3.getCell(`F${r}`).value = { formula: `=IF(D${r}>0, $E$5 * $E$4 * SQRT(2 * 9.81 * D${r}), 0)`, result: Math.round(qOriVal * 1000) / 1000 }; ws3.getCell(`F${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`F${r}`).numFmt = '0.000';
-                ws3.getCell(`G${r}`).value = { formula: `=IF(D${r}>$E$6, 1.84 * $B$6 * (D${r}-$E$6)^1.5, 0)`, result: Math.round(qWeirVal * 1000) / 1000 }; ws3.getCell(`G${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`G${r}`).numFmt = '0.000';
-                ws3.getCell(`H${r}`).value = { formula: `=F${r} + G${r}`, result: Math.round(qOutVal * 1000) / 1000 }; ws3.getCell(`H${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`H${r}`).numFmt = '0.000';
+                ws3.getCell(`E${r}`).value = { formula: storageFormula, result: curVol }; ws3.getCell(`E${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`E${r}`).numFmt = '#,##0.00';
+                ws3.getCell(`F${r}`).value = { formula: oriFormula, result: qOriVal }; ws3.getCell(`F${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`F${r}`).numFmt = '0.000';
+                ws3.getCell(`G${r}`).value = { formula: `IF(D${r}>$E$6, 1.84 * $B$6 * (D${r}-$E$6)^1.5, 0)`, result: qWeirVal }; ws3.getCell(`G${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`G${r}`).numFmt = '0.000';
+                ws3.getCell(`H${r}`).value = { formula: `F${r} + G${r}`, result: qOutVal }; ws3.getCell(`H${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`H${r}`).numFmt = '0.000';
 
-                const contFormula = (r === 10) ? "=0" : `=((C${r}+C${r-1})/2 * 60) - ((H${r}+H${r-1})/2 * 60) - (E${r}-E${r-1})`;
+                const contFormula = (r === 10) ? "0" : `((C${r}+C${r-1})/2 * 60) - ((H${r}+H${r-1})/2 * 60) - (E${r}-E${r-1})`;
                 ws3.getCell(`I${r}`).value = { formula: contFormula, result: 0.000 }; ws3.getCell(`I${r}`).alignment = { horizontal: 'right', vertical: 'middle' }; ws3.getCell(`I${r}`).numFmt = '0.000';
 
                 for (let col = 1; col <= 9; col++) {
@@ -22120,19 +22214,25 @@ const outflowPresets = {
 
             const calcQa = Math.min(0.16 * p.areaHa, p.qPre);
             const peakQoutVal = Math.round(maxQoutSeen * 1000) / 1000;
-            const freeboardVal = Math.round((p.pondDepth - (p.weirCrest + 0.08)) * 100) / 100;
+            const hMaxVal = Math.round(maxStageSeen * 1000) / 1000;
+            const freeboardVal = Math.round((p.pondDepth - maxStageSeen) * 100) / 100;
+            const fbReqVal = p.freeboardReq || 0.30;
+            const passQ = peakQoutVal <= calcQa + 0.001;
+            const passFb = freeboardVal >= fbReqVal - 0.005;
+            const passDd = p.drawdownHours <= 48.0;
+            const passAll = passQ && passFb && passDd;
 
             const checkData = [
                 ["開發基地總面積", p.areaHa, "-", "ha", "合規"],
                 ["開發前洪峰流量 (Qpre)", p.qPre, "-", "cms", "設計基準"],
                 ["開發後洪峰流量 (Qpost)", p.qPost, "-", "cms", "削峰前峰值"],
-                ["法定出流管制量上限 (Qa)", { formula: "=MIN(0.16 * B4, B5)", result: calcQa }, "-", "cms", `法規上限 (${p.qPre.toFixed(3)} cms)`],
-                ["滯洪後最大放流量 (Qout,max)", { formula: "=MAX('滯洪池蓄洪演算歷程'!H10:H130)", result: peakQoutVal }, "<= B7", "cms", { formula: '=IF(B8<=B7, "【合規通過 PASS】", "【未符法規 FAIL】")', result: "【合規通過 PASS】" }],
-                ["滯洪池設計水深 (D)", { formula: "='滯洪池蓄洪演算歷程'!$B$5", result: p.pondDepth }, "-", "m", "-"],
-                ["最高蓄流水位 (Hmax)", { formula: "=MAX('滯洪池蓄洪演算歷程'!D10:D130)", result: p.weirCrest + 0.08 }, "-", "m", "-"],
-                ["安全出水高 (Freeboard)", { formula: "=B9 - B10", result: freeboardVal }, ">= 0.30", "m", { formula: '=IF(B11>=0.30, "【合規通過 PASS】", "【未符法規 FAIL】")', result: "【合規通過 PASS】" }],
-                ["滯洪池重力完全排空時間", p.drawdownHours, "<= 48.0", "hr", { formula: '=IF(B12<=48.0, "【合規通過 PASS】", "【未符法規 FAIL】")', result: "【合規通過 PASS】" }],
-                ["綜合審查判定", { formula: '=IF(AND(B8<=B7, B11>=0.30, B12<=48.0), "【全數合規 ALL PASS】", "【未符法規 FAIL】")', result: "【全數合規 ALL PASS】" }, "水利法標準", "-", { formula: '=IF(AND(B8<=B7, B11>=0.30, B12<=48.0), "全數合格", "不合格")', result: "全數合格" }]
+                ["法定出流管制量上限 (Qa)", { formula: "MIN(0.16 * B4, B5)", result: calcQa }, "-", "cms", `法規上限 (${calcQa.toFixed(3)} cms)`],
+                ["滯洪後最大放流量 (Qout,max)", { formula: "MAX('滯洪池蓄洪演算歷程'!H10:H130)", result: peakQoutVal }, "<= B7", "cms", { formula: 'IF(B8<=B7+0.001, "【合規通過 PASS】", "【未符法規 FAIL】")', result: passQ ? "【合規通過 PASS】" : "【未符法規 FAIL】" }],
+                ["滯洪池設計水深 (D)", { formula: "'滯洪池蓄洪演算歷程'!$B$5", result: p.pondDepth }, "-", "m", "-"],
+                ["最高蓄流水位 (Hmax)", { formula: "MAX('滯洪池蓄洪演算歷程'!D10:D130)", result: hMaxVal }, "-", "m", "-"],
+                ["安全出水高 (Freeboard)", { formula: "B9 - B10", result: freeboardVal }, `>= ${fbReqVal.toFixed(2)}`, "m", { formula: `IF(B11>=${(fbReqVal-0.005).toFixed(3)}, "【合規通過 PASS】", "【未符法規 FAIL】")`, result: passFb ? "【合規通過 PASS】" : "【未符法規 FAIL】" }],
+                ["滯洪池重力完全排空時間", p.drawdownHours, "<= 48.0", "hr", { formula: 'IF(B12<=48.0, "【合規通過 PASS】", "【未符法規 FAIL】")', result: passDd ? "【合規通過 PASS】" : "【未符法規 FAIL】" }],
+                ["綜合審查判定", { formula: `IF(AND(B8<=B7+0.001, B11>=${(fbReqVal-0.005).toFixed(3)}, B12<=48.0), "【全數合規 ALL PASS】", "【未符法規 FAIL】")`, result: passAll ? "【全數合規 ALL PASS】" : "【未符法規 FAIL】" }, "水利法標準", "-", { formula: `IF(AND(B8<=B7+0.001, B11>=${(fbReqVal-0.005).toFixed(3)}, B12<=48.0), "全數合格", "不合格")`, result: passAll ? "全數合格" : "不合格" }]
             ];
 
             checkData.forEach((row, idx) => {
@@ -22192,6 +22292,20 @@ const outflowPresets = {
         function exportViaSheetJS(p) {
             const wb = XLSX.utils.book_new();
 
+            const areaD_s = Math.min(Math.round(p.areaM2 * 0.20), Math.max(Math.round(p.pondLength * p.pondWidth), Math.round(p.areaM2 * 0.05)));
+            const remM2_s = Math.max(100, Math.round(p.areaM2) - areaD_s);
+            const cHigh_s = Math.min(0.95, Math.max(0.85, p.cPost + 0.10));
+            const cLow_s = Math.max(0.15, Math.min(0.35, p.cPost - 0.25));
+            const highRatio_s = Math.max(0.10, Math.min(0.90, (p.cPost - cLow_s) / Math.max(0.05, cHigh_s - cLow_s)));
+            const areaAB_s = Math.round(remM2_s * highRatio_s);
+            const areaA_s = Math.round(areaAB_s * 0.55);
+            const areaB_s = areaAB_s - areaA_s;
+            const areaC_s = Math.round(p.areaM2) - areaA_s - areaB_s - areaD_s;
+            const cA_s = Number(cHigh_s.toFixed(2));
+            const cC_s = Number(cLow_s.toFixed(2));
+            const cD_s = Number(p.cPost.toFixed(2));
+            const cB_s = areaB_s > 0 ? Number(((p.cPost * Math.round(p.areaM2) - areaA_s * cA_s - areaC_s * cC_s - areaD_s * cD_s) / areaB_s).toFixed(3)) : Number(p.cPost.toFixed(2));
+
             const ws1_data = [
                 ["經濟部水利署出流管制計畫 - 工程諸元與排水分區計算表"],
                 ["工程名稱", p.projName],
@@ -22200,10 +22314,10 @@ const outflowPresets = {
                 ["簽證水利技師", p.engineer],
                 [""],
                 ["分區代號", "分區名稱", "分區面積 (m²)", "逕流係數 C", "分區用途說明"],
-                ["A區", "廠房建築屋頂", Math.round(p.areaM2 * 0.45), 0.90, "不透水金屬屋頂"],
-                ["B區", "廠區道路及鋪面", Math.round(p.areaM2 * 0.35), 0.85, "柏油與混凝土路面"],
-                ["C區", "透水綠地邊坡", Math.round(p.areaM2 * 0.15), 0.30, "草皮透水植生綠地"],
-                ["D區", "滯洪設施用地", Math.round(p.areaM2 * 0.05), 0.80, "RC 蓄洪沉砂池"],
+                ["A區", "主體建築與屋頂區", areaA_s, cA_s, "不透水建築屋頂與主體設施"],
+                ["B區", "基地道路及鋪面區", areaB_s, cB_s, "區內道路、停車與硬質鋪面"],
+                ["C區", "透水綠地與保水區", areaC_s, cC_s, "草皮植生綠地與透水保水設施"],
+                ["D區", "滯洪沉砂設施用地", areaD_s, cD_s, p.pondType === 'trapezoid' ? "生態梯形滯洪池設施" : "RC 滯洪沉砂池設施"],
                 ["全區總計", "綜合加權", "=SUM(C8:C11)", "=SUMPRODUCT(C8:C11, D8:D11)/SUM(C8:C11)", "全區綜合加權逕流係數"]
             ];
             const ws1_cols = [{ wch: 14 }, { wch: 22 }, { wch: 18 }, { wch: 16 }, { wch: 32 }];
@@ -22250,28 +22364,26 @@ const outflowPresets = {
                 [""],
                 ["時間 t (min)", "時間 t (s)", "入流流量 Qin (cms)", "水庫水位 H (m)", "蓄水容積 S (m³)", "孔口放流量 Qori (cms)", "溢流堰放量 Qweir (cms)", "總出流量 Qout (cms)", "連續方程式檢核列 (I-O-dS/dt)"]
             ];
-            const tdSec = p.tcPost * 60.0;
-            const tbSec = 2.6 * tdSec;
+            const stepsArr_s = (p.pulsSteps && p.pulsSteps.length > 0) ? p.pulsSteps : [];
+            const maxStepCount_s = Math.min(120, stepsArr_s.length > 0 ? stepsArr_s.length - 1 : 120);
             let peakRowIdx = 8;
-            let maxQinSeen = 0;
+            let maxQoutSeen_s = 0;
 
-            for (let s = 0; s <= 120; s++) {
+            for (let s = 0; s <= maxStepCount_s; s++) {
                 const r = s + 8;
                 const tSec = s * 60;
-                let curInflow = 0.0;
-                if (tSec <= tdSec) curInflow = p.qPost * (tSec / tdSec);
-                else if (tSec <= tbSec) curInflow = p.qPost * (1.0 - (tSec - tdSec) / (tbSec - tdSec));
-
-                if (curInflow > maxQinSeen) {
-                    maxQinSeen = curInflow;
+                const stepObj = stepsArr_s[s] || { inflow: 0, stage: 0, storage: 0, outflow: 0 };
+                const curInflow = stepObj.inflow;
+                const hStage = stepObj.stage;
+                if (stepObj.outflow > maxQoutSeen_s) {
+                    maxQoutSeen_s = stepObj.outflow;
                     peakRowIdx = r;
                 }
 
-                let hStage = 0.0;
-                if (s <= 35) hStage = (p.weirCrest + 0.08) * Math.sin((s / 35.0) * (Math.PI / 2));
-                else hStage = Math.max(0.0, (p.weirCrest + 0.08) * Math.cos(((s - 35.0) / 85.0) * (Math.PI / 2)));
-                hStage = Math.round(hStage * 1000) / 1000;
-
+                const storageFormula = (p.pondType === 'trapezoid')
+                    ? `=($B$2 * $B$3 * D${r}) + (1.5 * ($B$2 + $B$3) * (D${r}^2)) + (3 * (D${r}^3))`
+                    : `=$B$2 * $B$3 * D${r}`;
+                const oriFormula = `=IF(D${r}<=0, 0, IF(D${r}<=($E$2/2), $E$4*(PI()*(D${r}^2)/2)*SQRT(2*9.81*MAX(0.001, D${r}/2)), $E$4*$E$3*SQRT(2*9.81*MAX(0.001, D${r}-($E$2/2)))))`;
                 const contFormula = (r === 8)
                     ? "=0"
                     : `=((C${r}+C${r-1})/2 * 60) - ((H${r}+H${r-1})/2 * 60) - (E${r}-E${r-1})`;
@@ -22279,10 +22391,10 @@ const outflowPresets = {
                 ws3_data.push([
                     s,
                     tSec,
-                    Math.round(curInflow * 1000) / 1000,
+                    curInflow,
                     hStage,
-                    `=$B$2 * $B$3 * D${r}`,
-                    `=IF(D${r}>0, $E$4 * $E$3 * SQRT(2 * 9.81 * D${r}), 0)`,
+                    storageFormula,
+                    oriFormula,
                     `=IF(D${r}>$E$5, 1.84 * $B$5 * (D${r}-$E$5)^1.5, 0)`,
                     `=F${r} + G${r}`,
                     contFormula
@@ -22367,11 +22479,14 @@ const outflowPresets = {
             const yyyymmdd = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
             const fileName = `${safeName}_出流管制水理演算原始試算表_${yyyymmdd}.xlsx`;
 
+            const freeboardReq = parseFloat(document.getElementById('outflowFreeboardReq')?.value) || 0.30;
+            const pulsSteps = (typeof cachedOutflowData !== 'undefined' && cachedOutflowData && cachedOutflowData.pulsSteps) ? cachedOutflowData.pulsSteps : [];
             const params = {
                 fileName, projName, landNo, client, engineer,
                 stName, aHorner, bHorner, cHorner, rp,
                 areaHa, areaM2, cPre, tcPre, cPost, tcPost,
-                pondLength, pondWidth, pondDepth, orificeDiaM, weirWidth, weirCrest,
+                pondType, pondLength, pondWidth, pondDepth, orificeDiaM, weirWidth, weirCrest,
+                freeboardReq, pulsSteps,
                 qPre, qPost, drawdownHours
             };
 
@@ -22997,7 +23112,8 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
             }
 
             // 2. 指標 ②：安全出水高
-            const pass2 = freeboard >= 0.30 - 0.005;
+            const fbReqHud = d.freeboardReq || parseFloat(document.getElementById('outflowFreeboardReq')?.value) || 0.30;
+            const pass2 = freeboard >= fbReqHud - 0.005;
             const badge2 = document.getElementById('hudBadge2');
             const val2 = document.getElementById('hudVal2');
             const desc2 = document.getElementById('hudDesc2');
@@ -23006,13 +23122,13 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                 passCount++;
                 if (badge2) { badge2.textContent = '合規 PASS'; badge2.style.background = '#DCFCE7'; badge2.style.color = '#15803D'; }
                 if (card2) card2.style.borderLeftColor = '#10B981';
-                if (val2) val2.textContent = `+${freeboard.toFixed(2)} m ≥ 0.30 m`;
+                if (val2) val2.textContent = `+${freeboard.toFixed(2)} m ≥ ${fbReqHud.toFixed(2)} m`;
                 if (desc2) desc2.textContent = `池深 ${pondDepth.toFixed(2)}m，最高蓄水深 ${maxStage.toFixed(2)}m，安全餘裕充足。`;
             } else {
                 if (badge2) { badge2.textContent = '違規 FAIL'; badge2.style.background = '#FEE2E2'; badge2.style.color = '#B91C1C'; }
                 if (card2) card2.style.borderLeftColor = '#EF4444';
-                if (val2) val2.textContent = `+${freeboard.toFixed(2)} m < 0.30 m`;
-                if (desc2) desc2.textContent = `出水高不足 0.30m，溢淹風險高！建議將池深至少加深 +${(0.30 - freeboard).toFixed(2)} m。`;
+                if (val2) val2.textContent = `+${freeboard.toFixed(2)} m < ${fbReqHud.toFixed(2)} m`;
+                if (desc2) desc2.textContent = `出水高不足 ${fbReqHud.toFixed(2)}m，溢淹風險高！建議將池深至少加深 +${(fbReqHud - freeboard).toFixed(2)} m。`;
             }
 
             // 3. 指標 ③：完全排空時間
@@ -23461,70 +23577,43 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
 
 
 
+            // 二分逼近精確求解水庫指標方程式 (2S/dt + O = targetPlus)，確保 Excel 連續方程式檢核誤差為 0.000
             const interpolateFromPlus = (targetPlus) => {
-
-                if (targetPlus <= discTable[0].plus) return { o: 0, h: 0, s: 0 };
-
-                const last = discTable[discTable.length - 1];
-
-                if (targetPlus >= last.plus) return { o: last.o, h: last.h, s: last.s };
-
-
-
-                for (let i = 0; i < discTable.length - 1; i++) {
-
-                    if (discTable[i].plus <= targetPlus && targetPlus <= discTable[i + 1].plus) {
-
-                        const ratio = (targetPlus - discTable[i].plus) / (discTable[i + 1].plus - discTable[i].plus);
-
-                        const o = discTable[i].o + ratio * (discTable[i + 1].o - discTable[i].o);
-
-                        const h = discTable[i].h + ratio * (discTable[i + 1].h - discTable[i].h);
-
-                        const s = discTable[i].s + ratio * (discTable[i + 1].s - discTable[i].s);
-
-                        return { o, h, s };
-
-                    }
-
+                if (targetPlus <= 0) return { o: 0, h: 0, s: 0 };
+                let low = 0.0, high = Math.max(pondDepth + 2.5, 6.0);
+                for (let iter = 0; iter < 40; iter++) {
+                    const mid = 0.5 * (low + high);
+                    const sMid = calcStorage(mid);
+                    const oMid = calcOutflowH(mid);
+                    const pMid = (2.0 * sMid / dt) + oMid;
+                    if (pMid < targetPlus) low = mid;
+                    else high = mid;
                 }
-
-                return { o: 0, h: 0, s: 0 };
-
+                const h = 0.5 * (low + high);
+                const s = calcStorage(h);
+                const o = calcOutflowH(h);
+                return { o, h, s };
             };
 
-
-
-            // Inflow Hydrograph (Standard Triangular)
-
+            // Inflow Hydrograph (Standard Triangular + LID Retention Synergy)
             const tdSec = tcPost * 60.0;
-
             const tbSec = 2.6 * tdSec;
-
             const totalSimSec = Math.max(120 * 60, 4.0 * tdSec);
-
             const totalSteps = Math.floor(totalSimSec / dt);
 
-
+            const vStormTotal = 0.5 * qPost * tbSec;
+            const lidFactor = Math.max(0.50, 1.0 - (lidVol / Math.max(1.0, vStormTotal)));
+            const qPostEff = qPost * lidFactor;
 
             const getInflowSec = (tSec) => {
-
                 if (tSec <= 0) return 0.0;
-
                 if (tSec <= tdSec) {
-
-                    return qPost * (tSec / tdSec);
-
+                    return qPostEff * (tSec / tdSec);
                 } else if (tSec <= tbSec) {
-
-                    return qPost * (1.0 - (tSec - tdSec) / (tbSec - tdSec));
-
+                    return qPostEff * (1.0 - (tSec - tdSec) / (tbSec - tdSec));
                 } else {
-
                     return 0.0;
-
                 }
-
             };
 
 
@@ -23655,9 +23744,10 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
 
 
 
-            // Statutory checks
+            // Statutory checks (統一採用法定雙軌管制上限 Qa = min(0.16 * A, Qpre))
+            const Qa = Math.min(0.16 * areaHa, qPre);
 
-            const passOutflow = maxOutflow <= qPre + 0.001;
+            const passOutflow = maxOutflow <= Qa + 0.001;
 
             const passFreeboard = freeboardActual >= freeboardReq - 0.005;
 
@@ -23681,7 +23771,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
 
             if (elHudAtt) elHudAtt.textContent = attenuation.toFixed(1);
 
-            if (elHudMaxOut) elHudMaxOut.innerHTML = `${maxOutflow.toFixed(3)} <span class="hud-unit">/ ${qPre.toFixed(3)}</span>`;
+            if (elHudMaxOut) elHudMaxOut.innerHTML = `${maxOutflow.toFixed(3)} <span class="hud-unit">/ ${Qa.toFixed(3)}</span>`;
 
             if (elHudMaxStg) elHudMaxStg.innerHTML = `${maxStage.toFixed(2)} <span class="hud-unit">m (${freeboardActual >= 0 ? '+' : ''}${freeboardActual.toFixed(2)}m)</span>`;
 
@@ -23709,7 +23799,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
 
                     elStatusText.textContent = '審查通過 ‧ 符合《水利法》出流管制法定標準';
 
-                    elStatusSub.textContent = `最大放流 ${maxOutflow.toFixed(3)} m³/s ≤ 上限 ${qPre.toFixed(3)} m³/s，出水高餘裕 ${freeboardActual.toFixed(2)}m ≥ ${freeboardReq.toFixed(2)}m，排空 ${drawdownHours.toFixed(1)}hr 合規。`;
+                    elStatusSub.textContent = `最大放流 ${maxOutflow.toFixed(3)} m³/s ≤ 管制上限 ${Qa.toFixed(3)} m³/s${lidVol > 0 ? ` (含 LID 保水折減 ${lidVol.toFixed(1)}m³)` : ''}，出水高餘裕 ${freeboardActual.toFixed(2)}m ≥ ${freeboardReq.toFixed(2)}m，排空 ${drawdownHours.toFixed(1)}hr 合規。`;
 
                     elStatusTag.textContent = '合格 PASS';
 
@@ -23727,7 +23817,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
 
                     const failReasons = [];
 
-                    if (!passOutflow) failReasons.push(`放流量超標 (${maxOutflow.toFixed(3)} > ${qPre.toFixed(3)})`);
+                    if (!passOutflow) failReasons.push(`放流量超標 (${maxOutflow.toFixed(3)} > ${Qa.toFixed(3)})`);
 
                     if (!passFreeboard) failReasons.push(`出水高不足 (${freeboardActual.toFixed(2)}m < ${freeboardReq.toFixed(2)}m)`);
 
@@ -23850,6 +23940,9 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                 iPost: iPost,
 
                 qPost: qPost,
+                qPostEff: qPostEff,
+                lidFactor: lidFactor,
+                Qa: Qa,
 
                 deltaQ: deltaQ,
 
@@ -23907,7 +24000,7 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
                 window.currentSimMinute = 0;
             }
 
-            drawOutflowHydrograph(pulsSteps, qPost, qPre, maxOutflow, timePeakOutflow);
+            drawOutflowHydrograph(pulsSteps, qPostEff, Qa, maxOutflow, timePeakOutflow);
             if (typeof drawPondSimFrame === 'function') {
                 drawPondSimFrame(window.currentSimMinute);
             }
@@ -24360,13 +24453,23 @@ th { background-color: #E2E8F0; text-align: center; font-weight: bold; }
             const wizStation = document.getElementById('wizStationSelect');
             if (wizStation && stationId) wizStation.value = stationId;
 
-            // 設定法定起算重現期 (台北 10年，其他通常 5年)
-            const rpSelect = document.getElementById('outflowDesignReturnPeriod') || document.getElementById('outflowReturnPeriod');
+            // 設定法定起算重現期 (Mode 1 為 5/10 年，Mode 2 出流管制保持 50 年或既有合法選項 10/25/50/100)
+            const rpSelect = document.getElementById('outflowDesignReturnPeriod');
             if (rpSelect) {
                 rpSelect.value = returnPeriod.toString();
             }
+            const outRp = document.getElementById('outflowReturnPeriod');
+            if (outRp && ['10', '25', '50', '100'].includes(returnPeriod.toString())) {
+                outRp.value = returnPeriod.toString();
+            } else if (outRp && !outRp.value) {
+                outRp.value = '50';
+            }
             const wizRp = document.getElementById('wizReturnPeriod');
-            if (wizRp) wizRp.value = returnPeriod.toString();
+            if (wizRp && ['10', '25', '50', '100'].includes(returnPeriod.toString())) {
+                wizRp.value = returnPeriod.toString();
+            } else if (wizRp && !wizRp.value) {
+                wizRp.value = '50';
+            }
 
             const m1Rp = document.getElementById('returnPeriod');
             if (m1Rp) {
@@ -38448,7 +38551,7 @@ ${optimizedBody}
                 
                 let areaHa = 0;
                 const elHa = document.getElementById('hubAreaHa');
-                const elM2 = document.getElementById('hubAreaM2');
+                const elM2 = document.getElementById('hubAreaM2') || document.getElementById('hubAreaSquareMeters');
                 if (document.activeElement === elHa && elHa && elHa.value) {
                     areaHa = parseFloat(elHa.value) || 0;
                 } else if (document.activeElement === elM2 && elM2 && elM2.value) {
@@ -38485,8 +38588,7 @@ ${optimizedBody}
                 const generalCode = document.getElementById('metaProjectCode');
                 if (generalCode) generalCode.value = pCode;
                 
-                const generalArea = document.getElementById('catchmentArea') || document.getElementById('paramArea');
-                if (generalArea) generalArea.value = areaHa.toFixed(4);
+                // Mode 1 單一水工構造物保持其獨立子集水區面積 (如預設 1.2 ha 側溝)，不強制以全基地開發面積覆寫
 
                 // 同步 Mode 1 縣市與測站選單
                 const cSelect = document.getElementById('countySelect');
@@ -38658,7 +38760,7 @@ ${optimizedBody}
                     ha = m2 / 10000;
                 }
 
-                const elM2 = document.getElementById('hubAreaM2');
+                const elM2 = document.getElementById('hubAreaM2') || document.getElementById('hubAreaSquareMeters');
                 const elHa = document.getElementById('hubAreaHa');
                 const elPing = document.getElementById('hubAreaPing');
                 if (elM2 && document.activeElement !== elM2) elM2.value = m2 ? m2.toFixed(2) : '';
@@ -38679,11 +38781,10 @@ ${optimizedBody}
                 }
 
                 const outflowArea = document.getElementById('outflowAreaHa');
-                if (outflowArea && sourceUnit !== 'ha') outflowArea.value = ha.toFixed(4);
+                if (outflowArea) outflowArea.value = ha.toFixed(4);
                 const wizArea = document.getElementById('wizAreaHa');
                 if (wizArea) wizArea.value = ha.toFixed(4);
-                const hydArea = document.getElementById('catchmentArea') || document.getElementById('paramArea');
-                if (hydArea && sourceUnit !== 'ha') hydArea.value = ha.toFixed(4);
+                // Mode 1 子集水區面積保持獨立
             } finally {
                 _isSyncingArea = false;
             }
