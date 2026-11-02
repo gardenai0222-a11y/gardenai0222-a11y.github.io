@@ -234,6 +234,8 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+    
+        .task-table tbody tr.main-wbs-row, .task-table tbody tr.main-wbs-row td { background-color: #1E293B !important; }
     </style>
     <!-- Google AdSense 官方收益廣告代碼 -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1157627714001948"
@@ -439,6 +441,8 @@
                     <button id="tab-btn-actual" data-tab="actual" onclick="switchChartTab(this)"
                         class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-history"></i> 實際累積進度 S
                         曲線</button>
+                    <button id="tab-btn-network" data-tab="network" onclick="switchChartTab(this)"
+                        class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-project-diagram text-red-600"></i> PDM 要徑邏輯網狀圖 (AON 節點圖)</button>
                 </nav>
                 <div class="flex items-center gap-2 pb-1 flex-wrap">
                     <button type="button" id="wideChartToggleBtn" onclick="toggleWideChartView()"
@@ -550,6 +554,34 @@
                 </div>
             </div>
 
+            <div id="tab-content-network" class="hidden flex-grow min-h-0 overflow-y-auto">
+                <div class="mb-3 p-3 bg-slate-900 text-white rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div>
+                        <span class="font-bold text-amber-400"><i class="fas fa-sitemap"></i> MS Project 標準 PDM 節點邏輯網狀圖 (Activity-on-Node Network Diagram)：</span>
+                        每個節點盒包含「頂部：ES 最早開始｜工期｜EF 最早完成」、「中間：WBS代碼與工項名稱」、「底部：LS 最晚開始｜TF 總浮時｜LF 最晚完成」。
+                    </div>
+                    <div class="flex items-center gap-3 font-bold">
+                        <span class="px-2 py-0.5 rounded bg-red-600 text-white">■ 紅框＋紅實線箭頭：要徑作業 (TF=0)</span>
+                        <span class="px-2 py-0.5 rounded bg-blue-600 text-white">■ 藍框＋藍虛線箭頭：並聯浮時作業 (TF&gt;0)</span>
+                    </div>
+                </div>
+                <div class="chart-box rounded-xl flex flex-col overflow-x-auto bg-slate-50 border border-slate-200 p-2">
+                    <div class="relative flex-grow min-w-[1800px]">
+                        <canvas id="pdmNetworkCanvas" width="2400" height="1680" style="width:100%; height:auto; display:block;"></canvas>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <div class="flex justify-end flex-wrap gap-3">
+                        <button data-tab="network" onclick="exportProjectToExcel(this)"
+                            class="btn-eng-navy py-2.5 px-5 font-bold rounded-lg text-sm flex items-center gap-2"><i
+                                class="fas fa-file-excel text-emerald-400"></i> 匯出旗艦專業版 Excel 總表 (含PDM網狀圖＆甘特圖)</button>
+                        <button data-tab="network" onclick="downloadPdmNetworkPNG()"
+                            class="btn-eng-gold py-2.5 px-5 font-bold rounded-lg text-sm flex items-center gap-2"><i
+                                class="fas fa-image"></i> 下載高解析 PDM 要徑邏輯網狀圖 (PNG)</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex justify-end mt-4 border-t border-gray-200 pt-3">
                 <button onclick="hideChartModal()"
                     class="py-2 px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-lg transition">關閉視窗</button>
@@ -617,14 +649,26 @@
             <input type="hidden" id="editTaskProjectId">
             <input type="hidden" id="editTaskId">
             <div class="space-y-3">
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-3 gap-3 p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">WBS 編碼</label>
-                        <input type="text" id="editTaskWbs" class="w-full p-2 input-eng font-mono text-sm"
-                            placeholder="例: 1.2">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">主工項編號</label>
+                        <input type="text" id="editTaskCatCode" class="w-full p-2 input-eng font-mono text-sm font-bold"
+                            placeholder="例: 01">
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-xs font-bold text-gray-700 mb-1">分項工程名稱 *</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">所屬主工項名稱 (Level 1 大類)</label>
+                        <input type="text" id="editTaskCatName" class="w-full p-2 input-eng text-sm font-bold"
+                            placeholder="例: 壹、假設及安全防護工程">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">子工項 WBS 編碼</label>
+                        <input type="text" id="editTaskWbs" class="w-full p-2 input-eng font-mono text-sm"
+                            placeholder="例: 01.1">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">子工項作業名稱 *</label>
                         <input type="text" id="editTaskName" class="w-full p-2 input-eng text-sm">
                     </div>
                 </div>
@@ -675,6 +719,35 @@
                 <button onclick="hideEditTaskModal()"
                     class="px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 font-semibold">取消</button>
                 <button onclick="updateTask()" class="btn-eng-gold py-2 px-6 font-bold rounded-md">儲存工項</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/修改主工項大類 Modal (取代瀏覽器原生 prompt，支援手機與防彈窗阻擋) -->
+    <div id="main-cat-modal"
+        class="modal-base fixed inset-0 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm z-50"
+        onclick="if(event.target.id === 'main-cat-modal') hideMainCatModal()">
+        <div class="modal-content w-full max-w-md rounded-xl p-6 md:p-7 relative z-50">
+            <button onclick="hideMainCatModal()"
+                class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-3xl font-bold transition">&times;</button>
+            <h3 id="main-cat-modal-title" class="text-xl font-bold mb-4 text-primary-navy border-b-2 border-accent-gold pb-2">新增主工項大類 (Level 1)</h3>
+            <input type="hidden" id="mainCatModalProjectId">
+            <input type="hidden" id="mainCatModalMode" value="add">
+            <input type="hidden" id="mainCatModalOldCode" value="">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">主工項編號 (Level 1 WBS 代碼) *</label>
+                    <input type="text" id="mainCatModalCode" class="w-full p-2.5 input-eng font-mono text-sm font-bold" placeholder="例: 01, 02, 18">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">主工項大類名稱 *</label>
+                    <input type="text" id="mainCatModalName" class="w-full p-2.5 input-eng text-sm font-bold" placeholder="例: 壹、假設及安全防護工程">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end items-center gap-3">
+                <button type="button" onclick="hideMainCatModal()"
+                    class="px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 font-semibold">取消</button>
+                <button type="button" onclick="saveMainCatModal()" class="btn-eng-gold py-2 px-6 font-bold rounded-md">確認儲存</button>
             </div>
         </div>
     </div>
@@ -1004,6 +1077,7 @@
         };
 
         const formatCurrency = (number) => number ? Math.round(number).toLocaleString('zh-TW') : '0';
+        const escHtml = (str) => String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
         function updateProjectDates(source, prefix = 'new') {
@@ -1373,7 +1447,8 @@
                             });
                             t.lf = minLF === Infinity ? projectDurationDays : minLF;
                         }
-                        t.ls = t.lf - t.duration;
+                        t.ls = Math.max(0, t.lf - t.duration);
+                        t.lf = t.ls + t.duration;
                         t.totalFloat = Math.max(0, t.ls - t.es);
                         t.isCritical = (t.totalFloat <= 0.001);
                         revResolved.add(t.id);
@@ -1533,11 +1608,29 @@
                 return;
             }
 
-            const predecessors = predId ? [{ taskId: predId, type: predType, lag: predLag }] : [];
-            const wbs = taskWbs || `1.${project.tasks.length + 1}`;
+            ensureProjectMainCategories(project);
+            const mainCatSel = document.getElementById(`taskMainCatSelect-${projectId}`);
+            let catCode = '01';
+            let catName = '第一大項：主體分項工程';
+            if (mainCatSel) {
+                if (mainCatSel.value === '__NEW__') {
+                    const newCodeEl = document.getElementById(`newMainCatCode-${projectId}`);
+                    const newNameEl = document.getElementById(`newMainCatName-${projectId}`);
+                    catCode = (newCodeEl && newCodeEl.value.trim()) ? newCodeEl.value.trim() : String(Object.keys(project.mainCategories).length + 1).padStart(2, '0');
+                    catName = (newNameEl && newNameEl.value.trim()) ? newNameEl.value.trim() : `主工項 ${catCode}`;
+                    project.mainCategories[catCode] = catName;
+                } else {
+                    catCode = mainCatSel.value;
+                    catName = project.mainCategories[catCode] || `主工項 ${catCode}`;
+                }
+            }
+            const wbs = taskWbs || getNextSubWbsForCat(project, catCode);
+            const predecessors = predId ? [{ taskId: predId, type: predType || 'FS', lag: predLag }] : [];
 
             project.tasks.push({
                 id: generateId(),
+                catCode,
+                catName,
                 wbsCode: wbs,
                 taskName,
                 taskCost,
@@ -1546,7 +1639,7 @@
                 weight: 0,
                 progressHistory: []
             });
-
+            keepTasksGroupedByMainCat(project);
             calculateProjectCPM(project);
             saveToLocalStorage();
             renderProjects();
@@ -1657,11 +1750,16 @@
             if (!project || !project.tasks) return;
             const idx = project.tasks.findIndex(t => t.id === targetTaskId);
             if (idx === -1) return;
+            ensureProjectMainCategories(project);
             const refTask = project.tasks[idx];
+            const { catCode, catName } = getTaskMainWbsInfo(refTask, project);
+            const nextSubWbs = getNextSubWbsForCat(project, catCode);
             const newTask = {
                 id: generateId(),
-                wbsCode: `${refTask.wbsCode || (idx + 1)}.1`,
-                taskName: `新增分項工程 (緊接於 ${refTask.wbsCode || refTask.taskName} 之後)`,
+                catCode,
+                catName,
+                wbsCode: nextSubWbs,
+                taskName: `新增子工項 (緊接於 ${refTask.wbsCode || refTask.taskName} 之後)`,
                 taskCost: 100000,
                 duration: 5,
                 predecessors: [{ taskId: refTask.id, type: 'FS', lag: 0 }],
@@ -1688,7 +1786,7 @@
             project.tasks.forEach(t => {
                 if (t.id !== taskId) {
                     const sel = (prefill && prefill.taskId === t.id) ? 'selected' : '';
-                    optionsHtml += `<option value="${t.id}" ${sel}>${t.wbsCode ? t.wbsCode + ' ' : ''}${t.taskName} (${t.duration}天)</option>`;
+                    optionsHtml += `<option value="${escHtml(t.id)}" ${sel}>${escHtml(t.wbsCode ? t.wbsCode + ' ' : '')}${escHtml(t.taskName)} (${t.duration}天)</option>`;
                 }
             });
             const pType = (prefill && prefill.type) ? prefill.type : 'FS';
@@ -1725,8 +1823,12 @@
             const task = project.tasks.find(t => t.id === taskId);
             if (!task) return;
 
+            ensureProjectMainCategories(project);
+            const { catCode, catName } = getTaskMainWbsInfo(task, project);
             document.getElementById('editTaskProjectId').value = projectId;
             document.getElementById('editTaskId').value = taskId;
+            if (document.getElementById('editTaskCatCode')) document.getElementById('editTaskCatCode').value = catCode || '01';
+            if (document.getElementById('editTaskCatName')) document.getElementById('editTaskCatName').value = catName || '';
             document.getElementById('editTaskWbs').value = task.wbsCode || '';
             document.getElementById('editTaskName').value = task.taskName;
             document.getElementById('editTaskCost').value = task.taskCost;
@@ -1737,7 +1839,7 @@
             predSelect.innerHTML = '<option value="">首工項 (無緊前作業 / 開工即動工)</option>';
             project.tasks.forEach(t => {
                 if (t.id !== taskId) {
-                    predSelect.innerHTML += `<option value="${t.id}">${t.wbsCode ? t.wbsCode + ' ' : ''}${t.taskName} (${t.duration}天)</option>`;
+                    predSelect.innerHTML += `<option value="${escHtml(t.id)}">${escHtml(t.wbsCode ? t.wbsCode + ' ' : '')}${escHtml(t.taskName)} (${t.duration}天)</option>`;
                 }
             });
 
@@ -1799,12 +1901,22 @@
                 }
             });
 
-            task.wbsCode = taskWbs || task.wbsCode || '1.1';
+            ensureProjectMainCategories(project);
+            const editCatCode = document.getElementById('editTaskCatCode') ? document.getElementById('editTaskCatCode').value.trim() : '';
+            const editCatName = document.getElementById('editTaskCatName') ? document.getElementById('editTaskCatName').value.trim() : '';
+            if (editCatCode) {
+                task.catCode = editCatCode;
+                if (editCatName) {
+                    task.catName = editCatName;
+                    project.mainCategories[editCatCode] = editCatName;
+                }
+            }
+            task.wbsCode = taskWbs || task.wbsCode || '01.1';
             task.taskName = taskName;
             task.taskCost = taskCost;
             task.duration = duration;
             task.predecessors = newPreds;
-
+            keepTasksGroupedByMainCat(project);
             calculateProjectCPM(project);
             saveToLocalStorage();
             renderProjects();
@@ -1901,7 +2013,7 @@
                             <div class="w-full flex justify-between items-center mb-4 flex-wrap gap-2">
                                 <h4 class="text-xl md:text-2xl font-black text-primary-navy flex items-center gap-2">
                                     <i class="fas fa-chevron-right text-accent-gold transition-transform ${isCollapsed ? 'rotate-0' : 'rotate-90'}"></i>
-                                    ${project.name}
+                                    ${escHtml(project.name)}
                                 </h4>
                                 <div class="flex items-center space-x-2">
                                     <button data-action="edit-project" data-project-id="${project.id}" class="text-xs font-bold px-3 py-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 transition"><i class="fas fa-pen"></i> 編輯案件</button>
@@ -1909,8 +2021,8 @@
                                 </div>
                             </div>
                             <div class="w-full participant-info text-gray-700 mb-4">
-                                <div><span class="label">業主(甲方):</span> ${project.client || 'N/A'}</div>
-                                <div><span class="label">承攬單位:</span> ${project.constructionUnit || 'N/A'}</div>
+                                <div><span class="label">業主(甲方):</span> ${escHtml(project.client || 'N/A')}</div>
+                                <div><span class="label">承攬單位:</span> ${escHtml(project.constructionUnit || 'N/A')}</div>
                                 <div><span class="label">開工日期:</span> ${project.startDate}</div>
                                 <div><span class="label">預定完工日:</span> ${project.plannedCompletionDate}</div>
                             </div>
@@ -1947,33 +2059,332 @@
             window.scrollTo(0, savedWindowScrollY);
         }
 
+        // 動態取得專案之主工項對照表 (100% 動態，絕不寫死特定案件名稱)
+        function ensureProjectMainCategories(project) {
+            if (!project.mainCategories || typeof project.mainCategories !== 'object') {
+                project.mainCategories = {};
+            }
+            (project.tasks || []).forEach(t => {
+                const rawCode = String(t.wbsCode || '01.1').trim();
+                const catCode = t.catCode || (rawCode.includes('.') ? rawCode.split('.')[0] : rawCode) || '01';
+                t.catCode = catCode;
+                if (t.catName && !project.mainCategories[catCode]) {
+                    project.mainCategories[catCode] = t.catName;
+                }
+            });
+            if (Object.keys(project.mainCategories).length === 0) {
+                project.mainCategories['01'] = '第一大項：主體分項工程';
+            }
+            return project.mainCategories;
+        }
+
+        function getTaskMainWbsInfo(task, project) {
+            const rawCode = String(task.wbsCode || '01.1').trim();
+            const catCode = task.catCode || (rawCode.includes('.') ? rawCode.split('.')[0] : rawCode) || '01';
+            const projCats = (project && project.mainCategories) ? project.mainCategories : {};
+            const catName = task.catName || projCats[catCode] || `主工項 ${catCode}`;
+            return { catCode, catName };
+        }
+
+        function getNextSubWbsForCat(project, catCode) {
+            let maxSub = 0;
+            (project.tasks || []).forEach(t => {
+                const { catCode: tc } = getTaskMainWbsInfo(t, project);
+                if (tc === catCode) {
+                    const parts = String(t.wbsCode || '').split('.');
+                    if (parts.length > 1) {
+                        const n = parseInt(parts[1], 10);
+                        if (!isNaN(n) && n > maxSub) maxSub = n;
+                    } else {
+                        maxSub++;
+                    }
+                }
+            });
+            return `${catCode}.${maxSub + 1}`;
+        }
+
+        function onSelectMainCatChange(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            ensureProjectMainCategories(project);
+            const sel = document.getElementById(`taskMainCatSelect-${projectId}`);
+            const customWrap = document.getElementById(`customMainCatWrap-${projectId}`);
+            const wbsInput = document.getElementById(`taskWbs-${projectId}`);
+            if (!sel || !wbsInput) return;
+
+            if (sel.value === '__NEW__') {
+                if (customWrap) customWrap.classList.remove('hidden');
+                const existingCodes = Object.keys(project.mainCategories).map(k => parseInt(k, 10)).filter(n => !isNaN(n));
+                const nextCatNum = existingCodes.length > 0 ? Math.max(...existingCodes) + 1 : 1;
+                const nextCatCode = String(nextCatNum).padStart(2, '0');
+                const codeEl = document.getElementById(`newMainCatCode-${projectId}`);
+                if (codeEl) codeEl.value = nextCatCode;
+                wbsInput.value = `${nextCatCode}.1`;
+            } else {
+                if (customWrap) customWrap.classList.add('hidden');
+                wbsInput.value = getNextSubWbsForCat(project, sel.value);
+            }
+        }
+
+        // 確保同一主工項 (catCode) 的子工項在陣列中永遠相鄰不分散，避免主工項標題列重複出現
+        function keepTasksGroupedByMainCat(project) {
+            if (!project || !project.tasks || project.tasks.length <= 1) return;
+            ensureProjectMainCategories(project);
+            const groups = new Map();
+            project.tasks.forEach(t => {
+                const { catCode, catName } = getTaskMainWbsInfo(t, project);
+                t.catCode = catCode;
+                t.catName = catName;
+                if (!groups.has(catCode)) groups.set(catCode, []);
+                groups.get(catCode).push(t);
+            });
+            const sortedCatKeys = Array.from(groups.keys()).sort((a, b) => {
+                const na = parseFloat(a), nb = parseFloat(b);
+                if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+                return String(a).localeCompare(String(b));
+            });
+            const regrouped = [];
+            sortedCatKeys.forEach(k => {
+                regrouped.push(...groups.get(k));
+            });
+            project.tasks = regrouped;
+        }
+
+        function hideMainCatModal() {
+            const modal = document.getElementById('main-cat-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function promptAddMainCategory(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            ensureProjectMainCategories(project);
+            const existingCodes = Object.keys(project.mainCategories).map(k => parseInt(k, 10)).filter(n => !isNaN(n));
+            const nextCatNum = existingCodes.length > 0 ? Math.max(...existingCodes) + 1 : 1;
+            const defaultCode = String(nextCatNum).padStart(2, '0');
+
+            document.getElementById('mainCatModalProjectId').value = projectId;
+            document.getElementById('mainCatModalMode').value = 'add';
+            document.getElementById('mainCatModalOldCode').value = '';
+            document.getElementById('main-cat-modal-title').textContent = '新增主工項大類 (Level 1)';
+            document.getElementById('mainCatModalCode').value = defaultCode;
+            document.getElementById('mainCatModalCode').disabled = false;
+            document.getElementById('mainCatModalName').value = '';
+            document.getElementById('main-cat-modal').classList.remove('hidden');
+        }
+
+        function renameMainCategory(projectId, oldCatCode) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            ensureProjectMainCategories(project);
+            const currentName = project.mainCategories[oldCatCode] || `主工項 ${oldCatCode}`;
+
+            document.getElementById('mainCatModalProjectId').value = projectId;
+            document.getElementById('mainCatModalMode').value = 'rename';
+            document.getElementById('mainCatModalOldCode').value = oldCatCode;
+            document.getElementById('main-cat-modal-title').textContent = `修改【主工項 ${oldCatCode}】名稱與編號`;
+            document.getElementById('mainCatModalCode').value = oldCatCode;
+            document.getElementById('mainCatModalCode').disabled = false;
+            document.getElementById('mainCatModalName').value = currentName;
+            document.getElementById('main-cat-modal').classList.remove('hidden');
+        }
+
+        function saveMainCatModal() {
+            const projectId = document.getElementById('mainCatModalProjectId').value;
+            const mode = document.getElementById('mainCatModalMode').value;
+            const oldCode = document.getElementById('mainCatModalOldCode').value;
+            const rawCode = document.getElementById('mainCatModalCode').value.trim();
+            const rawName = document.getElementById('mainCatModalName').value.trim();
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            if (!rawCode || !rawName) {
+                showMessage('請填寫完整的主工項編號與主工項名稱！', 'danger');
+                return;
+            }
+            ensureProjectMainCategories(project);
+
+            if (mode === 'rename') {
+                if (oldCode && oldCode !== rawCode) {
+                    delete project.mainCategories[oldCode];
+                }
+                project.mainCategories[rawCode] = rawName;
+                (project.tasks || []).forEach(t => {
+                    const { catCode } = getTaskMainWbsInfo(t, project);
+                    if (catCode === oldCode) {
+                        t.catCode = rawCode;
+                        t.catName = rawName;
+                        if (String(t.wbsCode || '').startsWith(oldCode + '.')) {
+                            t.wbsCode = rawCode + '.' + String(t.wbsCode).slice(oldCode.length + 1);
+                        }
+                    }
+                });
+                keepTasksGroupedByMainCat(project);
+                calculateProjectCPM(project);
+                saveToLocalStorage();
+                renderProjects();
+                hideMainCatModal();
+                showMessage(`主工項【${rawCode} ${rawName}】已成功更新！`, 'success');
+            } else {
+                project.mainCategories[rawCode] = rawName;
+                const lastTask = project.tasks && project.tasks.length > 0 ? project.tasks[project.tasks.length - 1] : null;
+                const newSubWbs = getNextSubWbsForCat(project, rawCode);
+                const newTask = {
+                    id: generateId(),
+                    catCode: rawCode,
+                    catName: rawName,
+                    wbsCode: newSubWbs,
+                    taskName: `${rawName} - 第1子工項`,
+                    taskCost: 100000,
+                    duration: 5,
+                    predecessors: lastTask ? [{ taskId: lastTask.id, type: 'FS', lag: 0 }] : [],
+                    weight: 0,
+                    progressHistory: []
+                };
+                project.tasks.push(newTask);
+                keepTasksGroupedByMainCat(project);
+                calculateProjectCPM(project);
+                saveToLocalStorage();
+                renderProjects();
+                hideMainCatModal();
+                showEditTaskModal(projectId, newTask.id);
+                showMessage(`已新增主工項【${rawCode} ${rawName}】並自動建立首個子工項 (${newSubWbs})！`, 'success');
+            }
+        }
+
+        function quickAddSubtaskToCat(projectId, catCode) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            ensureProjectMainCategories(project);
+            const catName = project.mainCategories[catCode] || `主工項 ${catCode}`;
+            const nextWbs = getNextSubWbsForCat(project, catCode);
+
+            // 尋找此主工項目前最後一個子工項位置與緊前工項
+            let insertIdx = project.tasks.length;
+            let lastTaskInCat = null;
+            project.tasks.forEach((t, idx) => {
+                const { catCode: tc } = getTaskMainWbsInfo(t, project);
+                if (tc === catCode) {
+                    insertIdx = idx + 1;
+                    lastTaskInCat = t;
+                }
+            });
+            const predTask = lastTaskInCat || (project.tasks.length > 0 ? project.tasks[project.tasks.length - 1] : null);
+
+            const newTask = {
+                id: generateId(),
+                catCode: catCode,
+                catName: catName,
+                wbsCode: nextWbs,
+                taskName: `新增子工項 (${nextWbs})`,
+                taskCost: 100000,
+                duration: 5,
+                predecessors: predTask ? [{ taskId: predTask.id, type: 'FS', lag: 0 }] : [],
+                weight: 0,
+                progressHistory: []
+            };
+            project.tasks.splice(insertIdx, 0, newTask);
+            calculateProjectCPM(project);
+            saveToLocalStorage();
+            renderProjects();
+            showEditTaskModal(projectId, newTask.id);
+            showMessage(`已於主工項【${catCode} ${catName}】下自動編碼新增子工項 ${nextWbs}！`, 'info');
+        }
+
         function renderTaskPlanningSection(project, nextStartDate) {
+            ensureProjectMainCategories(project);
             const taskMap = {};
             project.tasks.forEach(t => taskMap[t.id] = t);
 
-            const taskRows = project.tasks.map((task, idx) => {
-                // 緊前作業標籤
+            const catStats = {};
+            project.tasks.forEach(t => {
+                const { catCode, catName } = getTaskMainWbsInfo(t, project);
+                t.catCode = catCode;
+                t.catName = catName;
+                if (!catStats[catCode]) {
+                    catStats[catCode] = {
+                        catCode,
+                        catName,
+                        cost: 0,
+                        weight: 0,
+                        minEs: null,
+                        maxEf: null,
+                        minEsNum: Infinity,
+                        maxEfNum: 0,
+                        critCount: 0,
+                        items: []
+                    };
+                }
+                const g = catStats[catCode];
+                g.cost += (parseFloat(t.taskCost) || 0);
+                g.weight += (parseFloat(t.weight) || 0);
+                if (t.plannedStartDate && (!g.minEs || t.plannedStartDate < g.minEs)) g.minEs = t.plannedStartDate;
+                if (t.plannedEndDate && (!g.maxEf || t.plannedEndDate > g.maxEf)) g.maxEf = t.plannedEndDate;
+                if (typeof t.es === 'number' && t.es < g.minEsNum) g.minEsNum = t.es;
+                if (typeof t.ef === 'number' && t.ef > g.maxEfNum) g.maxEfNum = t.ef;
+                if (t.isCritical) g.critCount++;
+                g.items.push(t);
+            });
+
+            let lastCatCode = null;
+            const htmlParts = [];
+
+            project.tasks.forEach((task, idx) => {
+                const { catCode, catName } = getTaskMainWbsInfo(task, project);
+                if (catCode !== lastCatCode) {
+                    lastCatCode = catCode;
+                    const g = catStats[catCode];
+                    const spanDays = (g.maxEfNum > g.minEsNum) ? (g.maxEfNum - g.minEsNum) : getDurationDays(g.minEs, g.maxEf);
+                    const gCritBadge = g.critCount > 0
+                        ? `<span class="inline-flex items-center px-2 py-0.5 text-[11px] font-bold bg-amber-400 text-slate-900 rounded">★含要徑 ${g.critCount}項</span>`
+                        : `<span class="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold bg-slate-700 text-slate-200 rounded">非要徑群組</span>`;
+                    htmlParts.push(`
+                    <tr class="main-wbs-row bg-slate-800 text-white border-t-2 border-slate-600" style="background-color:#1E293B !important;">
+                        <td class="p-2 text-center font-mono text-xs font-black text-amber-300">${escHtml(catCode)}</td>
+                        <td class="p-2 font-black text-amber-300 tracking-wide">📁 【主工項 ${escHtml(catCode)}】${escHtml(catName)} <span class="text-xs font-normal text-slate-300">(共 ${g.items.length} 子工項)</span></td>
+                        <td class="p-2 text-right font-mono font-black text-amber-300">NT$ ${formatCurrency(g.cost)}</td>
+                        <td class="p-2 text-center font-mono text-xs font-black text-emerald-300">${g.weight.toFixed(2)}%</td>
+                        <td class="p-2 text-center font-mono text-xs font-bold text-slate-200">跨距 ${spanDays} 天</td>
+                        <td class="p-2 text-center text-xs text-slate-300">統括 ${g.items.length} 子項</td>
+                        <td class="p-2 text-center text-xs font-mono text-slate-200">${g.minEs || '---'} ~ ${g.maxEf || '---'}</td>
+                        <td class="p-2 text-center text-xs font-mono text-slate-300">-</td>
+                        <td class="p-2 text-center">${gCritBadge}</td>
+                        <td class="p-2 text-center">
+                            <div class="flex justify-center items-center gap-1">
+                                <button type="button" data-cat-code="${escHtml(catCode)}" onclick="quickAddSubtaskToCat('${project.id}', this.getAttribute('data-cat-code'))" title="在此主工項下自動編號新增子工項" class="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition shadow-sm">
+                                    <i class="fas fa-plus"></i> 子工項
+                                </button>
+                                <button type="button" data-cat-code="${escHtml(catCode)}" onclick="renameMainCategory('${project.id}', this.getAttribute('data-cat-code'))" title="修改主工項名稱" class="px-1.5 py-0.5 rounded bg-slate-700 hover:bg-amber-500 text-slate-200 hover:text-white text-[11px] font-bold transition border border-slate-500">
+                                    <i class="fas fa-pen"></i> 改名
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`);
+                }
+
+                const gItems = catStats[catCode].items;
+                const isLastInCat = (gItems[gItems.length - 1].id === task.id);
+                const treePrefix = isLastInCat ? '└─ ' : '├─ ';
+
                 let predHtml = '<span class="text-xs text-gray-400 font-mono">首工項 (無)</span>';
                 if (task.predecessors && task.predecessors.length > 0) {
                     predHtml = task.predecessors.map(p => {
                         const predTask = taskMap[p.taskId];
                         const predLabel = predTask ? (predTask.wbsCode || predTask.taskName) : '未知';
                         const lagStr = p.lag ? (p.lag > 0 ? `+${p.lag}d` : `${p.lag}d`) : '';
-                        return `<span class="inline-block px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 text-slate-800 border border-slate-300 rounded" title="${predTask ? predTask.taskName : ''}">${predLabel} (${p.type || 'FS'}${lagStr})</span>`;
+                        return `<span class="inline-block px-1.5 py-0.5 text-[11px] font-mono bg-slate-100 text-slate-800 border border-slate-300 rounded" title="${escHtml(predTask ? predTask.taskName : '')}">${escHtml(predLabel)} (${escHtml(p.type || 'FS')}${lagStr})</span>`;
                     }).join(' ');
                 }
 
-                // 要徑判定標籤與邊線樣式
                 const isCrit = task.isCritical;
                 const rowBorder = isCrit ? 'border-l-4 border-l-red-600 bg-red-50/20' : '';
                 const critBadge = isCrit
                     ? '<span class="inline-flex items-center px-2 py-0.5 text-xs font-black bg-red-600 text-white rounded shadow-sm">[要徑] TF=0</span>'
                     : `<span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200 rounded">浮時 ${task.totalFloat || 0}天</span>`;
 
-                return `
+                htmlParts.push(`
                 <tr class="group hover:bg-amber-50/50 ${rowBorder}">
-                    <td class="p-2.5 text-center font-mono text-xs font-bold text-gray-600 bg-gray-50/50">${task.wbsCode || (idx + 1)}</td>
-                    <td class="p-2.5 font-bold text-gray-800">${task.taskName}</td>
+                    <td class="p-2.5 text-center font-mono text-xs font-bold text-gray-600 bg-gray-50/50 pl-4">${escHtml(task.wbsCode || (idx + 1))}</td>
+                    <td class="p-2.5 font-bold text-gray-800 pl-4"><span class="text-slate-400 font-mono mr-1">${treePrefix}</span>${escHtml(task.taskName)}</td>
                     <td class="p-2.5 text-right font-mono font-semibold text-gray-700">NT$ ${formatCurrency(task.taskCost)}</td>
                     <td class="p-2.5 text-center font-mono text-xs font-bold text-accent-gold">${(task.weight || 0).toFixed(2)}%</td>
                     <td class="p-2.5 text-center font-mono font-bold text-primary-navy">${task.duration || 1} 天</td>
@@ -1992,7 +2403,7 @@
                             <button data-action="move-task-down" data-project-id="${project.id}" data-task-id="${task.id}" title="下移此工項列" ${idx === project.tasks.length - 1 ? 'disabled' : ''} class="p-1 rounded bg-gray-100 hover:bg-slate-700 hover:text-white text-gray-600 disabled:opacity-30 transition border border-gray-200">
                                 <i class="fas fa-arrow-down text-[10px]"></i>
                             </button>
-                            <button data-action="insert-task-after" data-project-id="${project.id}" data-task-id="${task.id}" title="在此列下方插入新工項" class="p-1 rounded bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 transition border border-emerald-200">
+                            <button data-action="insert-task-after" data-project-id="${project.id}" data-task-id="${task.id}" title="在此列下方插入同主工項之新子工項" class="p-1 rounded bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 transition border border-emerald-200">
                                 <i class="fas fa-plus text-[10px]"></i>
                             </button>
                             <button data-action="edit-task" data-project-id="${project.id}" data-task-id="${task.id}" title="修改工項" class="p-1 rounded bg-gray-100 hover:bg-amber-500 hover:text-white text-gray-700 transition border border-gray-200">
@@ -2003,28 +2414,48 @@
                             </button>
                         </div>
                     </td>
-                </tr>`;
-            }).join('');
+                </tr>`);
+            });
+            const taskRows = htmlParts.join('');
 
-            // 新增工項之緊前作業下拉選單
-            const nextWbs = `1.${project.tasks.length + 1}`;
+            // 整理主工項下拉選單與預設下一個 WBS 子工項編碼
+            const catKeys = Object.keys(project.mainCategories).sort();
+            const defaultCat = catKeys.length > 0 ? catKeys[catKeys.length - 1] : '01';
+            const nextWbs = getNextSubWbsForCat(project, defaultCat);
+            let mainCatOptions = '';
+            catKeys.forEach(code => {
+                const sel = (code === defaultCat) ? 'selected' : '';
+                mainCatOptions += `<option value="${escHtml(code)}" ${sel}>【主工項 ${escHtml(code)}】${escHtml(project.mainCategories[code])}</option>`;
+            });
+            mainCatOptions += `<option value="__NEW__">➕ 新增自訂主工項大類...</option>`;
+
+            // 新增工項之緊前作業下拉選單 (預設自動選中最後一項 FS，免手動挑！)
+            const lastTaskObj = project.tasks.length > 0 ? project.tasks[project.tasks.length - 1] : null;
             let predOptions = '<option value="">首工項 (無緊前 / 開工即動工)</option>';
             project.tasks.forEach(t => {
-                predOptions += `<option value="${t.id}">${t.wbsCode ? t.wbsCode + ' ' : ''}${t.taskName} (${t.duration}天)</option>`;
+                const isLast = (lastTaskObj && lastTaskObj.id === t.id) ? 'selected' : '';
+                predOptions += `<option value="${escHtml(t.id)}" ${isLast}>${escHtml(t.wbsCode ? t.wbsCode + ' ' : '')}${escHtml(t.taskName)} (${t.duration}天)</option>`;
             });
 
             return `
                 <div class="border border-gray-200 p-4 rounded-xl bg-white shadow-sm">
-                    <h3 class="text-lg font-bold mb-3 text-primary-navy border-b border-gray-200 pb-2 flex items-center justify-between">
-                        <span class="flex items-center gap-2"><i class="fas fa-project-diagram text-accent-gold"></i> I. 分項工程要徑排程規劃 (CPM Network Planning)</span>
-                        <span class="text-xs font-normal text-gray-500">共 ${project.tasks.length} 項作業 ‧ 總工期 ${project.contractDuration || 0} 天</span>
-                    </h3>
-                    <div class="overflow-x-auto rounded-lg border border-gray-200 mb-4 max-h-[340px] overflow-y-auto">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-gray-200 pb-2">
+                        <h3 class="text-lg font-bold text-primary-navy flex items-center gap-2">
+                            <i class="fas fa-project-diagram text-accent-gold"></i> I. 分項工程要徑排程規劃 (主工項 / 子工項 WBS 階層管理)
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-normal text-gray-500">共 ${catKeys.length} 大主工項 / ${project.tasks.length} 項子作業 ‧ 總工期 ${project.contractDuration || 0} 天</span>
+                            <button type="button" onclick="promptAddMainCategory('${project.id}')" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center gap-1 shadow-sm transition">
+                                <i class="fas fa-folder-plus"></i> 新增主工項大類
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 mb-4 max-h-[380px] overflow-y-auto">
                         <table class="min-w-full text-xs task-table">
                             <thead>
                                 <tr>
                                     <th class="p-2 text-center w-14">WBS</th>
-                                    <th class="p-2 text-left">分項工程名稱</th>
+                                    <th class="p-2 text-left">主工項 / 子工項名稱</th>
                                     <th class="p-2 text-right">金額 (NT$)</th>
                                     <th class="p-2 text-center">權重</th>
                                     <th class="p-2 text-center">工期</th>
@@ -2032,39 +2463,57 @@
                                     <th class="p-2 text-center">最早起訖 (ES~EF)</th>
                                     <th class="p-2 text-center">浮時 (TF/FF)</th>
                                     <th class="p-2 text-center">要徑判定</th>
-                                    <th class="p-2 text-center w-36">排序 / 插入 / 編輯</th>
+                                    <th class="p-2 text-center w-36">新增子項 / 編輯</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">${taskRows || '<tr><td colspan="10" class="p-4 text-center text-gray-400">尚未新增任何分項工程</td></tr>'}</tbody>
                         </table>
                     </div>
                     
-                    <!-- 新增分項工程表單 (CPM 前後相依輸入) -->
+                    <!-- 新增分項工程表單 (支援動態選擇/新增主工項 ＋ 自動編號 ＋ 自動預設接續上一項 FS) -->
                     <div class="p-3.5 bg-gray-50 rounded-lg border border-gray-200 space-y-2.5">
-                        <div class="text-xs font-bold text-primary-navy flex items-center gap-1.5 border-b border-gray-200 pb-1.5">
-                            <i class="fas fa-plus-circle text-accent-gold"></i> 新增分項工程作業 (自動計算 CPM 網圖)
+                        <div class="text-xs font-bold text-primary-navy flex items-center justify-between border-b border-gray-200 pb-1.5">
+                            <span class="flex items-center gap-1.5"><i class="fas fa-plus-circle text-accent-gold"></i> 快速新增子工項作業 (選擇主工項即自動編號 01.1、自動預設接續前項 FS)</span>
+                            <span class="text-[11px] font-normal text-gray-500">亦可直接點上方深藍色主工項列右側之「＋子工項」按鈕</span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-6 gap-2.5">
-                            <div class="md:col-span-1">
-                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">WBS 編碼</label>
-                                <input type="text" id="taskWbs-${project.id}" value="${nextWbs}" placeholder="例: 1.1" class="w-full input-eng p-2 text-xs font-mono">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5">
+                            <div class="md:col-span-4">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">所屬主工項大類 (Level 1) *</label>
+                                <select id="taskMainCatSelect-${project.id}" onchange="onSelectMainCatChange('${project.id}')" class="w-full input-eng p-2 text-xs font-bold text-slate-800">
+                                    ${mainCatOptions}
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">子工項 WBS (自動編號)</label>
+                                <input type="text" id="taskWbs-${project.id}" value="${escHtml(nextWbs)}" placeholder="例: 01.1" class="w-full input-eng p-2 text-xs font-mono font-bold text-blue-800">
                             </div>
                             <div class="md:col-span-3">
-                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">分項工程名稱 *</label>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">子工項作業名稱 *</label>
                                 <input type="text" id="taskName-${project.id}" placeholder="如: 基礎擋土排樁施作" class="w-full input-eng p-2 text-xs">
                             </div>
-                            <div class="md:col-span-1">
-                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">契約金額 (NT$) *</label>
+                            <div class="md:col-span-2">
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">工項金額 (NT$) *</label>
                                 <input type="number" id="taskCost-${project.id}" placeholder="金額" class="w-full input-eng p-2 text-xs font-mono">
                             </div>
                             <div class="md:col-span-1">
-                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">工期 (天) *</label>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">工期(天)*</label>
                                 <input type="number" id="taskDuration-${project.id}" placeholder="天數" min="1" class="w-full input-eng p-2 text-xs font-mono">
+                            </div>
+                        </div>
+                        <!-- 若選擇「新增自訂主工項大類」時展開的輸入列 -->
+                        <div id="customMainCatWrap-${project.id}" class="hidden grid grid-cols-1 md:grid-cols-12 gap-2.5 p-2.5 bg-amber-50/70 border border-amber-300 rounded-lg">
+                            <div class="md:col-span-3">
+                                <label class="block text-[11px] font-bold text-amber-900 mb-0.5">新主工項代碼 *</label>
+                                <input type="text" id="newMainCatCode-${project.id}" placeholder="如: 18" class="w-full input-eng p-1.5 text-xs font-mono font-bold">
+                            </div>
+                            <div class="md:col-span-9">
+                                <label class="block text-[11px] font-bold text-amber-900 mb-0.5">新主工項名稱 (Level 1 大類標題) *</label>
+                                <input type="text" id="newMainCatName-${project.id}" placeholder="如: 拾捌、景觀植栽與戶外庭園工程" class="w-full input-eng p-1.5 text-xs font-bold">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-6 gap-2.5 pt-1">
                             <div class="md:col-span-3">
-                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">緊前分項工程 (依賴前置作業)</label>
+                                <label class="block text-[11px] font-bold text-gray-600 mb-0.5">緊前分項工程 (已自動預設接續上一項，可自由更改)</label>
                                 <select id="taskPred-${project.id}" class="w-full input-eng p-2 text-xs">
                                     ${predOptions}
                                 </select>
@@ -2084,7 +2533,7 @@
                         </div>
                         <div class="pt-1">
                            <button onclick="addTask('${project.id}')" class="w-full btn-eng-navy py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
-                               <i class="fas fa-check"></i> 新增工項並執行 CPM 要徑推算
+                               <i class="fas fa-check"></i> 新增子工項並自動執行 CPM 要徑推算
                            </button>
                         </div>
                     </div>
@@ -2097,8 +2546,8 @@
                 const placeholderText = progressForDate !== '' ? '修改進度' : '填入 %';
                 return `
                 <tr class="group hover:bg-blue-50/50">
-                    <td class="p-2.5 text-center font-mono text-xs font-bold text-gray-600 bg-gray-50/50">${task.wbsCode || ''}</td>
-                    <td class="p-2.5 font-bold text-gray-800">${task.taskName}</td>
+                    <td class="p-2.5 text-center font-mono text-xs font-bold text-gray-600 bg-gray-50/50">${escHtml(task.wbsCode || '')}</td>
+                    <td class="p-2.5 font-bold text-gray-800">${escHtml(task.taskName)}</td>
                     <td class="p-2.5 text-center font-mono font-bold text-amber-600" id="task-planned-progress-${task.id}">${getTaskPlannedProgress(task, asOfDate).toFixed(1)}%</td>
                     <td id="task-total-progress-${task.id}" class="p-2.5 text-center font-mono font-bold text-blue-700">${getTaskProgressAsOf(task, asOfDate).toFixed(1)}%</td>
                     <td class="p-2.5 text-center">
@@ -2205,7 +2654,7 @@
         function switchChartTab(button) {
             const tabName = button.dataset.tab;
             const projectId = button.dataset.projectId || currentModalProjectId;
-            ['planned', 'actual', 'comparison'].forEach(t => {
+            ['planned', 'actual', 'comparison', 'network'].forEach(t => {
                 const contentEl = document.getElementById(`tab-content-${t}`);
                 const btnEl = document.getElementById(`tab-btn-${t}`);
                 if (contentEl) contentEl.classList.add('hidden');
@@ -2265,6 +2714,7 @@
                 if (tabName === 'planned') drawPlannedCharts(project);
                 else if (tabName === 'actual') drawActualCharts(project, asOfDate);
                 else if (tabName === 'comparison') drawComparisonCharts(project, asOfDate);
+                else if (tabName === 'network') drawPdmNetworkChart(project);
             } catch (e) {
                 console.error("Chart drawing failed:", e);
                 showMessage("繪製圖表時發生錯誤，請檢查主控台紀錄。", "danger");
@@ -3451,6 +3901,248 @@
             });
         }
 
+
+        function renderPdmNetworkToCanvas(project, canvas) {
+            if (!canvas || !project || !project.tasks) return canvas;
+            calculateProjectCPM(project);
+            const taskMap = {};
+            const succMap = {};
+            project.tasks.forEach(t => { taskMap[t.id] = t; succMap[t.id] = []; });
+            project.tasks.forEach(t => {
+                (t.predecessors || []).forEach(p => {
+                    if (succMap[p.taskId]) {
+                        const lagN = parseInt(p.lag) || 0;
+                        const lagS = lagN > 0 ? `+${lagN}d` : (lagN < 0 ? `${lagN}d` : '');
+                        succMap[p.taskId].push(`${t.wbsCode || ''}(${p.type || 'FS'}${lagS})`);
+                    }
+                });
+            });
+
+            const critTasks = project.tasks.filter(t => t.isCritical).sort((a, b) => (a.es ?? 0) - (b.es ?? 0));
+            const nonCritTasks = project.tasks.filter(t => !t.isCritical).sort((a, b) => ((a.es ?? 0) - (b.es ?? 0)) || String(a.wbsCode).localeCompare(String(b.wbsCode)));
+
+            // 動態分階：每階段最多 6 個要徑節點，階段標題自動取該階段首尾要徑工項名稱 (100% 動態不寫死)
+            const perStage = 6;
+            const numStages = Math.max(1, Math.ceil(critTasks.length / perStage));
+            const stages = [];
+            for (let s = 0; s < numStages; s++) {
+                const sc = critTasks.slice(s * perStage, (s + 1) * perStage);
+                if (sc.length === 0) continue;
+                const minEs = sc[0].es ?? 0;
+                const nextEs = (s < numStages - 1 && critTasks[(s + 1) * perStage]) ? (critTasks[(s + 1) * perStage].es ?? 99999) : 99999;
+                const nc = nonCritTasks.filter(t => (t.es ?? 0) >= minEs && (t.es ?? 0) < nextEs);
+                const cFirstName = (sc[0].taskName || '').slice(0, 14);
+                const cLastName = (sc[sc.length - 1].taskName || '').slice(0, 14);
+                stages.push({
+                    title: `第 ${s + 1} 階段 (Stage ${s + 1})：[${sc[0].wbsCode}] ${cFirstName}… ──► [${sc[sc.length - 1].wbsCode}] ${cLastName}…`,
+                    crit: sc,
+                    upper: nc.filter((_, i) => i % 2 === 0).slice(0, 6),
+                    lower: nc.filter((_, i) => i % 2 === 1).slice(0, 6)
+                });
+            }
+
+            const W = 2400, H = Math.max(1050, 130 + stages.length * 422);
+            canvas.width = W;
+            canvas.height = H;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#F8FAFC';
+            ctx.fillRect(0, 0, W, H);
+
+            // Title Header Banner
+            ctx.fillStyle = '#0F172A';
+            ctx.fillRect(24, 18, W - 48, 78);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 24px "Microsoft JhengHei", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${project.name} — MS Project 標準 PDM 要徑邏輯網狀圖 (正交泳道無交叉節點圖)`, 44, 44);
+            ctx.fillStyle = '#94A3B8';
+            ctx.font = 'bold 14px "Microsoft JhengHei", sans-serif';
+            ctx.fillText(`總工期：${project.contractDuration || 280} 日曆天 (${project.startDate} ~ ${project.plannedCompletionDate}) ｜ 總工程費：NT$ ${formatCurrency(project.contractSum)} ｜ 共 ${project.tasks.length} 個節點 (${critTasks.length} 項要徑 TF=0 ＋ ${nonCritTasks.length} 項並聯浮時作業)`, 44, 74);
+
+            // Legend Boxes
+            ctx.fillStyle = '#FEF2F2'; ctx.strokeStyle = '#DC2626'; ctx.lineWidth = 2;
+            ctx.fillRect(W - 680, 28, 310, 56); ctx.strokeRect(W - 680, 28, 310, 56);
+            ctx.fillStyle = '#991B1B'; ctx.font = 'bold 13px "Microsoft JhengHei", sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('■ 紅色節點＋實線紅箭頭：要徑主幹 (TF=0)', W - 525, 46);
+            ctx.fillText('決定全案完工日之 100% 連續核心主幹', W - 525, 68);
+
+            ctx.fillStyle = '#EFF6FF'; ctx.strokeStyle = '#2563EB';
+            ctx.fillRect(W - 350, 28, 310, 56); ctx.strokeRect(W - 350, 28, 310, 56);
+            ctx.fillStyle = '#1E40AF';
+            ctx.fillText('■ 藍色節點＋正交垂直通道：並聯支線 (TF>0)', W - 195, 46);
+            ctx.fillText('正交對齊主幹道上下方，零斜線交叉干擾', W - 195, 68);
+
+            const boxW = 310, boxH = 92;
+
+            function drawArrow(x1, y1, x2, y2, color, lw, dashed) {
+                ctx.save();
+                ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw;
+                if (dashed) ctx.setLineDash([5, 4]);
+                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+                ctx.setLineDash([]);
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const headLen = 10;
+                ctx.beginPath();
+                ctx.moveTo(x2, y2);
+                ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+                ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+                ctx.closePath(); ctx.fill();
+                ctx.restore();
+            }
+
+            function drawNodeBox(t, cx, cy, w, h) {
+                const x0 = cx - w / 2, y0 = cy - h / 2;
+                const isC = !!t.isCritical;
+                const borderCol = isC ? '#DC2626' : '#2563EB';
+                const hdrBg = isC ? '#FEE2E2' : '#DBEAFE';
+                const footBg = isC ? '#FEF2F2' : '#EFF6FF';
+                const txtCol = isC ? '#7F1D1D' : '#1E3A8A';
+
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.30)';
+                ctx.fillRect(x0 + 3, y0 + 3, w, h);
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.strokeStyle = borderCol;
+                ctx.lineWidth = isC ? 2.5 : 1.8;
+                ctx.fillRect(x0, y0, w, h);
+
+                const hBar = Math.round(h * 0.28);
+                ctx.fillStyle = hdrBg; ctx.fillRect(x0, y0, w, hBar);
+                ctx.fillStyle = footBg; ctx.fillRect(x0, y0 + h - hBar, w, hBar);
+
+                ctx.strokeRect(x0, y0, w, h);
+                ctx.beginPath();
+                ctx.moveTo(x0, y0 + hBar); ctx.lineTo(x0 + w, y0 + hBar);
+                ctx.moveTo(x0, y0 + h - hBar); ctx.lineTo(x0 + w, y0 + h - hBar);
+                const w3 = w / 3;
+                ctx.moveTo(x0 + w3, y0); ctx.lineTo(x0 + w3, y0 + hBar);
+                ctx.moveTo(x0 + 2 * w3, y0); ctx.lineTo(x0 + 2 * w3, y0 + hBar);
+                ctx.moveTo(x0 + w3, y0 + h - hBar); ctx.lineTo(x0 + w3, y0 + h);
+                ctx.moveTo(x0 + 2 * w3, y0 + h - hBar); ctx.lineTo(x0 + 2 * w3, y0 + h);
+                ctx.stroke();
+
+                const esD = (t.es ?? 0) + 1;
+                const efD = t.ef ?? esD;
+                const lsD = (t.ls ?? 0) + 1;
+                const lfD = t.lf ?? efD;
+                const tfD = t.totalFloat ?? 0;
+
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.font = 'bold 11.5px "Microsoft JhengHei", sans-serif';
+                ctx.fillStyle = txtCol; ctx.fillText(`ES: D${esD}`, x0 + w3 * 0.5, y0 + hBar / 2);
+                ctx.fillStyle = isC ? '#B91C1C' : '#1D4ED8'; ctx.fillText(`工期: ${t.duration}天`, x0 + w3 * 1.5, y0 + hBar / 2);
+                ctx.fillStyle = txtCol; ctx.fillText(`EF: D${efD}`, x0 + w3 * 2.5, y0 + hBar / 2);
+
+                const shortName = (t.taskName || '').length > 17 ? t.taskName.slice(0, 16) + '…' : (t.taskName || '');
+                ctx.fillStyle = '#0F172A'; ctx.font = 'bold 13px "Microsoft JhengHei", sans-serif';
+                ctx.fillText(`[${t.wbsCode || ''}] ${shortName}`, cx, cy - 6);
+                ctx.fillStyle = '#475569'; ctx.font = '11.5px "Microsoft JhengHei", sans-serif';
+                const sShort = (t.plannedStartDate || '').slice(5).replace('-', '/');
+                const eShort = (t.plannedEndDate || '').slice(5).replace('-', '/');
+                ctx.fillText(`${sShort}~${eShort} ($${formatCurrency(t.taskCost)} / ${(t.weight || 0).toFixed(2)}%)`, cx, cy + 12);
+
+                ctx.font = 'bold 11.5px "Microsoft JhengHei", sans-serif';
+                ctx.fillStyle = '#475569'; ctx.fillText(`LS: D${lsD}`, x0 + w3 * 0.5, y0 + h - hBar / 2);
+                ctx.fillStyle = isC ? '#DC2626' : '#2563EB'; ctx.fillText(isC ? '★要徑 TF=0' : `浮時 +${tfD}天`, x0 + w3 * 1.5, y0 + h - hBar / 2);
+                ctx.fillStyle = '#475569'; ctx.fillText(`LF: D${lfD}`, x0 + w3 * 2.5, y0 + h - hBar / 2);
+            }
+
+            const stageH = 410;
+            stages.forEach((stg, sIdx) => {
+                const yTop = 112 + sIdx * 422;
+                ctx.fillStyle = sIdx % 2 === 0 ? '#F1F5F9' : '#FFFFFF';
+                ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 1.5;
+                ctx.fillRect(24, yTop, W - 48, stageH);
+                ctx.strokeRect(24, yTop, W - 48, stageH);
+
+                // Stage Header
+                ctx.fillStyle = '#1E293B';
+                ctx.fillRect(24, yTop, W - 48, 30);
+                ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 14px "Microsoft JhengHei", sans-serif';
+                ctx.textAlign = 'left';
+                const c0 = stg.crit[0], cLast = stg.crit[stg.crit.length - 1];
+                ctx.fillText(`■ ${stg.title} (D${(c0.es ?? 0) + 1} ~ D${cLast.ef ?? 1})`, 40, yTop + 15);
+
+                const ySpine = yTop + 215;
+                const yUpper = yTop + 88;
+                const yLower = yTop + 342;
+                const slotXs = [215, 595, 975, 1355, 1735, 2115];
+
+                // Draw Critical Spine Nodes & Horizontal Red Arrows
+                stg.crit.forEach((ct, i) => {
+                    const cx = slotXs[i] || (215 + i * 380);
+                    drawNodeBox(ct, cx, ySpine, boxW, boxH);
+                    if (i < stg.crit.length - 1) {
+                        const nx = slotXs[i + 1] || (215 + (i + 1) * 380);
+                        drawArrow(cx + boxW / 2, ySpine, nx - boxW / 2, ySpine, '#DC2626', 3.2, false);
+                        ctx.fillStyle = '#DC2626'; ctx.font = 'bold 11px "Microsoft JhengHei", sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('FS', (cx + nx) / 2, ySpine - 10);
+                    }
+                });
+
+                // Draw Upper Non-Critical Nodes & Orthogonal Vertical Stubs (NO diagonal crossing!)
+                stg.upper.forEach((ut, i) => {
+                    const cx = slotXs[i] || (215 + i * 380);
+                    drawNodeBox(ut, cx, yUpper, boxW, 84);
+                    // Orthogonal vertical connector down toward spine channel
+                    const yBoxBot = yUpper + 42;
+                    const ySpineTop = ySpine - boxH / 2;
+                    drawArrow(cx - 45, ySpineTop, cx - 45, yBoxBot, '#2563EB', 1.8, true);
+                    drawArrow(cx + 45, yBoxBot, cx + 45, ySpineTop, '#2563EB', 1.8, true);
+                    const pStr = (ut.predecessors || []).map(p => (taskMap[p.taskId]?.wbsCode || '')).join(',') || '起點';
+                    const sStr = (succMap[ut.id] || []).map(x => x.split('(')[0]).slice(0, 2).join(',') || '竣工';
+                    ctx.fillStyle = '#EFF6FF'; ctx.strokeStyle = '#93C5FD'; ctx.lineWidth = 1;
+                    ctx.fillRect(cx - 135, (yBoxBot + ySpineTop) / 2 - 10, 270, 20);
+                    ctx.strokeRect(cx - 135, (yBoxBot + ySpineTop) / 2 - 10, 270, 20);
+                    ctx.fillStyle = '#1D4ED8'; ctx.font = 'bold 11px "Microsoft JhengHei", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`▲ 前置:[${pStr}] ──► 後接:[${sStr}] ▼`, cx, (yBoxBot + ySpineTop) / 2);
+                });
+
+                // Draw Lower Non-Critical Nodes & Orthogonal Vertical Stubs
+                stg.lower.forEach((lt, i) => {
+                    const cx = slotXs[i] || (215 + i * 380);
+                    drawNodeBox(lt, cx, yLower, boxW, 84);
+                    const yBoxTop = yLower - 42;
+                    const ySpineBot = ySpine + boxH / 2;
+                    drawArrow(cx - 45, ySpineBot, cx - 45, yBoxTop, '#2563EB', 1.8, true);
+                    drawArrow(cx + 45, yBoxTop, cx + 45, ySpineBot, '#2563EB', 1.8, true);
+                    const pStr = (lt.predecessors || []).map(p => (taskMap[p.taskId]?.wbsCode || '')).join(',') || '起點';
+                    const sStr = (succMap[lt.id] || []).map(x => x.split('(')[0]).slice(0, 2).join(',') || '竣工';
+                    ctx.fillStyle = '#EFF6FF'; ctx.strokeStyle = '#93C5FD'; ctx.lineWidth = 1;
+                    ctx.fillRect(cx - 135, (yBoxTop + ySpineBot) / 2 - 10, 270, 20);
+                    ctx.strokeRect(cx - 135, (yBoxTop + ySpineBot) / 2 - 10, 270, 20);
+                    ctx.fillStyle = '#1D4ED8'; ctx.font = 'bold 11px "Microsoft JhengHei", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`▼ 前置:[${pStr}] ──► 後接:[${sStr}] ▲`, cx, (yBoxTop + ySpineBot) / 2);
+                });
+            });
+
+            return canvas;
+        }
+
+        function drawPdmNetworkChart(project) {
+            const canvas = document.getElementById('pdmNetworkCanvas');
+            if (!canvas) return;
+            renderPdmNetworkToCanvas(project, canvas);
+        }
+
+        function downloadPdmNetworkPNG() {
+            const project = projects.find(p => p.id === currentModalProjectId) || projects[0];
+            if (!project) return;
+            const offCanvas = document.createElement('canvas');
+            renderPdmNetworkToCanvas(project, offCanvas);
+            const a = document.createElement('a');
+            a.href = offCanvas.toDataURL('image/png');
+            a.download = `NOVERA_${project.name}_PDM要徑邏輯網狀圖_AON節點圖.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showMessage('高解析 PDM 要徑邏輯網狀圖 (PNG) 已成功下載！', 'success');
+        }
+
         async function exportProjectToExcel(button) {
             const projectId = (button && button.dataset && button.dataset.projectId) || currentModalProjectId;
             const project = projects.find(p => p.id === projectId);
@@ -3551,7 +4243,7 @@
                     right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
                 };
 
-                const fTitle = { name: FONT_FAMILY, size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+                const fTitle = { name: FONT_FAMILY, size: 12.5, bold: true, color: { argb: 'FFFFFFFF' } };
                 const fSubtitle = { name: FONT_FAMILY, size: 9.5, bold: false, color: { argb: 'FFE2E8F0' } };
                 const fTblHdr = { name: FONT_FAMILY, size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
                 const fTblHdrDark = { name: FONT_FAMILY, size: 9.5, bold: true, color: { argb: 'FF0E1B2E' } };
@@ -3598,11 +4290,27 @@
                     pageSetup: { paperSize: 8, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 1 }
                 });
 
-                const maxCol01 = 12 + nDays;
-                const totalRow01 = 5 + nTasks;
+                // 整理主工項 (Main WBS Level 1) 與子工項 (Subtask Level 2) 階層結構
+                const wbsGroups = [];
+                const wbsGroupMap = {};
+                project.tasks.forEach(t => {
+                    const { catCode, catName } = getTaskMainWbsInfo(t, project);
+                    if (!wbsGroupMap[catCode]) {
+                        wbsGroupMap[catCode] = {
+                            catCode,
+                            catName,
+                            tasks: []
+                        };
+                        wbsGroups.push(wbsGroupMap[catCode]);
+                    }
+                    wbsGroupMap[catCode].tasks.push(t);
+                });
 
-                ws01.getRow(1).height = 28;
-                ws01.getRow(2).height = 20;
+                const maxCol01 = 12 + nDays;
+                const totalRow01 = 5 + nTasks + wbsGroups.length;
+
+                ws01.getRow(1).height = 34;
+                ws01.getRow(2).height = 26;
                 ws01.getRow(3).height = 6;
 
                 ws01.mergeCells(1, 1, 1, 11);
@@ -3696,92 +4404,237 @@
                     ws01.getColumn(col).width = 4.2;
                 });
 
-                // 工項資料列與逐日甘特圖色塊
-                project.tasks.forEach((task, idx) => {
-                    const rowNum = 5 + idx;
-                    const rowObj = ws01.getRow(rowNum);
-                    rowObj.height = 20;
+                // 主工項 (Level 1 Summary) 與子工項 (Level 2 Child) 資料列及逐日甘特圖色塊
+                const fillMainRow = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+                const fillMainSpan = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFCBD5E1' } };
+                const fillMainActive = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF334155' } };
+                const fMainGold = { name: FONT_FAMILY, size: 9.5, bold: true, color: { argb: 'FFFCD34D' } };
+                const fMainWhite = { name: FONT_FAMILY, size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+                const fMainBar = { name: FONT_FAMILY, size: 7, bold: true, color: { argb: 'FFFCD34D' } };
 
-                    const cost = parseFloat(task.taskCost) || 0;
-                    const dur = parseInt(task.duration) || 1;
-                    const tf = task.totalFloat ?? 0;
-                    const isCrit = !!task.isCritical;
-                    const statusStr = isCrit ? '[要徑] TF=0' : `浮時+${tf}天`;
+                let curExcelRow = 5;
+                let flatSubIdx = 0;
+                const mainRowNumbers = [];
 
-                    let predsStr = '首工項 (無)';
-                    if (task.predecessors && task.predecessors.length > 0) {
-                        predsStr = task.predecessors.map(p => {
-                            const pt = taskMap[p.taskId];
-                            const code = pt ? (pt.wbsCode || pt.taskName) : '未知';
-                            const lag = p.lag ? (p.lag > 0 ? `+${p.lag}d` : `${p.lag}d`) : '';
-                            return `${code}(${p.type || 'FS'}${lag})`;
-                        }).join('; ');
-                    }
+                wbsGroups.forEach((grp) => {
+                    const mainRowNum = curExcelRow++;
+                    mainRowNumbers.push(mainRowNum);
+                    const firstSubRow = curExcelRow;
+                    const lastSubRow = curExcelRow + grp.tasks.length - 1;
 
-                    const esStr = task.plannedStartDate || '';
-                    const efStr = task.plannedEndDate || '';
-                    const lsStr = task.lateStartDate || esStr;
-                    const lfStr = task.lateEndDate || efStr;
+                    const grpCost = grp.tasks.reduce((s, t) => s + (parseFloat(t.taskCost) || 0), 0);
+                    const grpWeight = totalCost > 0 ? (grpCost / totalCost) : 0;
+                    const grpMinEs = grp.tasks.reduce((m, t) => (!m || (t.plannedStartDate && t.plannedStartDate < m)) ? t.plannedStartDate : m, null) || startDateStr;
+                    const grpMaxEf = grp.tasks.reduce((m, t) => (!m || (t.plannedEndDate && t.plannedEndDate > m)) ? t.plannedEndDate : m, null) || endDateStr;
+                    const grpMinLs = grp.tasks.reduce((m, t) => (!m || (t.lateStartDate && t.lateStartDate < m)) ? t.lateStartDate : m, null) || grpMinEs;
+                    const grpMaxLf = grp.tasks.reduce((m, t) => (!m || (t.lateEndDate && t.lateEndDate > m)) ? t.lateEndDate : m, null) || grpMaxEf;
+                    const grpMinEsNum = Math.min(...grp.tasks.map(t => t.es ?? 0));
+                    const grpMaxEfNum = Math.max(...grp.tasks.map(t => t.ef ?? 1));
+                    const grpSpanDays = Math.max(1, grpMaxEfNum - grpMinEsNum);
+                    const grpCritCount = grp.tasks.filter(t => t.isCritical).length;
+                    const grpMinTf = Math.min(...grp.tasks.map(t => t.totalFloat ?? 0));
 
-                    rowObj.getCell(1).value = task.wbsCode || `${idx + 1}`;
-                    rowObj.getCell(2).value = task.taskName || '';
-                    rowObj.getCell(3).value = cost;
-                    rowObj.getCell(3).numFmt = '#,##0';
-                    rowObj.getCell(4).value = { formula: `C${rowNum}/$C$${totalRow01}`, result: totalCost > 0 ? cost / totalCost : 0 };
-                    rowObj.getCell(4).numFmt = '0.00%';
-                    rowObj.getCell(5).value = dur;
-                    rowObj.getCell(6).value = predsStr;
-                    rowObj.getCell(7).value = esStr;
-                    rowObj.getCell(8).value = efStr;
-                    rowObj.getCell(9).value = lsStr;
-                    rowObj.getCell(10).value = lfStr;
-                    rowObj.getCell(11).value = tf;
-                    rowObj.getCell(12).value = statusStr;
+                    const mRow = ws01.getRow(mainRowNum);
+                    mRow.height = 22;
+                    mRow.getCell(1).value = grp.catCode;
+                    mRow.getCell(2).value = `📁 【主工項 ${grp.catCode}】${grp.catName}（共 ${grp.tasks.length} 項子工項）`;
+                    mRow.getCell(3).value = { formula: `SUM(C${firstSubRow}:C${lastSubRow})`, result: grpCost };
+                    mRow.getCell(3).numFmt = '#,##0';
+                    mRow.getCell(4).value = { formula: `SUM(D${firstSubRow}:D${lastSubRow})`, result: grpWeight };
+                    mRow.getCell(4).numFmt = '0.00%';
+                    mRow.getCell(5).value = grpSpanDays;
+                    mRow.getCell(6).value = `統括 ${grp.tasks.length} 子工項`;
+                    mRow.getCell(7).value = grpMinEs;
+                    mRow.getCell(8).value = grpMaxEf;
+                    mRow.getCell(9).value = grpMinLs;
+                    mRow.getCell(10).value = grpMaxLf;
+                    mRow.getCell(11).value = grpMinTf;
+                    mRow.getCell(12).value = grpCritCount > 0 ? `★含要徑(${grpCritCount}項)` : '非要徑群組';
 
-                    const baseFill = isCrit ? fillSoftRed : (idx % 2 === 0 ? fillWhite : fillZebra);
                     for (let c = 1; c <= 12; c++) {
-                        const cell = rowObj.getCell(c);
-                        cell.fill = baseFill;
+                        const cell = mRow.getCell(c);
+                        cell.fill = fillMainRow;
                         cell.border = borderData;
-                        cell.font = fData;
+                        cell.font = (c === 1 || c === 2 || c === 3 || c === 12) ? fMainGold : fMainWhite;
                         cell.alignment = (c === 2) ? alLeft : ((c === 3 || c === 4) ? alRight : alCenter);
                     }
-                    rowObj.getCell(1).font = fDataBold;
-                    rowObj.getCell(2).font = fDataBold;
-                    rowObj.getCell(3).font = fDataBlue;
-                    rowObj.getCell(12).font = isCrit ? fDataRed : fDataBlue;
 
-                    const emptyFill = (idx % 2 === 0) ? fillWhite : fillZebra;
-                    const activeFill = isCrit ? fillGanttCrit : fillGanttNonCrit;
-
+                    // 主工項甘特圖統括連續橫條 (Continuous Summary Bar)
                     for (let dIdx = 0; dIdx < nDays; dIdx++) {
                         const col = 13 + dIdx;
-                        const dStr = dailyRows[dIdx].dateStr;
-                        const cCell = rowObj.getCell(col);
+                        const cCell = mRow.getCell(col);
                         cCell.border = borderData;
                         cCell.alignment = alCenter;
-                        if (esStr <= dStr && dStr <= efStr) {
-                            cCell.fill = activeFill;
-                            cCell.value = 1;
-                            cCell.font = fontBarActive;
-                        } else if (tf > 0 && efStr < dStr && dStr <= lfStr) {
-                            cCell.fill = fillGanttFloat;
-                            cCell.value = '+';
-                            cCell.font = fontBarFloat;
-                        } else {
+                        cCell.fill = fillSlateSub;
+                    }
+                    const mStartIdx = dailyRows.findIndex(r => r.dateStr >= grpMinEs && r.dateStr <= grpMaxEf);
+                    let mEndIdx = -1;
+                    for (let i = dailyRows.length - 1; i >= 0; i--) {
+                        if (dailyRows[i].dateStr >= grpMinEs && dailyRows[i].dateStr <= grpMaxEf) { mEndIdx = i; break; }
+                    }
+                    if (mStartIdx !== -1 && mEndIdx >= mStartIdx) {
+                        const mStartCol = 13 + mStartIdx;
+                        const mEndCol = 13 + mEndIdx;
+                        const mSpan = mEndCol - mStartCol + 1;
+                        if (mEndCol > mStartCol) {
+                            ws01.mergeCells(mainRowNum, mStartCol, mainRowNum, mEndCol);
+                        }
+                        const mBarBorder = {
+                            top: { style: 'medium', color: { argb: 'FFF59E0B' } },
+                            bottom: { style: 'medium', color: { argb: 'FFF59E0B' } },
+                            left: { style: 'medium', color: { argb: 'FFF59E0B' } },
+                            right: { style: 'medium', color: { argb: 'FFF59E0B' } }
+                        };
+                        styleRect(ws01, mStartCol, mainRowNum, mEndCol, mainRowNum, {
+                            fill: fillMainActive,
+                            border: mBarBorder,
+                            font: { name: FONT_FAMILY, size: 8, bold: true, color: { argb: 'FFFCD34D' } },
+                            alignment: { horizontal: 'center', vertical: 'middle', wrapText: false }
+                        });
+                        mRow.getCell(mStartCol).value = mSpan >= 6 ? `【主階段 ${grp.catCode}】共 ${grpSpanDays} 天` : (mSpan >= 2 ? `${grpSpanDays}d` : '');
+                    }
+
+                    // 寫入該主工項底下的子工項 (Level 2 Child Rows)
+                    grp.tasks.forEach((task, sIdx) => {
+                        const rowNum = curExcelRow++;
+                        const idx = flatSubIdx++;
+                        const rowObj = ws01.getRow(rowNum);
+                        rowObj.height = 20;
+                        rowObj.outlineLevel = 1;
+
+                        const isLastSub = (sIdx === grp.tasks.length - 1);
+                        const branchPrefix = isLastSub ? '   └─ ' : '   ├─ ';
+                        const cost = parseFloat(task.taskCost) || 0;
+                        const dur = parseInt(task.duration) || 1;
+                        const tf = task.totalFloat ?? 0;
+                        const isCrit = !!task.isCritical;
+                        const statusStr = isCrit ? '[要徑] TF=0' : `浮時+${tf}天`;
+
+                        let predsStr = '首工項 (無)';
+                        if (task.predecessors && task.predecessors.length > 0) {
+                            predsStr = task.predecessors.map(p => {
+                                const pt = taskMap[p.taskId];
+                                const code = pt ? (pt.wbsCode || pt.taskName) : '未知';
+                                const lag = p.lag ? (p.lag > 0 ? `+${p.lag}d` : `${p.lag}d`) : '';
+                                return `${code}(${p.type || 'FS'}${lag})`;
+                            }).join('; ');
+                        }
+
+                        const esStr = task.plannedStartDate || '';
+                        const efStr = task.plannedEndDate || '';
+                        const lsStr = task.lateStartDate || esStr;
+                        const lfStr = task.lateEndDate || efStr;
+
+                        rowObj.getCell(1).value = `  ${task.wbsCode || (idx + 1)}`;
+                        rowObj.getCell(2).value = `${branchPrefix}${task.taskName || ''}`;
+                        rowObj.getCell(3).value = cost;
+                        rowObj.getCell(3).numFmt = '#,##0';
+                        rowObj.getCell(4).value = { formula: `C${rowNum}/$C$${totalRow01}`, result: totalCost > 0 ? cost / totalCost : 0 };
+                        rowObj.getCell(4).numFmt = '0.00%';
+                        rowObj.getCell(5).value = dur;
+                        rowObj.getCell(6).value = predsStr;
+                        rowObj.getCell(7).value = esStr;
+                        rowObj.getCell(8).value = efStr;
+                        rowObj.getCell(9).value = lsStr;
+                        rowObj.getCell(10).value = lfStr;
+                        rowObj.getCell(11).value = tf;
+                        rowObj.getCell(12).value = statusStr;
+
+                        const baseFill = isCrit ? fillSoftRed : (idx % 2 === 0 ? fillWhite : fillZebra);
+                        for (let c = 1; c <= 12; c++) {
+                            const cell = rowObj.getCell(c);
+                            cell.fill = baseFill;
+                            cell.border = borderData;
+                            cell.font = fData;
+                            cell.alignment = (c === 2) ? alLeft : ((c === 3 || c === 4) ? alRight : alCenter);
+                        }
+                        rowObj.getCell(1).font = fDataBold;
+                        rowObj.getCell(2).font = fDataBold;
+                        rowObj.getCell(3).font = fDataBlue;
+                        rowObj.getCell(12).font = isCrit ? fDataRed : fDataBlue;
+
+                        const emptyFill = (idx % 2 === 0) ? fillWhite : fillZebra;
+                        const activeFill = isCrit ? fillGanttCrit : fillGanttNonCrit;
+
+                        for (let dIdx = 0; dIdx < nDays; dIdx++) {
+                            const col = 13 + dIdx;
+                            const cCell = rowObj.getCell(col);
+                            cCell.border = borderData;
+                            cCell.alignment = alCenter;
                             cCell.fill = emptyFill;
                         }
-                    }
+
+                        // 連續實心工期長條 (Merged Continuous Task Bar)
+                        const actStartIdx = dailyRows.findIndex(r => r.dateStr >= esStr && r.dateStr <= efStr);
+                        let actEndIdx = -1;
+                        for (let i = dailyRows.length - 1; i >= 0; i--) {
+                            if (dailyRows[i].dateStr >= esStr && dailyRows[i].dateStr <= efStr) { actEndIdx = i; break; }
+                        }
+                        if (actStartIdx !== -1 && actEndIdx >= actStartIdx) {
+                            const actStartCol = 13 + actStartIdx;
+                            const actEndCol = 13 + actEndIdx;
+                            const actSpan = actEndCol - actStartCol + 1;
+                            if (actEndCol > actStartCol) {
+                                ws01.mergeCells(rowNum, actStartCol, rowNum, actEndCol);
+                            }
+                            const barBorderClr = isCrit ? 'FF991B1B' : 'FF1E3A8A';
+                            const barBorder = {
+                                top: { style: 'medium', color: { argb: barBorderClr } },
+                                bottom: { style: 'medium', color: { argb: barBorderClr } },
+                                left: { style: 'medium', color: { argb: barBorderClr } },
+                                right: { style: 'medium', color: { argb: barBorderClr } }
+                            };
+                            styleRect(ws01, actStartCol, rowNum, actEndCol, rowNum, {
+                                fill: activeFill,
+                                border: barBorder,
+                                font: { name: FONT_FAMILY, size: 8, bold: true, color: { argb: 'FFFFFFFF' } },
+                                alignment: { horizontal: 'center', vertical: 'middle', wrapText: false }
+                            });
+                            rowObj.getCell(actStartCol).value = actSpan >= 5 ? `${task.wbsCode || ''} (${dur}d)` : (actSpan >= 2 ? `${dur}d` : '1');
+                        }
+
+                        // 連續浮時緩衝長條 (Merged Continuous Float Buffer Bar)
+                        if (tf > 0 && lfStr > efStr) {
+                            const fltStartIdx = dailyRows.findIndex(r => r.dateStr > efStr && r.dateStr <= lfStr);
+                            let fltEndIdx = -1;
+                            for (let i = dailyRows.length - 1; i >= 0; i--) {
+                                if (dailyRows[i].dateStr > efStr && dailyRows[i].dateStr <= lfStr) { fltEndIdx = i; break; }
+                            }
+                            if (fltStartIdx !== -1 && fltEndIdx >= fltStartIdx) {
+                                const fltStartCol = 13 + fltStartIdx;
+                                const fltEndCol = 13 + fltEndIdx;
+                                const fltSpan = fltEndCol - fltStartCol + 1;
+                                if (fltEndCol > fltStartCol) {
+                                    ws01.mergeCells(rowNum, fltStartCol, rowNum, fltEndCol);
+                                }
+                                const fltBorder = {
+                                    top: { style: 'dashed', color: { argb: 'FFD97706' } },
+                                    bottom: { style: 'dashed', color: { argb: 'FFD97706' } },
+                                    left: { style: 'thin', color: { argb: 'FFD97706' } },
+                                    right: { style: 'dashed', color: { argb: 'FFD97706' } }
+                                };
+                                styleRect(ws01, fltStartCol, rowNum, fltEndCol, rowNum, {
+                                    fill: fillGanttFloat,
+                                    border: fltBorder,
+                                    font: { name: FONT_FAMILY, size: 7.5, bold: true, color: { argb: 'FF92400E' } },
+                                    alignment: { horizontal: 'center', vertical: 'middle', wrapText: false }
+                                });
+                                rowObj.getCell(fltStartCol).value = fltSpan >= 2 ? `+${tf}d` : '+';
+                            }
+                        }
+                    });
                 });
 
-                // 合計列
+                // 合計列 (僅加總各主工項小計列，避免主工項與子工項重複加總)
+                const mainCostFormula = mainRowNumbers.length > 0 ? mainRowNumbers.map(r => `C${r}`).join('+') : '0';
+                const mainWeightFormula = mainRowNumbers.length > 0 ? mainRowNumbers.map(r => `D${r}`).join('+') : '0';
                 const totRowObj = ws01.getRow(totalRow01);
                 totRowObj.height = 24;
                 totRowObj.getCell(1).value = '合計';
-                totRowObj.getCell(2).value = `共 ${nTasks} 個分項工程詳細作業（${critCount} 項要徑作業 / ${nonCritCount} 項非要徑浮時作業）`;
-                totRowObj.getCell(3).value = { formula: `SUM(C5:C${totalRow01 - 1})`, result: totalCost };
+                totRowObj.getCell(2).value = `共 ${wbsGroups.length} 大主工項 / ${nTasks} 項子工項詳細作業（${critCount} 項要徑子工項 / ${nonCritCount} 項非要徑浮時子工項）`;
+                totRowObj.getCell(3).value = { formula: mainCostFormula, result: totalCost };
                 totRowObj.getCell(3).numFmt = '#,##0';
-                totRowObj.getCell(4).value = { formula: `SUM(D5:D${totalRow01 - 1})`, result: 1 };
+                totRowObj.getCell(4).value = { formula: mainWeightFormula, result: 1 };
                 totRowObj.getCell(4).numFmt = '0.00%';
                 totRowObj.getCell(5).value = nDays;
                 totRowObj.getCell(6).value = '-';
@@ -3872,18 +4725,18 @@
                     pageSetup: { paperSize: 8, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 1 }
                 });
 
-                ws02.mergeCells('A1:G1');
-                ws02.mergeCells('A2:G2');
-                ws02.mergeCells('H1:I2');
+                ws02.mergeCells('A1:H1');
+                ws02.mergeCells('A2:H2');
+                ws02.mergeCells('I1:I2');
                 ws02.getCell(1, 1).value = `【NOVERA 諾維拉工程顧問】雙包絡香蕉 S-Curve ${nDays}天逐日動態圖表 ＆ 里程碑查核看板 (${nTasks}項WBS精算版)`;
                 ws02.getCell(2, 1).value = `工程標案：${project.name} ｜ 工期：${startDateStr} ~ ${endDateStr} (${nDays}天逐日精算) ｜ 契約總額：NT$ ${formatCurrency(contractSum)}`;
-                ws02.getCell(1, 8).value = `${nDays}天逐日動態圖表\n＋ ${nTasks}項詳細工序`;
+                ws02.getCell(1, 9).value = `${nDays}天逐日動態圖表\n＋ ${nTasks}項詳細工序`;
                 styleRect(ws02, 1, 1, 9, 2, { font: fTitle, fill: fillNavy, alignment: alLeft });
                 ws02.getCell(2, 1).font = fSubtitle;
-                ws02.getCell(1, 8).font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFD97706' } };
-                ws02.getCell(1, 8).alignment = alCenter;
-                ws02.getRow(1).height = 28;
-                ws02.getRow(2).height = 20;
+                ws02.getCell(1, 9).font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFD97706' } };
+                ws02.getCell(1, 9).alignment = alCenter;
+                ws02.getRow(1).height = 34;
+                ws02.getRow(2).height = 26;
                 ws02.getRow(3).height = 8;
 
                 ws02.mergeCells('A4:I4');
@@ -3916,7 +4769,8 @@
                 milestoneList.forEach((mItem, idx) => {
                     const r = 6 + idx;
                     const rowObj = ws02.getRow(r);
-                    rowObj.height = 24;
+                    const estLines02 = Math.max(1, Math.ceil(String(mItem.focusNote || '').length / 32));
+                    rowObj.height = Math.max(26, estLines02 * 16 + 8);
                     const pvE = Math.round(contractSum * mItem.esPct);
                     const pvL = Math.round(contractSum * mItem.lsPct);
 
@@ -3999,8 +4853,8 @@
                 ws03.getCell(2, 1).font = fSubtitle;
                 ws03.getCell(1, 8).font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFD97706' } };
                 ws03.getCell(1, 8).alignment = alCenter;
-                ws03.getRow(1).height = 28;
-                ws03.getRow(2).height = 20;
+                ws03.getRow(1).height = 34;
+                ws03.getRow(2).height = 26;
                 ws03.getRow(3).height = 6;
 
                 const headers03 = [
@@ -4091,8 +4945,8 @@
                 ws04.getCell(2, 1).font = fSubtitle;
                 ws04.getCell(1, 4).font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FFD97706' } };
                 ws04.getCell(1, 4).alignment = alCenter;
-                ws04.getRow(1).height = 28;
-                ws04.getRow(2).height = 20;
+                ws04.getRow(1).height = 34;
+                ws04.getRow(2).height = 26;
                 ws04.getRow(3).height = 6;
 
                 const headers04 = ['管考維度', '管考指標項目', '數值 / 內容', '工程規範說明與判定基準'];
@@ -4136,7 +4990,8 @@
                 evmRows.forEach((rData, idx) => {
                     const r = 5 + idx;
                     const rowObj = ws04.getRow(r);
-                    rowObj.height = 22;
+                    const maxLen04 = Math.max(String(rData[2] || '').length, String(rData[3] || '').length);
+                    rowObj.height = Math.max(26, Math.ceil(maxLen04 / 24) * 16 + 8);
                     rData.forEach((val, cIdx) => {
                         rowObj.getCell(cIdx + 1).value = val;
                     });
@@ -4148,8 +5003,267 @@
                     rowObj.getCell(3).font = fDataBlue;
                 });
 
-                const widths04 = [20, 30, 42, 58];
+                const widths04 = [22, 32, 54, 62];
                 widths04.forEach((w, i) => { ws04.getColumn(i + 1).width = w; });
+
+                // =========================================================================
+                // Sheet 5: 05_PDM要徑邏輯網狀圖 (100% Excel 原生儲存格繪製 AON 六格節點盒與正交邏輯通道)
+                // =========================================================================
+                const ws05 = wb.addWorksheet('05_PDM要徑邏輯網狀圖', {
+                    views: [{ showGridLines: true }],
+                    pageSetup: { paperSize: 8, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 1 }
+                });
+
+                // 設定 24 欄寬度：Col A 為泳道標籤，接著 6 個節點槽位 (每槽 3 欄寬 11.5 + 1 欄箭頭通道寬 7.5)
+                ws05.getColumn(1).width = 16;
+                for (let i = 0; i < 6; i++) {
+                    const c1 = 2 + i * 4;
+                    ws05.getColumn(c1).width = 11.5;
+                    ws05.getColumn(c1 + 1).width = 11.5;
+                    ws05.getColumn(c1 + 2).width = 11.5;
+                    if (i < 5) ws05.getColumn(c1 + 3).width = 7.5;
+                }
+
+                ws05.mergeCells('A1:X1');
+                ws05.mergeCells('A2:X2');
+                ws05.getCell(1, 1).value = `【MS Project 標準 PDM 要徑邏輯網狀圖】${project.name} — 100% Excel 原生儲存格繪製 AON 節點圖`;
+                ws05.getCell(2, 1).value = `【圖例】🟥 紅框節點＋紅箭頭 (══►)：要徑主幹 (TF=0，共${critCount}項連續無斷點) ｜ 🟦 藍框節點＋正交通道 (▲/▼)：並聯浮時支線 (TF>0，共${nonCritCount}項) ｜ 每個節點由 3×3 原生儲存格構成`;
+                styleRect(ws05, 1, 1, 24, 2, { font: fTitle, fill: fillNavy, alignment: alLeft });
+                ws05.getCell(2, 1).font = fSubtitle;
+                ws05.getRow(1).height = 34;
+                ws05.getRow(2).height = 26;
+
+                // 建立緊後作業對照表供通道標籤顯示
+                const succStrMap = {};
+                project.tasks.forEach(t => { succStrMap[t.id] = []; });
+                project.tasks.forEach(t => {
+                    (t.predecessors || []).forEach(p => {
+                        if (succStrMap[p.taskId]) {
+                            const lagN = parseInt(p.lag) || 0;
+                            const lagS = lagN > 0 ? `+${lagN}d` : (lagN < 0 ? `${lagN}d` : '');
+                            succStrMap[p.taskId].push(`${t.wbsCode || ''}(${p.type || 'FS'}${lagS})`);
+                        }
+                    });
+                });
+
+                const critSorted = project.tasks.filter(t => t.isCritical).sort((a, b) => (a.es ?? 0) - (b.es ?? 0));
+                const nonCritSorted = project.tasks.filter(t => !t.isCritical).sort((a, b) => ((a.es ?? 0) - (b.es ?? 0)) || String(a.wbsCode).localeCompare(String(b.wbsCode)));
+                const perStg = 6;
+                const numStgs = Math.max(1, Math.ceil(critSorted.length / perStg));
+                const pdmStages = [];
+                for (let s = 0; s < numStgs; s++) {
+                    const sc = critSorted.slice(s * perStg, (s + 1) * perStg);
+                    if (sc.length === 0) continue;
+                    const minEs = sc[0].es ?? 0;
+                    const nextEs = (s < numStgs - 1 && critSorted[(s + 1) * perStg]) ? (critSorted[(s + 1) * perStg].es ?? 99999) : 99999;
+                    const nc = nonCritSorted.filter(t => (t.es ?? 0) >= minEs && (t.es ?? 0) < nextEs);
+                    const cFirstName = (sc[0].taskName || '').slice(0, 14);
+                    const cLastName = (sc[sc.length - 1].taskName || '').slice(0, 14);
+                    pdmStages.push({
+                        title: `第 ${s + 1} 階段 (Stage ${s + 1})：[${sc[0].wbsCode}] ${cFirstName}… ──► [${sc[sc.length - 1].wbsCode}] ${cLastName}…`,
+                        crit: sc,
+                        upper: nc.filter((_, i) => i % 2 === 0).slice(0, 6),
+                        lower: nc.filter((_, i) => i % 2 === 1).slice(0, 6)
+                    });
+                }
+
+                function drawNativeAonBox(rTop, cLeft, t) {
+                    const isC = !!t.isCritical;
+                    const outerSide = { style: 'medium', color: { argb: isC ? 'FFDC2626' : 'FF2563EB' } };
+                    const innerSide = { style: 'thin', color: { argb: isC ? 'FFFCA5A5' : 'FF93C5FD' } };
+                    const hdrFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: isC ? 'FFFEE2E2' : 'FFDBEAFE' } };
+                    const bodyFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+                    const footFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: isC ? 'FFFEF2F2' : 'FFEFF6FF' } };
+
+                    const fHdr = { name: FONT_FAMILY, size: 8.5, bold: true, color: { argb: isC ? 'FF991B1B' : 'FF1E3A8A' } };
+                    const fDur = { name: FONT_FAMILY, size: 9, bold: true, color: { argb: isC ? 'FFDC2626' : 'FF1D4ED8' } };
+                    const fBody = { name: FONT_FAMILY, size: 9, bold: true, color: { argb: 'FF0F172A' } };
+                    const fFoot = { name: FONT_FAMILY, size: 8.5, bold: false, color: { argb: 'FF475569' } };
+                    const fTf = { name: FONT_FAMILY, size: 8.5, bold: true, color: { argb: isC ? 'FFDC2626' : 'FF2563EB' } };
+
+                    const esD = (t.es ?? 0) + 1;
+                    const efD = t.ef ?? esD;
+                    const lsD = (t.ls ?? 0) + 1;
+                    const lfD = t.lf ?? efD;
+                    const tfD = t.totalFloat ?? 0;
+
+                    const c1 = cLeft, c2 = cLeft + 1, c3 = cLeft + 2;
+                    ws05.getCell(rTop, c1).value = `ES: D${esD}`;
+                    ws05.getCell(rTop, c2).value = `工期: ${t.duration}天`;
+                    ws05.getCell(rTop, c3).value = `EF: D${efD}`;
+                    [c1, c2, c3].forEach((c, idx) => {
+                        const cell = ws05.getCell(rTop, c);
+                        cell.font = idx === 1 ? fDur : fHdr;
+                        cell.fill = hdrFill;
+                        cell.alignment = alCenter;
+                    });
+
+                    ws05.mergeCells(rTop + 1, c1, rTop + 1, c3);
+                    const sName = (t.taskName || '').length > 13 ? t.taskName.slice(0, 12) + '…' : (t.taskName || '');
+                    const sShort = (t.plannedStartDate || '').slice(5).replace('-', '/');
+                    const eShort = (t.plannedEndDate || '').slice(5).replace('-', '/');
+                    ws05.getCell(rTop + 1, c1).value = `[${t.wbsCode || ''}] ${sName}
+${sShort}~${eShort} ($${formatCurrency(t.taskCost)} / ${(t.weight || 0).toFixed(2)}%)`;
+                    [c1, c2, c3].forEach(c => {
+                        const cell = ws05.getCell(rTop + 1, c);
+                        cell.font = fBody;
+                        cell.fill = bodyFill;
+                        cell.alignment = alCenter;
+                    });
+
+                    ws05.getCell(rTop + 2, c1).value = `LS: D${lsD}`;
+                    ws05.getCell(rTop + 2, c2).value = isC ? '★要徑 TF=0' : `浮時 +${tfD}天`;
+                    ws05.getCell(rTop + 2, c3).value = `LF: D${lfD}`;
+                    [c1, c2, c3].forEach((c, idx) => {
+                        const cell = ws05.getCell(rTop + 2, c);
+                        cell.font = idx === 1 ? fTf : fFoot;
+                        cell.fill = footFill;
+                        cell.alignment = alCenter;
+                    });
+
+                    for (let dr = 0; dr < 3; dr++) {
+                        for (let dc = 0; dc < 3; dc++) {
+                            ws05.getCell(rTop + dr, cLeft + dc).border = {
+                                top: dr === 0 ? outerSide : innerSide,
+                                bottom: dr === 2 ? outerSide : innerSide,
+                                left: dc === 0 ? outerSide : innerSide,
+                                right: dc === 2 ? outerSide : innerSide
+                            };
+                        }
+                    }
+                }
+
+                let curR05 = 4;
+                pdmStages.forEach((stg, sIdx) => {
+                    const hasUp = stg.upper.length > 0;
+                    const hasLow = stg.lower.length > 0;
+                    const c0 = stg.crit[0], cLast = stg.crit[stg.crit.length - 1];
+
+                    // 階段標題列
+                    ws05.mergeCells(curR05, 1, curR05, 24);
+                    ws05.getCell(curR05, 1).value = `■ ${stg.title} (Day ${(c0.es ?? 0) + 1} ~ Day ${cLast.ef ?? 1})`;
+                    styleRect(ws05, 1, curR05, 24, curR05, { font: fTblHdr, fill: fillNavyMid, alignment: alLeft });
+                    ws05.getRow(curR05).height = 24;
+                    curR05++;
+
+                    // 上方並聯支線泳道
+                    if (hasUp) {
+                        const rUp = curR05;
+                        ws05.getRow(rUp).height = 17;
+                        ws05.getRow(rUp + 1).height = 34;
+                        ws05.getRow(rUp + 2).height = 17;
+                        ws05.mergeCells(rUp, 1, rUp + 2, 1);
+                        const lblU = ws05.getCell(rUp, 1);
+                        lblU.value = '【並聯支線 A】\n上方同步作業\n(藍框 TF>0)';
+                        lblU.font = fDataBlue;
+                        lblU.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEFF6FF' } };
+                        lblU.alignment = alCenter;
+
+                        stg.upper.forEach((ut, idxU) => {
+                            drawNativeAonBox(rUp, 2 + idxU * 4, ut);
+                        });
+                        curR05 += 3;
+
+                        // 上方正交連接通道列
+                        const rUConn = curR05;
+                        ws05.getRow(rUConn).height = 28;
+                        const cLbl = ws05.getCell(rUConn, 1);
+                        cLbl.value = '▲ 正交邏輯通道';
+                        cLbl.font = fDataBlue;
+                        cLbl.alignment = alCenter;
+
+                        stg.upper.forEach((ut, idxU) => {
+                            const cLeft = 2 + idxU * 4;
+                            ws05.mergeCells(rUConn, cLeft, rUConn, cLeft + 2);
+                            const pTxt = (ut.predecessors || []).map(p => `${taskMap[p.taskId]?.wbsCode || ''}(${p.type || 'FS'}${parseInt(p.lag) ? '+' + p.lag + 'd' : ''})`).join(', ') || '起點';
+                            const sTxt = (succStrMap[ut.id] || []).slice(0, 2).join(', ') || '竣工';
+                            const cc = ws05.getCell(rUConn, cLeft);
+                            cc.value = `▲ 前置:${pTxt} ──► 後接:${sTxt} ▼`;
+                            cc.font = { name: FONT_FAMILY, size: 8, bold: true, color: { argb: 'FF1D4ED8' } };
+                            cc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F9FF' } };
+                            cc.alignment = alCenter;
+                        });
+                        curR05++;
+                    }
+
+                    // 中央紅色要徑主幹泳道
+                    const rSp = curR05;
+                    ws05.getRow(rSp).height = 18;
+                    ws05.getRow(rSp + 1).height = 36;
+                    ws05.getRow(rSp + 2).height = 18;
+                    ws05.mergeCells(rSp, 1, rSp + 2, 1);
+                    const lblC = ws05.getCell(rSp, 1);
+                    lblC.value = '★【要徑主幹】\n核心連續工序\n(紅框 TF=0)';
+                    lblC.font = fDataRed;
+                    lblC.fill = fillSoftRed;
+                    lblC.alignment = alCenter;
+
+                    stg.crit.forEach((ct, slotI) => {
+                        const cLeft = 2 + slotI * 4;
+                        drawNativeAonBox(rSp, cLeft, ct);
+                        if (slotI < stg.crit.length - 1) {
+                            const ac = ws05.getCell(rSp + 1, cLeft + 3);
+                            ac.value = '───►\n(FS)';
+                            ac.font = { name: FONT_FAMILY, size: 9, bold: true, color: { argb: 'FFDC2626' } };
+                            ac.alignment = alCenter;
+                        }
+                    });
+                    curR05 += 3;
+
+                    // 下方正交連接通道列 ＋ 下方並聯支線泳道
+                    if (hasLow) {
+                        const rLConn = curR05;
+                        ws05.getRow(rLConn).height = 28;
+                        const cLbl = ws05.getCell(rLConn, 1);
+                        cLbl.value = '▼ 正交邏輯通道';
+                        cLbl.font = fDataBlue;
+                        cLbl.alignment = alCenter;
+
+                        stg.lower.forEach((lt, idxL) => {
+                            const cLeft = 2 + idxL * 4;
+                            ws05.mergeCells(rLConn, cLeft, rLConn, cLeft + 2);
+                            const pTxt = (lt.predecessors || []).map(p => `${taskMap[p.taskId]?.wbsCode || ''}(${p.type || 'FS'}${parseInt(p.lag) ? '+' + p.lag + 'd' : ''})`).join(', ') || '起點';
+                            const sTxt = (succStrMap[lt.id] || []).slice(0, 2).join(', ') || '竣工';
+                            const cc = ws05.getCell(rLConn, cLeft);
+                            cc.value = `▼ 前置:${pTxt} ──► 後接:${sTxt} ▲`;
+                            cc.font = { name: FONT_FAMILY, size: 8, bold: true, color: { argb: 'FF1D4ED8' } };
+                            cc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F9FF' } };
+                            cc.alignment = alCenter;
+                        });
+                        curR05++;
+
+                        const rLow = curR05;
+                        ws05.getRow(rLow).height = 17;
+                        ws05.getRow(rLow + 1).height = 34;
+                        ws05.getRow(rLow + 2).height = 17;
+                        ws05.mergeCells(rLow, 1, rLow + 2, 1);
+                        const lblL = ws05.getCell(rLow, 1);
+                        lblL.value = '【並聯支線 B】\n下方同步作業\n(藍框 TF>0)';
+                        lblL.font = fDataBlue;
+                        lblL.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEFF6FF' } };
+                        lblL.alignment = alCenter;
+
+                        stg.lower.forEach((lt, idxL) => {
+                            drawNativeAonBox(rLow, 2 + idxL * 4, lt);
+                        });
+                        curR05 += 3;
+                    }
+
+                    // 跨階段要徑銜接導引列
+                    if (sIdx < pdmStages.length - 1) {
+                        const rTrans = curR05;
+                        ws05.getRow(rTrans).height = 22;
+                        ws05.mergeCells(rTrans, 1, rTrans, 24);
+                        const cNext = pdmStages[sIdx + 1].crit[0];
+                        const trCell = ws05.getCell(rTrans, 1);
+                        trCell.value = `┏━━━ ▼ 要徑主幹跨階段無縫推進：由 [${cLast.wbsCode}] (D${cLast.ef} 完成) ═══► 緊接下一階段要徑 [${cNext.wbsCode}] (D${(cNext.es ?? 0) + 1} 開始，FS 零空窗) ▼ ━━━┓`;
+                        trCell.font = fDataRed;
+                        trCell.fill = fillSoftRed;
+                        trCell.alignment = alCenter;
+                        curR05++;
+                    }
+                });
+
 
                 // 產出二進位 Buffer 並觸發瀏覽器下載
                 const buffer = await wb.xlsx.writeBuffer();
