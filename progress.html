@@ -1930,15 +1930,15 @@
 
         function saveToLocalStorage() {
             try {
-                localStorage.setItem('novera_engineering_projects', JSON.stringify(projects));
+                localStorage.setItem('novera_engineering_projects_v2', JSON.stringify(projects));
             } catch (e) { }
         }
 
         function loadFromLocalStorage() {
             try {
-                const data = localStorage.getItem('novera_engineering_projects');
+                const data = localStorage.getItem('novera_engineering_projects_v2');
                 if (data) {
-                    const parsed = JSON.parse(data).filter(p => p && !String(p.id || '').startsWith('renyi') && !String(p.id || '').startsWith('gangshan'));
+                    const parsed = JSON.parse(data).filter(p => p && p.id);
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         projects = parsed;
                         // 資料相容性檢查與 CPM 初始計算
@@ -1965,11 +1965,11 @@
             projects = [
                 {
                     id: 'demo-sample-01',
-                    name: '台南市安南區雨水下水道第 2 期推進工程',
+                    name: '公共工程標準排程範例專案（預設展示）',
                     contractSum: 48500000,
-                    client: '臺南市政府水利局',
-                    designer: '台灣世曦工程顧問',
-                    supervisor: '中興工程顧問股份有限公司',
+                    client: '工程主辦機關（範例）',
+                    designer: '專案設計單位（範例）',
+                    supervisor: '專案監造單位（範例）',
                     constructionUnit: 'NOVERA 統包營造團隊',
                     startDate: '2026-03-01',
                     contractDuration: 240,
@@ -4463,40 +4463,57 @@
                         cell.alignment = (c === 2) ? alLeft : ((c === 3 || c === 4) ? alRight : alCenter);
                     }
 
-                    // 主工項甘特圖統括連續橫條 (Continuous Summary Bar)
+                    // 主工項甘特圖分段連續統括橫條 (Split Continuous Summary Bars — 僅於子工項實際施作日合併繪製，空窗期留白)
+                    const activeSegments = [];
+                    let curSegStart = -1;
                     for (let dIdx = 0; dIdx < nDays; dIdx++) {
                         const col = 13 + dIdx;
+                        const dStr = dailyRows[dIdx].dateStr;
                         const cCell = mRow.getCell(col);
                         cCell.border = borderData;
                         cCell.alignment = alCenter;
                         cCell.fill = fillSlateSub;
-                    }
-                    const mStartIdx = dailyRows.findIndex(r => r.dateStr >= grpMinEs && r.dateStr <= grpMaxEf);
-                    let mEndIdx = -1;
-                    for (let i = dailyRows.length - 1; i >= 0; i--) {
-                        if (dailyRows[i].dateStr >= grpMinEs && dailyRows[i].dateStr <= grpMaxEf) { mEndIdx = i; break; }
-                    }
-                    if (mStartIdx !== -1 && mEndIdx >= mStartIdx) {
-                        const mStartCol = 13 + mStartIdx;
-                        const mEndCol = 13 + mEndIdx;
-                        const mSpan = mEndCol - mStartCol + 1;
-                        if (mEndCol > mStartCol) {
-                            ws01.mergeCells(mainRowNum, mStartCol, mainRowNum, mEndCol);
+                        const anyChildActive = grp.tasks.some(t => (t.plannedStartDate || '') <= dStr && dStr <= (t.plannedEndDate || ''));
+                        if (anyChildActive) {
+                            if (curSegStart === -1) curSegStart = dIdx;
+                        } else {
+                            if (curSegStart !== -1) {
+                                activeSegments.push([curSegStart, dIdx - 1]);
+                                curSegStart = -1;
+                            }
                         }
-                        const mBarBorder = {
-                            top: { style: 'medium', color: { argb: 'FFF59E0B' } },
-                            bottom: { style: 'medium', color: { argb: 'FFF59E0B' } },
-                            left: { style: 'medium', color: { argb: 'FFF59E0B' } },
-                            right: { style: 'medium', color: { argb: 'FFF59E0B' } }
-                        };
-                        styleRect(ws01, mStartCol, mainRowNum, mEndCol, mainRowNum, {
+                    }
+                    if (curSegStart !== -1) {
+                        activeSegments.push([curSegStart, nDays - 1]);
+                    }
+                    const grpActiveDays = activeSegments.reduce((acc, seg) => acc + (seg[1] - seg[0] + 1), 0) || grpSpanDays;
+                    mRow.getCell(5).value = grpActiveDays;
+
+                    const mBarBorder = {
+                        top: { style: 'medium', color: { argb: 'FFF59E0B' } },
+                        bottom: { style: 'medium', color: { argb: 'FFF59E0B' } },
+                        left: { style: 'medium', color: { argb: 'FFF59E0B' } },
+                        right: { style: 'medium', color: { argb: 'FFF59E0B' } }
+                    };
+                    activeSegments.forEach((seg, segIdx) => {
+                        const segStartCol = 13 + seg[0];
+                        const segEndCol = 13 + seg[1];
+                        const segSpan = segEndCol - segStartCol + 1;
+                        if (segEndCol > segStartCol) {
+                            ws01.mergeCells(mainRowNum, segStartCol, mainRowNum, segEndCol);
+                        }
+                        styleRect(ws01, segStartCol, mainRowNum, segEndCol, mainRowNum, {
                             fill: fillMainActive,
                             border: mBarBorder,
                             font: { name: FONT_FAMILY, size: 8, bold: true, color: { argb: 'FFFCD34D' } },
                             alignment: { horizontal: 'center', vertical: 'middle', wrapText: false }
                         });
-                        mRow.getCell(mStartCol).value = mSpan >= 6 ? `【主階段 ${grp.catCode}】共 ${grpSpanDays} 天` : (mSpan >= 2 ? `${grpSpanDays}d` : '');
-                    }
+                        if (activeSegments.length === 1) {
+                            mRow.getCell(segStartCol).value = segSpan >= 6 ? `【主階段 ${grp.catCode}】實作 ${segSpan} 天` : (segSpan >= 2 ? `${segSpan}d` : '');
+                        } else {
+                            mRow.getCell(segStartCol).value = segSpan >= 5 ? `[${grp.catCode}-第${segIdx + 1}進] ${segSpan}d` : (segSpan >= 2 ? `${segSpan}d` : '');
+                        }
+                    });
 
                     // 寫入該主工項底下的子工項 (Level 2 Child Rows)
                     grp.tasks.forEach((task, sIdx) => {
