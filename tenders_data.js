@@ -1,6 +1,6 @@
 // NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新
 window.TENDERS_DATA = {
-  "updated_at": "2026-11-13 20:26",
+  "updated_at": "2026-11-14 11:26",
   "total": 785,
   "tenders": [
     {
@@ -5555,6 +5555,19 @@ window.TENDERS_DATA = {
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzNTk5OTI="
     },
     {
+      "id": "115-122-37",
+      "name": "林業及自然保育署宜蘭分署辦公室及園區房舍修繕復建工程-開口合約",
+      "org": "農業部林業及自然保育署宜蘭分署",
+      "county": "宜蘭縣",
+      "category": "work",
+      "budget": 9809797,
+      "deadline": "115/11/24",
+      "publish_date": "115/11/17",
+      "transmissions": "第 01 次",
+      "tender_way": "公開招標",
+      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzODMxODI="
+    },
+    {
       "id": "115-104",
       "name": "新北市立海山高級中學活動中心停車場及車道含排水溝改善工程",
       "org": "新北市立海山高級中學",
@@ -6515,19 +6528,6 @@ window.TENDERS_DATA = {
       "transmissions": "第 01 次",
       "tender_way": "公開招標",
       "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzODQ2NDQ="
-    },
-    {
-      "id": "116GR00100644000180",
-      "name": "岳崙營區大樑翻修作業線地坪整修工程",
-      "org": "國防部陸軍司令部",
-      "county": "中央/陸軍",
-      "category": "work",
-      "budget": 5291000,
-      "deadline": "115/11/24",
-      "publish_date": "115/11/13",
-      "transmissions": "第 01 次",
-      "tender_way": "公開招標",
-      "link": "https://web.pcc.gov.tw/prkms/urlSelector/common/tpam?pk=NzEzODQ2NDI="
     },
     {
       "id": "C0215-115004-2",
